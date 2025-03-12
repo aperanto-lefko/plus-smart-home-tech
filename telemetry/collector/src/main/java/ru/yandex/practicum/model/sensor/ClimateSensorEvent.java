@@ -11,8 +11,8 @@ import ru.yandex.practicum.enums.SensorEventType;
 @Setter
 @ToString(callSuper = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ClimateSensorEvent extends SensorEvent {
-    Integer temperatureC; //Уровень температуры по шкале Цельсия
+public class ClimateSensorEvent extends SensorEvent { //Событие климатического датчика, содержащее информацию о температуре, влажности и уровне CO2
+    private Integer temperatureC; //Уровень температуры по шкале Цельсия
     Integer humidity; //Влажность
     Integer co2Level; //Уровень CO2
 
