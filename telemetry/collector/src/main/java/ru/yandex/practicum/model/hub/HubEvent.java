@@ -1,10 +1,9 @@
-package ru.yandex.practicum.model.hub.scenario;
+package ru.yandex.practicum.model.hub;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +12,8 @@ import lombok.experimental.FieldDefaults;
 import ru.yandex.practicum.enums.HubEventType;
 import ru.yandex.practicum.model.hub.device.DeviceAddedEvent;
 import ru.yandex.practicum.model.hub.device.DeviceRemovedEvent;
+import ru.yandex.practicum.model.hub.scenario.ScenarioAddedEvent;
+import ru.yandex.practicum.model.hub.scenario.ScenarioRemovedEvent;
 
 import java.time.Instant;
 
@@ -22,19 +23,19 @@ import java.time.Instant;
         property = "type"
 )
 @JsonSubTypes({
+        @JsonSubTypes.Type(value = DeviceAddedEvent.class, name = "DEVICE_ADDED"),
+        @JsonSubTypes.Type(value = DeviceRemovedEvent.class, name = "DEVICE_REMOVED"),
         @JsonSubTypes.Type(value = ScenarioAddedEvent.class, name = "SCENARIO_ADDED"),
-        @JsonSubTypes.Type(value = ScenarioRemovedEvent.class, name = "SCENARIO_REMOVED"),
+        @JsonSubTypes.Type(value = ScenarioRemovedEvent.class, name = "SCENARIO_REMOVED")
 })
 @ToString
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public abstract class HubScenarioEvent {
+public abstract class HubEvent {
     @NotBlank
     String hubId;
     Instant timestamp = Instant.now();
-    @Size(min = 3, max = 2147483647)
-    String name;
     @NotNull
     public abstract HubEventType getType();
 }

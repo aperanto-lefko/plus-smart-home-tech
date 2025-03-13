@@ -1,4 +1,82 @@
 @namespace("ru.yandex.practicum.kafka.telemetry.event")
 protocol HubEventProtocol {
 
+	enum DeviceType {
+		MOTION_SENSOR,
+		TEMPERATURE_SENSOR,
+		LIGHT_SENSOR,
+		CLIMATE_SENSOR,
+		SWITCH_SENSOR
+	}
+
+	enum ConditionOperationType {
+		EQUALS,
+		GREATER_THAN,
+		LOWER_THAN
+	}
+
+	enum ConditionType {
+		MOTION,
+		LUMINOSITY,
+		SWITCH,
+		TEMPERATURE,
+		CO2LEVEL,
+		HUMIDITY
+	}
+
+	enum DeviceActionType {
+		ACTIVATE,
+		DEACTIVATE,
+		INVERSE,
+		SET_VALUE
+	}
+
+	enum HubEventType {
+		DEVICE_ADDED,
+		DEVICE_REMOVED,
+		SCENARIO_ADDED,
+		SCENARIO_REMOVED
+	}
+
+	record DeviceAction {
+		string sensorId;
+		DeviceActionType type;
+		int? value;
+	}
+
+	record ScenarioCondition {
+		string sensorId;
+		ConditionType type;
+		ConditionOperationType operation;
+		int value;
+	}
+
+	record DeviceAddedEvent {
+		string id;
+		DeviceType deviceType;
+	}
+
+	record DeviceRemovedEvent {
+		string id;
+	}
+
+	record ScenarioAddedEvent {
+		string name;
+		array<ScenarioCondition> conditions;
+		array<DeviceAction> actions;
+	}
+
+	record ScenarioRemovedEvent {
+		string name;
+	}
+
+	record HubEvent {
+		string hub_id;
+		timestamp_ms timestamp;
+		union{DeviceAddedEvent,
+			DeviceRemovedEvent,
+			ScenarioAddedEvent,
+			ScenarioRemovedEvent
+		} event;
+	}
 }
