@@ -5,18 +5,15 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
-import ru.yandex.practicum.enums.DeviceType;
 import ru.yandex.practicum.enums.HubEventType;
 
 @Getter
 @Setter
 @ToString(callSuper = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class DeviceAddedEvent extends HubDeviceEvent{
-    DeviceType deviceType;
-
+public class DeviceRemovedEvent extends HubDeviceEvent {
     @Override
-    public HubEventType getType(){
-        return HubEventType.DEVICE_ADDED;
+    public HubEventType getType() {
+        return HubEventType.DEVICE_REMOVED;
     }
 }
