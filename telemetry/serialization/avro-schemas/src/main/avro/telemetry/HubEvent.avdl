@@ -51,32 +51,32 @@ protocol HubEventProtocol {
 		int value;
 	}
 
-	record DeviceAddedEvent {
+	record DeviceAddedEventAvro {
 		string id;
 		DeviceType deviceType;
 	}
 
-	record DeviceRemovedEvent {
+	record DeviceRemovedEventAvro {
 		string id;
 	}
 
-	record ScenarioAddedEvent {
+	record ScenarioAddedEventAvro {
 		string name;
 		array<ScenarioCondition> conditions;
 		array<DeviceAction> actions;
 	}
 
-	record ScenarioRemovedEvent {
+	record ScenarioRemovedEventAvro {
 		string name;
 	}
 
-	record HubEvent {
+	record HubEventAvro {
 		string hub_id;
 		timestamp_ms timestamp;
-		union{DeviceAddedEvent,
-			DeviceRemovedEvent,
-			ScenarioAddedEvent,
-			ScenarioRemovedEvent
+		union{DeviceAddedEventAvro,
+			DeviceRemovedEventAvro,
+			ScenarioAddedEventAvro,
+			ScenarioRemovedEventAvro
 		} event;
 	}
 }

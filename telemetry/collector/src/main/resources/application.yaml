@@ -1,0 +1,6 @@
+topics:
+  sensor: "telemetry.sensors.v1"
+  hub: "telemetry.hubs.v1"
+server: "localhost:9092"
+key_serialize_class: "org.apache.kafka.common.serialization.StringSerializer"
+value_serialize_class: "ru.practicum.kafka.serialize.AvroSerializer"
