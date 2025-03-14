@@ -1,0 +1,16 @@
+
+# Kafka configuration
+kafka:
+  bootstrap-server: localhost:9092
+  topics:
+    sensor-events-topic: telemetry.sensor.v1
+    hub-events-topic: telemetry.hubs.v1
+  key_serialize_class: org.apache.kafka.common.serialization.StringSerializer
+  value_serialize_class: ru.yandex.practicum.kafka.serialize.AvroSerializer
+
+# Logging configuration
+logging:
+  level:
+    org:
+      zalando:
+        logbook: TRACE
