@@ -1,12 +1,12 @@
 
 # Kafka configuration
 kafka:
-  bootstrap-server: localhost:9092
+  bootstrap_server: localhost:9092
   topics:
-    sensor-events-topic: telemetry.sensor.v1
-    hub-events-topic: telemetry.hubs.v1
+    sensor_events_topic: telemetry.sensor.v1
+    hub_events_topic: telemetry.hubs.v1
   key_serialize_class: org.apache.kafka.common.serialization.StringSerializer
-  value_serialize_class: ru.yandex.practicum.kafka.serialize.AvroSerializer
+  value_serialize_class: ru.yandex.practicum.kafka.AvroSerializer
 
 # Logging configuration
 logging:
