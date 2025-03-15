@@ -26,7 +26,7 @@ protocol SensorEventProtocol {
 	}
 
 	record SwitchSensorEventAvro {
-		boolean stste;
+		boolean state;
 	}
 
 	record TemperatureSensorEventAvro {

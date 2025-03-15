@@ -47,3 +47,13 @@ services:
     init: true
     # Параметр `init: true` указывает, что этот контейнер должен завершиться после выполнения команды.
     # Это полезно для одноразовых задач, таких как инициализация топиков.
+    
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    container_name: kafdrop
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: kafka:29092
+    depends_on:
+      - kafka
