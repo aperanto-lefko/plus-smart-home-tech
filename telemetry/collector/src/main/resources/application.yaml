@@ -1,5 +1,6 @@
-
-# Kafka configuration
+server:
+  port: 8080
+# Kafka
 kafka:
   bootstrap_server: localhost:9092
   topics:
@@ -8,7 +9,7 @@ kafka:
   key_serialize_class: org.apache.kafka.common.serialization.StringSerializer
   value_serialize_class: ru.yandex.practicum.kafka.AvroSerializer
 
-# Logging configuration
+
 logging:
   level:
     org:

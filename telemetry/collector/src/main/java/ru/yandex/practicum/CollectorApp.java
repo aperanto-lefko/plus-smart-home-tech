@@ -6,7 +6,7 @@ import org.springframework.context.annotation.ComponentScan;
 
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"plus-smart-home-tech"})
+@ComponentScan(basePackages = {"telemetry"})
 public class CollectorApp {
     public static void main(String[] args) {
         SpringApplication.run(CollectorApp.class, args);
