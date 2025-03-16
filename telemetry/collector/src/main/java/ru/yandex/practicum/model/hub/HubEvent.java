@@ -14,7 +14,6 @@ import ru.yandex.practicum.model.hub.device.DeviceAddedEvent;
 import ru.yandex.practicum.model.hub.device.DeviceRemovedEvent;
 import ru.yandex.practicum.model.hub.scenario.ScenarioAddedEvent;
 import ru.yandex.practicum.model.hub.scenario.ScenarioRemovedEvent;
-
 import java.time.Instant;
 
 @JsonTypeInfo(
