@@ -4,7 +4,7 @@ server:
 kafka:
   bootstrap_server: localhost:9092
   topics:
-    sensor_events_topic: telemetry.sensor.v1
+    sensor_events_topic: telemetry.sensors.v1
     hub_events_topic: telemetry.hubs.v1
   key_serialize_class: org.apache.kafka.common.serialization.StringSerializer
   value_serialize_class: ru.yandex.practicum.kafka.AvroSerializer
