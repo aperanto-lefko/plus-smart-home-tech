@@ -8,7 +8,7 @@ public class ScenarioRemovedEvent extends HubEvent {
 
     @Override
     public HubEventType getType() {
-        @Size(min = 3, max = 2147483647)
+        @Size(min = 3, max = Integer.MAX_VALUE)
         String name;
 
         return HubEventType.SCENARIO_REMOVED;
