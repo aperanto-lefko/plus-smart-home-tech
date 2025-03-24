@@ -1,35 +1,101 @@
 package ru.yandex.practicum.controller;
 
+import com.google.protobuf.Empty;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import io.grpc.stub.StreamObserver;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import net.devh.boot.grpc.server.service.GrpcService;
+import org.apache.kafka.common.metrics.Stat;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.yandex.practicum.exception.NoHandlerException;
+import ru.yandex.practicum.grpc.telemetry.collector.CollectorControllerGrpc;
+import ru.yandex.practicum.grpc.telemetry.event.HubEventProto;
+import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
+import ru.yandex.practicum.handler.HubEventHandler;
+import ru.yandex.practicum.handler.SensorEventHandler;
 import ru.yandex.practicum.model.hub.HubEvent;
 import ru.yandex.practicum.model.sensor.SensorEvent;
 import ru.yandex.practicum.service.EventService;
 
-@RestController
-@RequiredArgsConstructor
-@RequestMapping("/events")
-@FieldDefaults(level = AccessLevel.PRIVATE)
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+@GrpcService
 @Slf4j
-public class EventController {
-    final EventService service;
+public class EventController extends CollectorControllerGrpc.CollectorControllerImplBase {
+    private final Map<HubEventProto.PayloadCase, HubEventHandler> hubEventHandlers;
+    private final Map<SensorEventProto.PayloadCase, SensorEventHandler> sensorEventHandlers;
 
-    @PostMapping("/hubs")
-    public void sendHubEvent(@Valid @RequestBody HubEvent ev) {
-        log.info("Получено событие датчика HubEvent {}", ev);
-        service.sendHubEvent(ev);
+    public EventController(Set<HubEventHandler> hubEventHandlers, Set<SensorEventHandler>sensorEventHandlers) {
+        this.hubEventHandlers = hubEventHandlers.stream()
+                .collect(Collectors.toMap(
+                        HubEventHandler::getMessageType, //ключ тип сообщения
+                        Function.identity() //значение сам обработчик
+                ));
+        this.sensorEventHandlers = sensorEventHandlers.stream()
+                .collect(Collectors.toMap(
+                        SensorEventHandler::getMessageType,
+                        Function.identity()
+                ));
     }
 
-    @PostMapping("/sensors")
-    public void sendSensorEvent(@Valid @RequestBody SensorEvent ev) {
-        log.info("Получено событие датчика SensorEvent {}", ev);
-        service.sendSensorEvent(ev);
+   @Override
+   public void collectSensorEvent(SensorEventProto request, StreamObserver<Empty> responseObserver) {
+       sendEvent(request.getPayloadCase(),
+               sensorEventHandlers,
+               handler -> handler.handle(request),
+               responseObserver,
+               "SensorEvent");
+   }
+    @Override
+    public void collectHubEvent(HubEventProto request, StreamObserver<Empty> responseObserver) {
+        sendEvent(request.getPayloadCase(),
+                hubEventHandlers,
+                handler -> handler.handle(request),
+                responseObserver,
+                "HubEvent");
     }
+   private <C extends Enum<C>, H> void sendEvent (
+           C eventType,
+           Map<C,H> handlers,
+           Consumer<H> handleAction,
+           StreamObserver<Empty> responseObserver,
+           String eventCategory
+   ) {
+       try {
+           Optional.ofNullable(handlers.get(eventType))
+                   .ifPresentOrElse(
+                           handler -> {
+                               log.trace("Обработка события обработчиком {}", handler.getClass().getSimpleName());
+                               handleAction.accept(handler);
+                               responseObserver.onNext(Empty.getDefaultInstance());
+                               responseObserver.onCompleted();
+                               log.debug("Успешная обработка события {}", eventType);
+                           },
+                           () -> {
+                               String errorMessage = String.format("Не найден обработчик для типа {}", eventType);
+                               log.warn(errorMessage);
+                               throw new NoHandlerException(errorMessage);
+                           }
+                   );
+       } catch (Exception e) {
+           log.error("Ошибка в процессе обработки сообщения {}", eventType, e);
+           Status status = e instanceof NoHandlerException
+                   ? Status.NOT_FOUND.withDescription(e.getMessage())
+                   : Status.INTERNAL;
+           responseObserver.onError(new StatusRuntimeException(status.withCause(e)));
+       }
+   }
 }
