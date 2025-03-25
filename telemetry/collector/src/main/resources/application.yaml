@@ -9,7 +9,6 @@ kafka:
   key_serialize_class: org.apache.kafka.common.serialization.StringSerializer
   value_serialize_class: ru.yandex.practicum.kafka.AvroSerializer
 
-
 logging:
   level:
     org:
