@@ -1,28 +1,23 @@
 package ru.yandex.practicum.handler;
 
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.KafkaException;
-import org.apache.logging.log4j.message.Message;
 import ru.yandex.practicum.exception.SendMessageException;
 import ru.yandex.practicum.exception.SerializationException;
+
+import java.util.function.Function;
 
 @Slf4j
 @RequiredArgsConstructor
 public abstract class BaseEventHandler<T> {
     protected final KafkaProducer<String, SpecificRecordBase> kafkaProducer;
-    protected abstract String getTopic();
-    protected abstract SpecificRecordBase mapToAvro(T event);
-
-    protected void sendToKafka(T event) {
-        String topic = getTopic();
+    protected void sendToKafka(T event, Function<T, SpecificRecordBase> mapper, String topic ) {
         try {
-            SpecificRecordBase avroEvent = mapToAvro(event);
+            SpecificRecordBase avroEvent = mapper.apply(event);
             kafkaProducer.send(new ProducerRecord<>(topic, avroEvent),
                     (metadata, e) -> {
                         if (e != null) {
