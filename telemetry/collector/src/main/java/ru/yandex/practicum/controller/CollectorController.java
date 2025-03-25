@@ -39,14 +39,15 @@ public class CollectorController extends CollectorControllerGrpc.CollectorContro
                 ));
     }
 
-   @Override
-   public void collectSensorEvent(SensorEventProto request, StreamObserver<Empty> responseObserver) {
-       sendEvent(request.getPayloadCase(),
-               sensorEventHandlers,
-               handler -> handler.handle(request),
-               responseObserver,
-               "SensorEvent");
-   }
+    @Override
+    public void collectSensorEvent(SensorEventProto request, StreamObserver<Empty> responseObserver) {
+        sendEvent(request.getPayloadCase(),
+                sensorEventHandlers,
+                handler -> handler.handle(request),
+                responseObserver,
+                "SensorEvent");
+    }
+
     @Override
     public void collectHubEvent(HubEventProto request, StreamObserver<Empty> responseObserver) {
         sendEvent(request.getPayloadCase(),
@@ -55,35 +56,42 @@ public class CollectorController extends CollectorControllerGrpc.CollectorContro
                 responseObserver,
                 "HubEvent");
     }
-   private <C extends Enum<C>, H> void sendEvent (
-           C eventType,
-           Map<C,H> handlers,
-           Consumer<H> handleAction,
-           StreamObserver<Empty> responseObserver,
-           String eventCategory
-   ) {
-       try {
-           Optional.ofNullable(handlers.get(eventType))
-                   .ifPresentOrElse(
-                           handler -> {
-                               log.trace("Обработка события обработчиком {}", handler.getClass().getSimpleName());
-                               handleAction.accept(handler);
-                               responseObserver.onNext(Empty.getDefaultInstance());
-                               responseObserver.onCompleted();
-                               log.debug("Успешная обработка события {}", eventType);
-                           },
-                           () -> {
-                               String errorMessage = String.format("Не найден обработчик для типа {}", eventType);
-                               log.warn(errorMessage);
-                               throw new NoHandlerException(errorMessage);
-                           }
-                   );
-       } catch (Exception e) {
-           log.error("Ошибка в процессе обработки сообщения {}", eventType, e);
-           Status status = e instanceof NoHandlerException
-                   ? Status.NOT_FOUND.withDescription(e.getMessage())
-                   : Status.INTERNAL;
-           responseObserver.onError(new StatusRuntimeException(status.withCause(e)));
-       }
-   }
+
+    private <C extends Enum<C>, H> void sendEvent(
+            C eventType,
+            Map<C, H> handlers,
+            Consumer<H> handleAction,
+            StreamObserver<Empty> responseObserver,
+            String eventCategory
+    ) {
+        try {
+            Optional.ofNullable(handlers.get(eventType))
+                    .ifPresentOrElse(
+                            handler -> {
+                                log.trace("Обработка события обработчиком {}", handler.getClass().getSimpleName());
+                                handleAction.accept(handler);
+                                responseObserver.onNext(Empty.getDefaultInstance());
+                                responseObserver.onCompleted();
+                                log.debug("Успешная обработка события {}", eventType);
+                            },
+                            () -> {
+                                String errorMessage = String.format("Не найден обработчик для типа {}", eventType);
+                                log.warn(errorMessage);
+                                throw new NoHandlerException(errorMessage);
+                            }
+                    );
+        } catch (Exception e) {
+            log.error("Ошибка в процессе обработки сообщения {}", eventType, e);
+
+            Status status;
+            if (e instanceof NoHandlerException) {
+                status = Status.NOT_FOUND.withDescription(e.getMessage());
+            } else {
+                String errorDetails = String.format("Ошибка обработки события %s: %s",
+                        eventType, e.getMessage());
+                status = Status.INTERNAL.withDescription(errorDetails);
+            }
+            responseObserver.onError(new StatusRuntimeException(status));
+        }
+    }
 }

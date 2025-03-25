@@ -1,8 +1,10 @@
 package ru.yandex.practicum.mapper;
 
 import com.google.protobuf.Timestamp;
+import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 import org.mapstruct.SubclassMapping;
 import ru.yandex.practicum.grpc.telemetry.event.ActionTypeProto;
@@ -34,6 +36,9 @@ import ru.yandex.practicum.model.hub.scenario.ScenarioAddedEvent;
 import ru.yandex.practicum.model.hub.scenario.ScenarioRemovedEvent;
 
 import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface HubEventMapper {
@@ -53,32 +58,43 @@ HubEventAvro mapToAvro(HubEventProto proto);
         };
     }
 
-    // Маппинг для DeviceAdded
     @Mapping(target = "id", source = "id")
     @Mapping(target = "deviceType", source = "type")
     DeviceAddedEventAvro map(DeviceAddedEventProto proto);
 
-    // Маппинг для DeviceRemoved
+
     @Mapping(target = "id", source = "id")
     DeviceRemovedEventAvro map(DeviceRemovedEventProto proto);
 
-    // Маппинг для ScenarioAdded
     @Mapping(target = "name", source = "name")
     @Mapping(target = "conditions", source = "conditionList")
     @Mapping(target = "actions", source = "actionList")
     ScenarioAddedEventAvro map(ScenarioAddedEventProto proto);
 
-    // Маппинг для ScenarioRemoved
     @Mapping(target = "name", source = "name")
     ScenarioRemovedEventAvro map(ScenarioRemovedEventProto proto);
 
-    // Маппинг вложенных объектов Scenario
+
     @Mapping(target = "sensorId", source = "sensorId")
     @Mapping(target = "type", source = "type")
     @Mapping(target = "operation", source = "operation")
-    @Mapping(target = "value", source = ".", qualifiedByName = "mapConditionValue")
+    //@Mapping(target = "value", source = ".", qualifiedByName = "mapConditionValue")
+    @Mapping(target = "value", ignore = true)
     ScenarioConditionAvro map(ScenarioConditionProto proto);
 
+    @AfterMapping
+    default void mapValue(ScenarioConditionProto proto, @MappingTarget ScenarioConditionAvro avro) {
+        System.out.println("Mapping value: hasInt=" + proto.hasIntValue() + ", hasBool=" + proto.hasBoolValue()); // Лог
+        if (proto.hasIntValue()) {
+            avro.setValue(proto.getIntValue()); // int → union
+        } else if (proto.hasBoolValue()) {
+            avro.setValue(proto.getBoolValue()); // boolean → union
+        } else {
+            avro.setValue(null); // null → union
+        }
+    }
+
+/*
     @Named("mapConditionValue")
     default Object mapConditionValue(ScenarioConditionProto proto) {
         return switch (proto.getValueCase()) {
@@ -87,12 +103,22 @@ HubEventAvro mapToAvro(HubEventProto proto);
             case VALUE_NOT_SET -> null;
         };
     }
-
+*/
     @Mapping(target = "sensorId", source = "sensorId")
     @Mapping(target = "type", source = "type")
-    @Mapping(target = "value", source = "value")
+    //@Mapping(target = "value", source = "value")
+    @Mapping(target = "value", ignore = true)
     DeviceActionAvro map(DeviceActionProto proto);
 
+    @AfterMapping
+    default void mapDeviceActionValue(DeviceActionProto proto, @MappingTarget DeviceActionAvro avro) {
+        if (proto.hasValue()) {  // Проверяем, установлено ли optional-поле
+            avro.setValue(proto.getValue());  // Устанавливаем int
+        } else {
+            avro.setValue(null);  // Явно задаём null
+        }
+        System.out.println("Mapped value: " + avro.getValue());
+    }
 
     default DeviceTypeAvro map(DeviceTypeProto proto) {
         return DeviceTypeAvro.valueOf(proto.name());
