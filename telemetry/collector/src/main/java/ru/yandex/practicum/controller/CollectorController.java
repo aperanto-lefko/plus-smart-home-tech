@@ -26,7 +26,7 @@ public class CollectorController extends CollectorControllerGrpc.CollectorContro
     private final Map<HubEventProto.PayloadCase, HubEventHandler> hubEventHandlers;
     private final Map<SensorEventProto.PayloadCase, SensorEventHandler> sensorEventHandlers;
 
-    public CollectorController(Set<HubEventHandler> hubEventHandlers, Set<SensorEventHandler>sensorEventHandlers) {
+    public CollectorController(Set<HubEventHandler> hubEventHandlers, Set<SensorEventHandler> sensorEventHandlers) {
         this.hubEventHandlers = hubEventHandlers.stream()
                 .collect(Collectors.toMap(
                         HubEventHandler::getMessageType, //ключ тип сообщения
