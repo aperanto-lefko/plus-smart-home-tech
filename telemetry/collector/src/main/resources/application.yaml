@@ -1,5 +1,6 @@
-server:
-  port: 8080
+grpc:
+  server:
+    port: 59091
 # Kafka
 kafka:
   bootstrap_server: localhost:9092
@@ -12,8 +13,9 @@ kafka:
 
 logging:
   level:
+    io.grpc: DEBUG
     org:
       zalando:
         logbook: DEBUG
       springframework:
-        web: DEBUG
+                web: DEBUG
