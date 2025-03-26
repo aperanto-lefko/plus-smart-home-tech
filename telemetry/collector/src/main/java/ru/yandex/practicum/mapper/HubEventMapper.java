@@ -65,7 +65,6 @@ public interface HubEventMapper {
     @Mapping(target = "name", source = "name")
     ScenarioRemovedEventAvro map(ScenarioRemovedEventProto proto);
 
-
     @Mapping(target = "sensorId", source = "sensorId")
     @Mapping(target = "type", source = "type")
     @Mapping(target = "operation", source = "operation")
