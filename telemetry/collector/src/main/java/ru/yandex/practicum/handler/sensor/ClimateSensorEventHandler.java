@@ -15,6 +15,7 @@ public class ClimateSensorEventHandler extends BaseSensorEventHandler {
                                      SensorEventMapper sensorEventMapper) {
         super(kafkaProducer, sensorEventMapper);
     }
+
     @Override
     public SensorEventProto.PayloadCase getMessageType() {
         return SensorEventProto.PayloadCase.CLIMATE_SENSOR_EVENT;

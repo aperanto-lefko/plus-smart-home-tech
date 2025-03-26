@@ -22,11 +22,11 @@ import java.time.Instant;
 
 @Mapper(componentModel = "spring")
 public interface SensorEventMapper {
-     @Mapping(target = "id", source = "id")
-   @Mapping(target = "hubId", source = "hubId")
-   @Mapping(target = "timestamp", source = "timestamp")
-   @Mapping(target = "event", source = ".", qualifiedByName = "mapPayload")
-   SensorEventAvro mapToAvro(SensorEventProto proto);
+    @Mapping(target = "id", source = "id")
+    @Mapping(target = "hubId", source = "hubId")
+    @Mapping(target = "timestamp", source = "timestamp")
+    @Mapping(target = "event", source = ".", qualifiedByName = "mapPayload")
+    SensorEventAvro mapToAvro(SensorEventProto proto);
 
     @Named("mapPayload")
     default Object mapPayload(SensorEventProto proto) {
@@ -67,4 +67,4 @@ public interface SensorEventMapper {
         }
         return Instant.ofEpochSecond(timestamp.getSeconds(), timestamp.getNanos());
     }
-    }
+}

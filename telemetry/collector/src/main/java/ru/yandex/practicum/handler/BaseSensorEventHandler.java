@@ -3,7 +3,6 @@ package ru.yandex.practicum.handler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.kafka.clients.producer.KafkaProducer;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
 import ru.yandex.practicum.mapper.SensorEventMapper;
@@ -20,6 +19,7 @@ public abstract class BaseSensorEventHandler extends BaseEventHandler<SensorEven
         super(kafkaProducer);
         this.sensorEventMapper = sensorEventMapper;
     }
+
     @Override
     public void handle(SensorEventProto event) {
         sendToKafka(event, sensorEventMapper::mapToAvro, sensorEventsTopic);

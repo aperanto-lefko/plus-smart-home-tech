@@ -15,7 +15,8 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public abstract class BaseEventHandler<T> {
     protected final KafkaProducer<String, SpecificRecordBase> kafkaProducer;
-    protected void sendToKafka(T event, Function<T, SpecificRecordBase> mapper, String topic ) {
+
+    protected void sendToKafka(T event, Function<T, SpecificRecordBase> mapper, String topic) {
         try {
             SpecificRecordBase avroEvent = mapper.apply(event);
             kafkaProducer.send(new ProducerRecord<>(topic, avroEvent),
@@ -23,7 +24,7 @@ public abstract class BaseEventHandler<T> {
                         if (e != null) {
                             log.error("[{}] Ошибка отправки: {}", topic, e.getMessage());
                         } else {
-                            log.info("Отправлено в {} - {}",  topic, metadata.partition());
+                            log.info("Отправлено в {} - {}", topic, metadata.partition());
                         }
                     });
         } catch (SerializationException | KafkaException ex) {
