@@ -17,7 +17,7 @@ import java.time.Instant;
         use = JsonTypeInfo.Id.NAME, //Указывает, что тип объекта будет определяться по его имени (значению поля type в JSON).
         include = JsonTypeInfo.As.EXISTING_PROPERTY, //Указывает, что информация о типе уже существует в JSON как свойство (поле). В данном случае это поле type.
         property = "type"
-        )
+)
 @JsonSubTypes({
         @JsonSubTypes.Type(value = ClimateSensorEvent.class, name = "CLIMATE_SENSOR_EVENT"),
         @JsonSubTypes.Type(value = LightSensorEvent.class, name = "LIGHT_SENSOR_EVENT"),
@@ -35,6 +35,7 @@ public abstract class SensorEvent {
     @NotBlank
     String hubId;
     Instant timestamp = Instant.now();
+
     @NotNull
     public abstract SensorEventType getType();
 }

@@ -38,6 +38,7 @@ protocol HubEventProtocol {
 		SCENARIO_REMOVED
 	}
 
+
 	record DeviceActionAvro {
 		string sensorId;
 		DeviceActionTypeAvro type;

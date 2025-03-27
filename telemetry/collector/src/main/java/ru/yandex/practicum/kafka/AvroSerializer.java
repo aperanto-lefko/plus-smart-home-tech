@@ -2,7 +2,6 @@ package ru.yandex.practicum.kafka;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
-import org.apache.avro.io.BinaryDecoder;
 import org.apache.avro.io.BinaryEncoder;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.EncoderFactory;
