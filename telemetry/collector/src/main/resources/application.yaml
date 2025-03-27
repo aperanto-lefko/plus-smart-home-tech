@@ -3,12 +3,21 @@ grpc:
     port: 59091
 # Kafka
 kafka:
-  bootstrap_server: localhost:9092
   topics:
     sensor_events_topic: telemetry.sensors.v1
     hub_events_topic: telemetry.hubs.v1
-  key_serialize_class: org.apache.kafka.common.serialization.StringSerializer
-  value_serialize_class: ru.yandex.practicum.kafka.AvroSerializer
+  producer:
+    bootstrap_server: localhost:9092
+    key_serialize_class: org.apache.kafka.common.serialization.StringSerializer
+    value_serialize_class: ru.yandex.practicum.kafka.serializer.AvroSerializer
+  consumer:
+    group_id:
+    auto_offset_reset_config: earliest
+    enable_auto_commit_config: false
+
+  key_deserialize_class: org.apache.kafka.common.serialization.VoidDeserializer
+  value_sensor_event_deserialize_class:
+
 
 logging:
   level:

@@ -16,12 +16,12 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Properties;
 
 @Configuration
-@ConfigurationProperties(prefix = "kafka")
+@ConfigurationProperties(prefix = "kafka.producer")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Getter
 @Setter
 @Slf4j
-public class KafkaConfig {
+public class KafkaProducerConfig {
 
     String bootstrapServer;
     String keySerializeClass;
