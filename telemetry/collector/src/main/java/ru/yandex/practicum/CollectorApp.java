@@ -5,10 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 
 
-@SpringBootApplication (scanBasePackages = {
-        "ru.yandex.practicum.collector",
-        "ru.yandex.practicum.kafka-commons"
-    })
+@SpringBootApplication (scanBasePackages = "ru.yandex.practicum")
 
 public class CollectorApp {
     public static void main(String[] args) {
