@@ -6,9 +6,10 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.springframework.beans.factory.annotation.Value;
 import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
 import ru.yandex.practicum.mapper.SensorEventMapper;
+import ru.yandex.practicum.producer.KafkaEventSender;
 
 @Slf4j
-public abstract class BaseSensorEventHandler extends BaseEventHandler<SensorEventProto>
+public abstract class BaseSensorEventHandler extends KafkaEventSender<SensorEventProto>
         implements SensorEventHandler {
     @Value("${kafka.topics.sensor_events_topic}")
     protected String sensorEventsTopic;

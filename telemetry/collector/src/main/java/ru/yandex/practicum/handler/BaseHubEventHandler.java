@@ -6,9 +6,11 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.springframework.beans.factory.annotation.Value;
 import ru.yandex.practicum.grpc.telemetry.event.HubEventProto;
 import ru.yandex.practicum.mapper.HubEventMapper;
+import ru.yandex.practicum.producer.KafkaEventSender;
+
 
 @Slf4j
-public abstract class BaseHubEventHandler extends BaseEventHandler<HubEventProto>
+public abstract class BaseHubEventHandler extends KafkaEventSender<HubEventProto>
         implements HubEventHandler {
     @Value("${kafka.topics.hub_events_topic}")
     protected String hubEventsTopic;
