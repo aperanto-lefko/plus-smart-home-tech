@@ -12,10 +12,11 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 
 import java.util.Properties;
-
+@Configuration
 @ConfigurationProperties(prefix = "kafka.producer")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Getter
@@ -29,7 +30,7 @@ public class KafkaProducerConfig {
     KafkaProducer<String, SpecificRecordBase> pr;
     @PostConstruct
     public void logConfig() {
-        log.info("Config loaded: bootstrap={}, keySerializer={}, valueSerializer={}",
+        log.info("Загруженная конфигурация: bootstrap={}, keySerializer={}, valueSerializer={}",
                 bootstrapServer, keySerializeClass, valueSerializeClass);
     }
    @Bean

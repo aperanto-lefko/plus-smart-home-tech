@@ -11,23 +11,7 @@ kafka:
     bootstrap_server: localhost:9092
     key_serialize_class: org.apache.kafka.common.serialization.StringSerializer
     value_serialize_class: ru.yandex.practicum.serializer.AvroSerializer
-  consumer:
-    group_id:
-    auto_offset_reset_config: earliest
-    enable_auto_commit_config: false
-    key_deserialize_class: org.apache.kafka.common.serialization.VoidDeserializer
-    value_deserialize_class: ru.yandex.practicum.kafka.deserializer.BaseAvroDeserializer
-    value_type_sensor_event_deserializer:
-    auto_offset_reset: earliest
-    enable-auto-commit: false
-    session-timeout: 45s
-    heartbeat-interval: 5s
-    max-poll-interval: 5m
-    fetch-max-wait: 500ms
-    fetch-min-size: 1024
-    fetch-max-bytes: 52428800
-    max-partition-fetch-bytes: 1048576
-    max-poll-records: 1000
+
 
 logging:
   level:
