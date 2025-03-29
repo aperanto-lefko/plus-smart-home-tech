@@ -50,7 +50,7 @@ public class KafKaConsumerConfig {
                 bootstrapServer, groupId, autoOffsetReset, enableAutoCommit,
                 keyDeserializeClass, valueDeserializeClass);
     }
-    @Bean
+    //@Bean
     public KafkaConsumer<String, SpecificRecordBase> consumer() {
         Properties properties = new Properties();
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
