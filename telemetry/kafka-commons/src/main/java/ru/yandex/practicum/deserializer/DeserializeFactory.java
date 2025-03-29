@@ -10,3 +10,11 @@ public class DeserializeFactory {
         return new BaseAvroDeserializer<>(targetType);
     }
 }
+/*
+использование
+@Bean
+public Deserializer<SensorEventAvro> sensorEventDeserializer(DeserializeFactory factory) {
+    return factory.createDeserializer(SensorEventAvro.class);
+}
+
+ */
