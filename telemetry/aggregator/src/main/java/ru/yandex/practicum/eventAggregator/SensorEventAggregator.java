@@ -1,53 +1,79 @@
 package ru.yandex.practicum.eventAggregator;
 
-import org.apache.avro.specific.SpecificRecord;
+import jakarta.annotation.PostConstruct;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.avro.specific.SpecificRecordBase;
+
+import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import ru.yandex.practicum.deserializer.DeserializerType;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
-import ru.yandex.practicum.kafka.telemetry.event.SensorStateAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
+import ru.yandex.practicum.producer.KafkaEventSender;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
-public class SensorEventAggregator {
-    private final Map<String, SensorsSnapshotAvro> snapshots = new HashMap<>();
+@Slf4j
+//@RequiredArgsConstructor
+@Component
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class SensorEventAggregator extends KafkaAgregator<String, SensorEventAvro, SensorsSnapshotAvro> {
+    @Value("${kafka.topics.sensor_events_topic}")
+    String inputTopic;
+    @Value("${kafka.topics.snapshots_topic}")
+    String outPutTopic;
+    final SensorSnapshotUpdater updater;
+    final Function<DeserializerType, KafkaConsumer<String, SpecificRecordBase>> consumerFactory;
 
-    public Optional<SensorsSnapshotAvro> updateState(SensorEventAvro event) {
-        return Optional.ofNullable(event)
-                .map(e -> {
-                    SensorsSnapshotAvro snapshot = snapshots.computeIfAbsent(
-                            event.getHubId(),
-                            hubId -> new SensorsSnapshotAvro(
-                                    hubId,
-                                    event.getTimestamp(),
-                                    new HashMap<>()
-                            )
-                    );
-                    return Optional.ofNullable(snapshot.getSensorsState().get(e.getId()))
-                            .filter(oldState ->
-                                    oldState.getTimestamp().isAfter(e.getTimestamp()) ||
-                                            dataEquals(
-                                                    (SpecificRecord) oldState.getData(),
-                                                    (SpecificRecord) e.getEvent())
-                            )
-                            .map(__ -> (SensorsSnapshotAvro) null) //если фильтр сработал возвращаем null
-                            .orElseGet(() -> { //если не сработал - создаем новое SensorStateAvro
-                                        SensorStateAvro newState = new SensorStateAvro(e.getTimestamp(), e.getEvent());
-                                        snapshot.getSensorsState().put(e.getId(), newState);
-                                        snapshot.setTimestamp(e.getTimestamp());
-                                        return snapshot;
-                                    }
-                            );
 
-                });
+    @Autowired
+    public SensorEventAggregator(SensorSnapshotUpdater updater,
+                                 Function<DeserializerType, KafkaConsumer<String, SpecificRecordBase>> consumerFactory,
+                                 KafkaProducer<String, SensorsSnapshotAvro> producer) {
+        super(producer);
+        this.updater = updater;
+        this.consumerFactory = consumerFactory;
+
     }
 
-    private boolean dataEquals(SpecificRecord oldData, SpecificRecord newData) {
-        return switch (oldData) {
-            case null -> newData == null;
-            case SpecificRecord o when newData == null -> false;
-            case SpecificRecord o when o.getClass() != newData.getClass() -> false;
-            default -> oldData.equals(newData);
-        };
+    @PostConstruct
+    public void init() {
+        KafkaConsumer<String, SpecificRecordBase> consumer =
+                consumerFactory.apply(DeserializerType.SENSOR_EVENT_DESERIALIZER);
+        this.consumer = consumer;
+
+        log.info("Consumer инициализирован для топиков: {}", getInputTopics());
     }
+
+
+    @Override
+    protected List<String> getInputTopics() {
+        return List.of(inputTopic);
+    }
+
+    @Override
+    protected String getOutputTopic() {
+        return outPutTopic;
+    }
+
+    @Override
+    protected Optional<SensorsSnapshotAvro> processRecord(SensorEventAvro record) {
+        return updater.updateState(record);
+    }
+    /*
+      @Override
+    protected String getOutputKey(SensorsSnapshotAvro result) {
+        return result.getHubId();
+    }
+     */
 }

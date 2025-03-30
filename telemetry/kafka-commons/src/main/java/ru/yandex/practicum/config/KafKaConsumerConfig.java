@@ -67,15 +67,7 @@ public class KafKaConsumerConfig {
             return consumer;
         };
     }
-    /*
-    как вызвать
-    @RequiredArgsConstructor
-    ****
-    private final Function<DeserializerType, KafkaConsumer<String, SpecificRecordBase>> consumerFactory;
-    метод
-    KafkaConsumer<String, SpecificRecordBase> consumer =
-            consumerFactory.apply(DeserializerType.SENSOR_EVENT_DESERIALIZER);
-     */
+
 
     private Properties buildProperties() {
         Properties properties = new Properties();

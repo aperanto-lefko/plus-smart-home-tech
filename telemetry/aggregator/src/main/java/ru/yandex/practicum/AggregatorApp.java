@@ -8,8 +8,9 @@ import ru.yandex.practicum.starter.AggregationStarter;
 @SpringBootApplication
 public class AggregatorApp {
     public static void main(String[] args) {
-        ConfigurableApplicationContext context = SpringApplication.run(AggregatorApp.class, args);
-        AggregationStarter aggregator = context.getBean(AggregationStarter.class);
-        aggregator.start();
+//        ConfigurableApplicationContext context = SpringApplication.run(AggregatorApp.class, args);
+//        AggregationStarter aggregator = context.getBean(AggregationStarter.class);
+//        aggregator.start();
+        SpringApplication.run(AggregatorApp.class, args);
     }
 }
