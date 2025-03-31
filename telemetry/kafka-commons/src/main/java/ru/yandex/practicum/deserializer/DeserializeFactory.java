@@ -14,14 +14,15 @@ import java.util.Map;
 public class DeserializeFactory {
 
     private final Map<DeserializerType, Class<? extends SpecificRecordBase>> registry = new HashMap<>();
-    @PostConstruct
-    public void init() {
-        registry.put(DeserializerType.SENSOR_EVENT_DESERIALIZER, SensorEventAvro.class);
+
+    public DeserializeFactory() {
+        this.registry.put(DeserializerType.SENSOR_EVENT_DESERIALIZER, SensorEventAvro.class);
     }
+
     @SuppressWarnings("unchecked")
-    public <T extends SpecificRecordBase> Deserializer<T> createDeserializer (DeserializerType type) {
+    public <T extends SpecificRecordBase> Deserializer<T> createDeserializer(DeserializerType type) {
         Class<? extends SpecificRecordBase> targetType = registry.get(type);
-        if(targetType == null) {
+        if (targetType == null) {
             throw new NullValueException("Неизвестный тип десериализатора " + type);
         }
         // Безопасное приведение, так как мы контролируем типы в registry

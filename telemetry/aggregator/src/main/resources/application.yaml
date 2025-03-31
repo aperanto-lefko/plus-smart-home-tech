@@ -10,6 +10,9 @@ kafka:
     value_serialize_class: ru.yandex.practicum.serializer.AvroSerializer
 
   consumer:
+    bootstrap_server: localhost:9092
+    key_serialize_class: org.apache.kafka.common.serialization.StringSerializer
+    value_serialize_class: ru.yandex.practicum.serializer.AvroSerializer
     client_id: aggregator.consumer
     group_id: aggregator.group.id
     auto_offset_reset_config: earliest
@@ -29,6 +32,7 @@ kafka:
 
 logging:
   level:
+    #root: DEBUG
     io.grpc: DEBUG
     org:
       zalando:
