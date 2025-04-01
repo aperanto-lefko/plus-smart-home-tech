@@ -1,9 +1,7 @@
 package ru.yandex.practicum.config;
 
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecordBase;
@@ -20,8 +18,8 @@ import java.util.Properties;
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @RequiredArgsConstructor
-public class KafkaConsumerCreator {
-    final KafKaConsumerConfig config;
+public class KafkaConsumerFactory {
+    final KafKaConsumerProperties config;
     final DeserializeFactory deserializeFactory;
 
     public <V extends SpecificRecordBase> KafkaConsumer<String, V> createConsumer(

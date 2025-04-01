@@ -17,7 +17,7 @@ import java.util.Properties;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Getter
 @Setter
-public class KafKaConsumerConfig {
+public class KafKaConsumerProperties {
     String bootstrapServer;
     String clientId;
     String groupId;

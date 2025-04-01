@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.config.KafkaConsumerCreator;
+import ru.yandex.practicum.config.KafkaConsumerFactory;
 import ru.yandex.practicum.deserializer.DeserializerType;
 import ru.yandex.practicum.handler.SnapshotHandler;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
@@ -27,18 +27,18 @@ public class SensorEventAggregator extends KafkaAggregator<String, SensorEventAv
     final String inputTopic;
     final String outPutTopic;
     final SensorSnapshotUpdater updater;
-    final KafkaConsumerCreator creator;
+    final KafkaConsumerFactory factory;
 
     @Autowired
     public SensorEventAggregator(SnapshotHandler<SensorsSnapshotAvro> snapshotHandler,
                                  SensorSnapshotUpdater updater,
-                                 KafkaConsumerCreator creator,
+                                 KafkaConsumerFactory factory,
                                  @Value("${kafka.topics.sensor_events_topic}") String inputTopic,
                                  @Value("${kafka.topics.snapshots_topic}") String outPutTopic) {
         super(snapshotHandler);
         this.updater = updater;
-        this.creator = creator;
-        this.consumer = creator.createConsumer(DeserializerType.SENSOR_EVENT_DESERIALIZER,
+        this.factory = factory;
+        this.consumer = factory.createConsumer(DeserializerType.SENSOR_EVENT_DESERIALIZER,
                 SensorEventAvro.class);
         this.inputTopic = inputTopic;
         this.outPutTopic = outPutTopic;
