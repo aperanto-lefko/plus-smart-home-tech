@@ -1,4 +1,4 @@
-package ru.yandex.practicum.eventAggregator;
+package ru.yandex.practicum.aggregator;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.handler.SnapshotHandler;
 
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;

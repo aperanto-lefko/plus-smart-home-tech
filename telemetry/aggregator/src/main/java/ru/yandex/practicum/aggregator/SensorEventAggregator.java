@@ -1,4 +1,4 @@
-package ru.yandex.practicum.eventAggregator;
+package ru.yandex.practicum.aggregator;
 
 import lombok.AccessLevel;
 

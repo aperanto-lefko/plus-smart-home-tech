@@ -1,4 +1,4 @@
-package ru.yandex.practicum.eventAggregator;
+package ru.yandex.practicum.aggregator;
 
 import org.apache.avro.specific.SpecificRecord;
 import org.springframework.stereotype.Component;
