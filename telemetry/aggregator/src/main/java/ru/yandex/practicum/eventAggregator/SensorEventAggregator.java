@@ -1,6 +1,5 @@
 package ru.yandex.practicum.eventAggregator;
 
-
 import lombok.AccessLevel;
 
 import lombok.experimental.FieldDefaults;

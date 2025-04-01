@@ -17,8 +17,6 @@ kafka:
     group_id: aggregator.group.id
     auto_offset_reset_config: earliest
     enable_auto_commit_config: true
-    #key_deserialize_class: org.apache.kafka.common.serialization.StringDeserializer
-    #value_deserialize_class: ru.yandex.practicum.kafka.deserializer.BaseAvroDeserializer
     auto_offset_reset: earliest
     enable_auto_commit: false
     session_timeout: 45000
