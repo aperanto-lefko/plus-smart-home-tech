@@ -1,16 +1,14 @@
-grpc:
-  server:
-    port: 59091
-
 
 kafka:
   topics:
     sensor_events_topic: telemetry.sensors.v1
     hub_events_topic: telemetry.hubs.v1
+    snapshots_topic: telemetry.snapshots.v1
   producer:
     bootstrap_server: localhost:9092
     key_serialize_class: org.apache.kafka.common.serialization.StringSerializer
     value_serialize_class: ru.yandex.practicum.serializer.AvroSerializer
+
   consumer:
     bootstrap_server: localhost:9092
     key_serialize_class: org.apache.kafka.common.serialization.StringSerializer
@@ -18,7 +16,7 @@ kafka:
     client_id: aggregator.consumer
     group_id: aggregator.group.id
     auto_offset_reset_config: earliest
-    enable_auto_commit_config: false
+    enable_auto_commit_config: true
     auto_offset_reset: earliest
     enable_auto_commit: false
     session_timeout: 45000
@@ -32,9 +30,10 @@ kafka:
 
 logging:
   level:
+    #root: DEBUG
     io.grpc: DEBUG
     org:
       zalando:
         logbook: DEBUG
       springframework:
-                web: DEBUG
+        web: DEBUG
