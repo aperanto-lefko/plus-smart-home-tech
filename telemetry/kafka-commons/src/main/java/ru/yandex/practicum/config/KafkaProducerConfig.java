@@ -28,6 +28,7 @@ public class KafkaProducerConfig {
     String keySerializeClass;
     String valueSerializeClass;
     KafkaProducer<String, SpecificRecordBase> pr;
+
     @PostConstruct
     public void logConfig() {
         log.info("Загруженная конфигурация: bootstrap={}, keySerializer={}, valueSerializer={}",
