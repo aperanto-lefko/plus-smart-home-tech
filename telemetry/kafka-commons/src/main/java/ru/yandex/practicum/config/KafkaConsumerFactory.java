@@ -30,7 +30,7 @@ public class KafkaConsumerFactory {
         Properties properties = config.buildProperties();
         Deserializer<V> deserializer = deserializeFactory.createDeserializer(deserializerType);
         log.info("Загруженная конфигурация: " +
-                config.getProperties() + "key_deserialize_class: StringDeserializer, value_deserialize_class:" +
+                properties + "key_deserialize_class: StringDeserializer, value_deserialize_class:" +
                 deserializer.getClass().getName());
         KafkaConsumer<String, V> consumer = new KafkaConsumer<>(properties,
                 new StringDeserializer(),

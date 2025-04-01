@@ -4,6 +4,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -22,24 +23,27 @@ import java.util.Properties;
 @Getter
 @Setter
 @Slf4j
+@RequiredArgsConstructor
 public class KafkaProducerConfig {
 
-    String bootstrapServer;
-    String keySerializeClass;
-    String valueSerializeClass;
+//    String bootstrapServer;
+//    String keySerializeClass;
+//    String valueSerializeClass;
     KafkaProducer<String, SpecificRecordBase> pr;
+    final KafkaProducerProperties config;
 
-    @PostConstruct
-    public void logConfig() {
-        log.info("Загруженная конфигурация: bootstrap={}, keySerializer={}, valueSerializer={}",
-                bootstrapServer, keySerializeClass, valueSerializeClass);
-    }
+//    @PostConstruct
+//    public void logConfig() {
+//        log.info("Загруженная конфигурация: bootstrap={}, keySerializer={}, valueSerializer={}",
+//                bootstrapServer, keySerializeClass, valueSerializeClass);
+//    }
    @Bean
     public KafkaProducer<String, SpecificRecordBase> producer() {
-        Properties properties = new Properties();
-        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
-        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, keySerializeClass);
-        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, valueSerializeClass);
+        Properties properties = config.buildProperties();
+       log.info("Загруженная конфигурация {}: ", properties);
+//        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
+//        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, keySerializeClass);
+//        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, valueSerializeClass);
         pr = new KafkaProducer<>(properties);
         log.info("Создан kafka-producer {}", pr);
         return pr;

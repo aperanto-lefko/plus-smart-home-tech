@@ -35,10 +35,8 @@ public class KafKaConsumerProperties {
     Integer maxPartitionFetchBytes;
     Integer maxPollRecords;
 
-    Properties properties = new Properties();
-
-
     public Properties buildProperties() {
+        Properties properties = new Properties();
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
         properties.put(ConsumerConfig.CLIENT_ID_CONFIG, clientId);
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
