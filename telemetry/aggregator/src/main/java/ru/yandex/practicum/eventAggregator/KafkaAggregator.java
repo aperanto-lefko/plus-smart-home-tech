@@ -31,11 +31,8 @@ public abstract class KafkaAggregator<K, V, R> {
     private static final Duration CONSUME_TIMEOUT = Duration.ofMillis(100);
     private volatile boolean running = true; //флаг для управления основным циклом обработки
     private final AtomicBoolean processing = new AtomicBoolean(false); //Чтобы понимать, идет ли сейчас обработка сообщений
-
     protected abstract List<String> getInputTopics(); //возвращает топики для подписки
-
     protected abstract String getOutputTopic(); //выходной топик
-
     protected abstract Optional<R> processRecord(V record); //обработка одного сообщения
     Map<TopicPartition, OffsetAndMetadata> offsetsToCommit = new HashMap<>();
     int batchSize = 10; // размер батча для коммита
@@ -107,7 +104,7 @@ public abstract class KafkaAggregator<K, V, R> {
            if (!offsetsToCommit.isEmpty()) {
                consumer.commitSync(offsetsToCommit);
                log.info("Офсеты успешно зафиксированы для {} партиций", offsetsToCommit.size());
-               offsetsToCommit.clear(); // Очищаем мапу после коммита
+               offsetsToCommit.clear();
            }
        } catch (CommitFailedException e) {
            log.error("Ошибка фиксации офсетов для {} партиций", offsetsToCommit.size(), e);
