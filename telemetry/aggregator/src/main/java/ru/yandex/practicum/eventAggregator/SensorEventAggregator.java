@@ -22,9 +22,8 @@ import java.util.Optional;
 @Slf4j
 @Component
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class SensorEventAggregator extends KafkaAggregator<String, SensorEventAvro, SensorsSnapshotAvro> {
+public class SensorEventAggregator extends BaseAggregator<String, SensorEventAvro, SensorsSnapshotAvro> {
     final String inputTopic;
-    final String outPutTopic;
     final SensorSnapshotUpdater updater;
     final KafkaConsumerFactory factory;
 
@@ -40,18 +39,12 @@ public class SensorEventAggregator extends KafkaAggregator<String, SensorEventAv
         this.consumer = factory.createConsumer(DeserializerType.SENSOR_EVENT_DESERIALIZER,
                 SensorEventAvro.class);
         this.inputTopic = inputTopic;
-        this.outPutTopic = outPutTopic;
         log.info("Consumer инициализирован для топиков: {}", getInputTopics());
     }
 
     @Override
     protected List<String> getInputTopics() {
         return List.of(inputTopic);
-    }
-
-    @Override
-    protected String getOutputTopic() {
-        return outPutTopic;
     }
 
     @Override
