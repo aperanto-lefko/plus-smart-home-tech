@@ -122,7 +122,7 @@ public class KafKaConsumerConfig {
         properties.put(ConsumerConfig.CLIENT_ID_CONFIG, clientId);
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
 //        properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset); // Что делать при отсутствии оффсета: "earliest", "latest", "none"
-//        properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, enableAutoCommit); // Автоматически коммитить оффсеты (true/false)
+        properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, enableAutoCommit); // Автоматически коммитить оффсеты (true/false)
 //        //properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, keyDeserializeClass); // Класс для десериализации ключа сообщения
 //        //properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, valueDeserializeClass);// Класс для десериализации значения сообщения
 //        properties.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, sessionTimeout); // Таймаут сессии (мс) - если consumer не отправляет heartbeat дольше этого времени, считается мертвым
@@ -132,7 +132,7 @@ public class KafKaConsumerConfig {
 //        properties.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, fetchMinSize); // Минимальное количество байт для возврата из fetch
 //        properties.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, fetchMaxBytes); // Максимальное количество байт, возвращаемых за один fetch
 //        properties.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, maxPartitionFetchBytes); // Максимальное количество байт, получаемых с одной партиции
-//        properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);// Максимальное количество записей, возвращаемых за один poll()
+        properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);// Максимальное количество записей, возвращаемых за один poll()
         return properties;
     }
 

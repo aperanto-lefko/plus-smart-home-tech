@@ -44,16 +44,6 @@ public class SensorEventAggregator extends KafkaAggregator<String, SensorEventAv
         log.info("Consumer инициализирован для топиков: {}", getInputTopics());
     }
 
-    /*@PostConstruct
-    public void init() {
-        KafkaConsumer<String, SensorEventAvro> consumer =
-                consumerFactory.apply(DeserializerType.SENSOR_EVENT_DESERIALIZER);
-        this.consumer = consumer;
-
-        log.info("Consumer инициализирован для топиков: {}", getInputTopics());
-    }*/
-
-
     @Override
     protected List<String> getInputTopics() {
         return List.of(inputTopic);
@@ -66,6 +56,7 @@ public class SensorEventAggregator extends KafkaAggregator<String, SensorEventAv
 
     @Override
     protected Optional<SensorsSnapshotAvro> processRecord(SensorEventAvro record) {
+        log.info("Производится верификация сообщения...");
         return updater.updateState(record);
     }
 

@@ -37,6 +37,9 @@ public abstract class KafkaAggregator<K, V, R> {
     protected abstract String getOutputTopic(); //выходной топик
 
     protected abstract Optional<R> processRecord(V record); //обработка одного сообщения
+    Map<TopicPartition, OffsetAndMetadata> offsetsToCommit = new HashMap<>();
+    int batchSize = 10; // размер батча для коммита
+    int processedInBatch = 0;
 
     @PostConstruct //запускается при инициализации бина Spring
     public void start() {
@@ -47,6 +50,10 @@ public abstract class KafkaAggregator<K, V, R> {
 
     @PreDestroy
     public void shutdown() {
+        log.info("Фиксация оставшихся офсетов перед окончанием работы");
+        if(!offsetsToCommit.isEmpty()) {
+            commitOffsets(offsetsToCommit);
+        }
         log.info("Завершение работы агрегатора");
         running = false;
         waitForCompletion();
@@ -60,12 +67,12 @@ public abstract class KafkaAggregator<K, V, R> {
                 if (!records.isEmpty()) {
                     processing.set(true);
                     processRecords(records);
-                    commitOffsets();
                     processing.set(false);
                 }
             }
         } catch (WakeupException ignored) {
             // игнорируем - закрываем consumer и продюсер в блоке finally
+            log.info("Закрытие consumer...");
         } catch (Exception e) {
             log.error("Ошибка обработки", e);
         } finally {
@@ -73,32 +80,40 @@ public abstract class KafkaAggregator<K, V, R> {
         }
     }
 
-
     private void processRecords(ConsumerRecords<K, V> records) {
-        Map<TopicPartition, OffsetAndMetadata> offsetsToCommit = new HashMap<>();
         for (ConsumerRecord<K, V> record : records) {
             try {
                 Optional<R> result = processRecord(record.value());
                 result.ifPresent(snapshotHandler::handle);
+                log.info("Получено сообщение для обработки {}", result);
                 offsetsToCommit.put(
                         new TopicPartition(record.topic(), record.partition()), //добавить счетчик комитить по 10
                         new OffsetAndMetadata(record.offset() + 1));
+                processedInBatch++;
+                if (processedInBatch % batchSize == 0) {
+                    log.info("Фиксация партии из {} офсетов", batchSize);
+                    processedInBatch=0;
+                    commitOffsets(offsetsToCommit);
 
+                }
             } catch (Exception e) {
                 log.error("Ошибка обработки записи [{}:{}]", record.topic(), record.offset(), e);
             }
         }
     }
-    private void commitOffsets() {
-        try {
-            consumer.commitSync();
-            log.debug("Офсеты успешно зафиксированы");
-        } catch (CommitFailedException e) {
-            log.error("Ошибка фиксации офсетов", e);
-        }
-    }
 
-    /**
+   private void commitOffsets(Map<TopicPartition, OffsetAndMetadata> offsetsToCommit) {
+       try {
+           if (!offsetsToCommit.isEmpty()) {
+               consumer.commitSync(offsetsToCommit);
+               log.info("Офсеты успешно зафиксированы для {} партиций", offsetsToCommit.size());
+               offsetsToCommit.clear(); // Очищаем мапу после коммита
+           }
+       } catch (CommitFailedException e) {
+           log.error("Ошибка фиксации офсетов для {} партиций", offsetsToCommit.size(), e);
+       }
+   }
+    /*
      * Ожидает завершения текущей обработки при shutdown
      */
     private void waitForCompletion() {

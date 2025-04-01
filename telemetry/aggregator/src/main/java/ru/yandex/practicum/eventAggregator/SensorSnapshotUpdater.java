@@ -13,33 +13,39 @@ import java.util.Optional;
 public class SensorSnapshotUpdater {
     private final Map<String, SensorsSnapshotAvro> snapshots = new HashMap<>();
 
-    public Optional<SensorsSnapshotAvro> updateState(SensorEventAvro event) {
+       public Optional<SensorsSnapshotAvro> updateState(SensorEventAvro event) {
+        if (event == null) {
+            return Optional.empty();
+        }
+
         return Optional.ofNullable(event)
                 .map(e -> {
+                    // Получаем или создаем новый снимок для хаба
                     SensorsSnapshotAvro snapshot = snapshots.computeIfAbsent(
-                            event.getHubId(),
+                            e.getHubId(),
                             hubId -> new SensorsSnapshotAvro(
                                     hubId,
-                                    event.getTimestamp(),
+                                    e.getTimestamp(),
                                     new HashMap<>()
                             )
                     );
-                    return Optional.ofNullable(snapshot.getSensorsState().get(e.getId()))
-                            .filter(oldState ->
-                                    oldState.getTimestamp().isAfter(e.getTimestamp()) ||
-                                            dataEquals(
-                                                    (SpecificRecord) oldState.getData(),
-                                                    (SpecificRecord) e.getEvent())
-                            )
-                            .map(__ -> (SensorsSnapshotAvro) null) //если фильтр сработал возвращаем null
-                            .orElseGet(() -> { //если не сработал - создаем новое SensorStateAvro
-                                        SensorStateAvro newState = new SensorStateAvro(e.getTimestamp(), e.getEvent());
-                                        snapshot.getSensorsState().put(e.getId(), newState);
-                                        snapshot.setTimestamp(e.getTimestamp());
-                                        return snapshot;
-                                    }
-                            );
 
+                    // Проверяем, нужно ли обновлять состояние
+                    SensorStateAvro oldState = snapshot.getSensorsState().get(e.getId());
+
+                    // Если состояние уже существует и либо его timestamp новее,
+                    // либо данные совпадают - не обновляем
+                    if (oldState != null &&
+                            (oldState.getTimestamp().isAfter(e.getTimestamp()) ||
+                                    dataEquals((SpecificRecord)oldState.getData(), (SpecificRecord)e.getEvent()))) {
+                        return null;
+                    }
+
+                    // Обновляем состояние
+                    SensorStateAvro newState = new SensorStateAvro(e.getTimestamp(), e.getEvent());
+                    snapshot.getSensorsState().put(e.getId(), newState);
+                    snapshot.setTimestamp(e.getTimestamp());
+                    return snapshot;
                 });
     }
 
