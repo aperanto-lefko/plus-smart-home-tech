@@ -54,10 +54,10 @@ public abstract class BaseAggregator<K, V, R> {
     @PreDestroy
     public void shutdown() {
         log.info("Начало завершения работы агрегатора...");
-        running = false;
+        running = false; //флаг остановки для pollloop
         // Остановка ExecutorService
-        executorService.shutdown();
-        try {
+        executorService.shutdown();// Запрещает новые задачи
+        try {// Ожидаем завершения текущих задач:
             if (!executorService.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
                 log.info("Принудительное завершение после таймаута");
                 executorService.shutdownNow();
