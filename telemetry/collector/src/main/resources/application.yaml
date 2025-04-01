@@ -22,15 +22,15 @@ kafka:
     #key_deserialize_class: org.apache.kafka.common.serialization.StringDeserializer
     #value_deserialize_class: ru.yandex.practicum.kafka.deserializer.BaseAvroDeserializer
     auto_offset_reset: earliest
-    enable-auto-commit: false
-    session-timeout: 45s
-    heartbeat-interval: 5s
-    max-poll-interval: 5m
-    fetch-max-wait: 500ms
-    fetch-min-size: 1024
-    fetch-max-bytes: 52428800
-    max-partition-fetch-bytes: 1048576
-    max-poll-records: 1000
+    enable_auto_commit: false
+    session_timeout: 45000
+    heartbeat_interval: 5000
+    max_poll_interval: 5000
+    fetch_max_wait: 500
+    fetch_min_size: 1024
+    fetch_max_bytes: 52428800
+    max_partition_fetch_bytes: 1048576
+    max_poll_records: 1000
 
 logging:
   level:
