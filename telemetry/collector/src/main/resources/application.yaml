@@ -11,24 +11,7 @@ kafka:
     bootstrap_server: localhost:9092
     key_serialize_class: org.apache.kafka.common.serialization.StringSerializer
     value_serialize_class: ru.yandex.practicum.serializer.AvroSerializer
-  consumer:
-    bootstrap_server: localhost:9092
-    key_serialize_class: org.apache.kafka.common.serialization.StringSerializer
-    value_serialize_class: ru.yandex.practicum.serializer.AvroSerializer
-    client_id: aggregator.consumer
-    group_id: aggregator.group.id
-    auto_offset_reset_config: earliest
-    enable_auto_commit_config: false
-    auto_offset_reset: earliest
-    enable_auto_commit: false
-    session_timeout: 45000
-    heartbeat_interval: 5000
-    max_poll_interval: 5000
-    fetch_max_wait: 500
-    fetch_min_size: 1024
-    fetch_max_bytes: 52428800
-    max_partition_fetch_bytes: 1048576
-    max_poll_records: 1000
+
 
 logging:
   level:
