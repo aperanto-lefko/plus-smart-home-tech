@@ -19,7 +19,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Slf4j
@@ -33,9 +35,9 @@ public abstract class BaseAggregator<K, V, R> {
     private final AtomicBoolean processing = new AtomicBoolean(false); //Чтобы понимать, идет ли сейчас обработка сообщений
     protected abstract List<String> getInputTopics(); //возвращает топики для подписки
     protected abstract Optional<R> processRecord(V record); //обработка одного сообщения
-    Map<TopicPartition, OffsetAndMetadata> offsetsToCommit = new HashMap<>();
-    int batchSize = 10; // размер батча для коммита
-    int processedInBatch = 0;
+    private final ConcurrentHashMap<TopicPartition, OffsetAndMetadata> offsetsToCommit = new ConcurrentHashMap<>();
+    private static final int BATCH_SIZE = 10; // размер батча для коммита
+    private final AtomicInteger processedInBatch = new AtomicInteger(0);
 
     @PostConstruct //запускается при инициализации бина Spring
     public void start() {
@@ -85,12 +87,10 @@ public abstract class BaseAggregator<K, V, R> {
                 offsetsToCommit.put(
                         new TopicPartition(record.topic(), record.partition()), //добавить счетчик комитить по 10
                         new OffsetAndMetadata(record.offset() + 1));
-                processedInBatch++;
-                if (processedInBatch % batchSize == 0) {
-                    log.info("Фиксация партии из {} офсетов", batchSize);
-                    processedInBatch=0;
+                if (processedInBatch.incrementAndGet() % BATCH_SIZE == 0) {
+                    log.info("Фиксация партии из {} офсетов", BATCH_SIZE);
                     commitOffsets(offsetsToCommit);
-
+                    processedInBatch.set(0);
                 }
             } catch (Exception e) {
                 log.error("Ошибка обработки записи [{}:{}]", record.topic(), record.offset(), e);
