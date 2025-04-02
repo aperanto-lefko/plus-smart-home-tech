@@ -8,7 +8,11 @@ kafka:
     bootstrap_server: localhost:9092
     key_serialize_class: org.apache.kafka.common.serialization.StringSerializer
     value_serialize_class: ru.yandex.practicum.serializer.AvroSerializer
-
+  consumer_manager:
+    shutdown_timeout: 60
+    poll_timeout: 100
+  commit_manager:
+    batch-size: 10
   consumer:
     bootstrap_server: localhost:9092
     key_serialize_class: org.apache.kafka.common.serialization.StringSerializer
@@ -27,6 +31,7 @@ kafka:
     fetch_max_bytes: 52428800
     max_partition_fetch_bytes: 1048576
     max_poll_records: 1000
+
 
 logging:
   level:
