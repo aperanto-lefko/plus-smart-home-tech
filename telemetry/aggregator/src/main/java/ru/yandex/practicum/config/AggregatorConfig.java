@@ -32,7 +32,7 @@ public class AggregatorConfig {
         return new OffsetCommitManager<>(consumer);
     }
     @Bean
-    public KafkaConsumerManager<String, SensorEventAvro, SensorsSnapshotAvro> sensorEventConsumerManager(
+    public KafkaConsumerManager<String, SensorEventAvro> sensorEventConsumerManager(
             KafkaConsumer<String, SensorEventAvro> consumer) {
         return new KafkaConsumerManager<>(consumer);
     }

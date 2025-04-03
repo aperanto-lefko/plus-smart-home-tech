@@ -2,6 +2,7 @@ package ru.yandex.practicum.aggregator;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,7 @@ import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 @Slf4j
 @Component
@@ -19,7 +21,7 @@ public class SensorEventAggregator extends BaseAggregator<String, SensorEventAvr
 
 
     @Autowired
-    public SensorEventAggregator(KafkaConsumerManager<String, SensorEventAvro, SensorsSnapshotAvro> consumerManager,
+    public SensorEventAggregator(KafkaConsumerManager<String, SensorEventAvro> consumerManager,
                                  RecordProcessor<SensorEventAvro, SensorsSnapshotAvro> recordProcessor,
                                  OffsetCommitManager<String, SensorEventAvro> offsetCommitManager,
                                  SnapshotHandler<SensorsSnapshotAvro> snapshotHandler) {
@@ -32,5 +34,15 @@ public class SensorEventAggregator extends BaseAggregator<String, SensorEventAvr
     @Override
     protected List<String> getInputTopics() {
         return List.of(inputTopic);
+    }
+
+    @Override
+    protected RecordsBatchProcessor<String, SensorEventAvro, SensorsSnapshotAvro> createBatchProcessor() {
+        return new RecordsBatchProcessor<>(
+                recordProcessor,
+                snapshotHandler,
+                offsetCommitManager,
+                processing
+        );
     }
 }

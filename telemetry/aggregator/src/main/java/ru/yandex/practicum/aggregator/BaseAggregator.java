@@ -12,28 +12,25 @@ import ru.yandex.practicum.handler.SnapshotHandler;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public abstract class BaseAggregator <K, V, R> {
-    private final KafkaConsumerManager<K, V, R> consumerManager;
-    private final RecordProcessor<V, R> recordProcessor;
-    private final OffsetCommitManager<K, V> offsetCommitManager;
-    private final SnapshotHandler<R> snapshotHandler;
-    private final AtomicBoolean processing = new AtomicBoolean(false);
+    protected final KafkaConsumerManager<K, V> consumerManager;
+    protected final RecordProcessor<V, R> recordProcessor;
+    protected final OffsetCommitManager<K, V> offsetCommitManager;
+    protected final SnapshotHandler<R> snapshotHandler;
+    protected final AtomicBoolean processing = new AtomicBoolean(false);
 
     protected abstract List<String> getInputTopics();
+    protected abstract Consumer<ConsumerRecords<K, V>> createBatchProcessor();
 
     @PostConstruct
     public void start() {
         consumerManager.subscribe(getInputTopics());
-        consumerManager.startPolling(new RecordsBatchProcessor<>(
-                recordProcessor,
-                snapshotHandler,
-                offsetCommitManager,
-                processing
-        ));
+        consumerManager.startPolling(createBatchProcessor());
     }
 
     @PreDestroy

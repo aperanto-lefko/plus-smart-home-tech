@@ -2,8 +2,7 @@ package ru.yandex.practicum.aggregator;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
+
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,11 +13,12 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class KafkaConsumerManager <K, V, R> {
+public class KafkaConsumerManager <K, V> {
     @Value("${kafka.consumer_manager.shutdown_timeout}")
     private int shutdownTimeout;
     @Value("${kafka.consumer_manager.poll_timeout}")
@@ -32,13 +32,13 @@ public class KafkaConsumerManager <K, V, R> {
         consumer.subscribe(topics);
     }
 
-    public void startPolling(RecordsBatchProcessor<K,V,R> batchHandler) {
+    public void startPolling(Consumer<ConsumerRecords<K,V>> handler) {
         executorService.submit(() -> {
             try {
                 while (running) {
                     ConsumerRecords<K, V> records = consumer.poll(Duration.ofMillis(pollTimeout));
                     if (!records.isEmpty()) {
-                        batchHandler.accept(records);
+                        handler.accept(records);
                     }
                 }
             } catch (Exception e) {
