@@ -4,10 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.yandex.practicum.aggregator.KafkaConsumerManager;
-import ru.yandex.practicum.aggregator.OffsetCommitManager;
-import ru.yandex.practicum.aggregator.RecordProcessor;
-import ru.yandex.practicum.aggregator.RecordsBatchProcessor;
+import ru.yandex.practicum.receiver.KafkaConsumerManager;
+import ru.yandex.practicum.receiver.OffsetCommitManager;
+import ru.yandex.practicum.record_process.RecordProcessor;
+import ru.yandex.practicum.record_process.RecordsBatchProcessor;
 import ru.yandex.practicum.deserializer.DeserializerType;
 import ru.yandex.practicum.handler.SnapshotHandler;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
@@ -37,15 +37,4 @@ public class AggregatorConfig {
         return new KafkaConsumerManager<>(consumer);
     }
 
-
-    @Bean
-    public RecordsBatchProcessor<String, SensorEventAvro, SensorsSnapshotAvro> recordsBatchProcessor(
-            OffsetCommitManager<String, SensorEventAvro> offsetCommitManager) {
-        return new RecordsBatchProcessor<>(
-                sensorEventProcessor,
-                snapshotHandler,
-                offsetCommitManager,
-                new AtomicBoolean(false)
-        );
-    }
 }

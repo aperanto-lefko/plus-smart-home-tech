@@ -1,4 +1,4 @@
-package ru.yandex.practicum.aggregator;
+package ru.yandex.practicum.receiver;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
-@Component
 @RequiredArgsConstructor
 public class OffsetCommitManager <K,V>{
     @Value("${kafka.commit_manager.batch-size}")
@@ -40,7 +39,7 @@ public class OffsetCommitManager <K,V>{
         try {
             if (!offsetsToCommit.isEmpty()) {
                 consumer.commitSync(offsetsToCommit);
-                log.info("Фиксация партии из {} офсетов", offsetsToCommit.size());
+                log.info("Фиксация партии {} офсет", offsetsToCommit.values());
                 offsetsToCommit.clear();
             }
         } catch (CommitFailedException e) {

@@ -1,4 +1,4 @@
-package ru.yandex.practicum.aggregator;
+package ru.yandex.practicum.record_process;
 
 import java.util.Optional;
 

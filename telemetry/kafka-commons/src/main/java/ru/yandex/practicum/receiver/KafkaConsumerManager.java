@@ -1,4 +1,4 @@
-package ru.yandex.practicum.aggregator;
+package ru.yandex.practicum.receiver;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.util.List;
@@ -16,9 +15,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 @Slf4j
-@Component
 @RequiredArgsConstructor
-public class KafkaConsumerManager <K, V> {
+public class KafkaConsumerManager<K, V> {
     @Value("${kafka.consumer_manager.shutdown_timeout}")
     private int shutdownTimeout;
     @Value("${kafka.consumer_manager.poll_timeout}")
@@ -32,7 +30,7 @@ public class KafkaConsumerManager <K, V> {
         consumer.subscribe(topics);
     }
 
-    public void startPolling(Consumer<ConsumerRecords<K,V>> handler) {
+    public void startPolling(Consumer<ConsumerRecords<K, V>> handler) {
         executorService.submit(() -> {
             try {
                 while (running) {
