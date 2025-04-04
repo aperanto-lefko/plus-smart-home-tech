@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.exception.ActionProcessingException;
-import ru.yandex.practicum.exception.DeSerealizationException;
 import ru.yandex.practicum.grpc.telemetry.event.DeviceActionRequest;
 import ru.yandex.practicum.grpc.telemetry.hubrouter.HubRouterControllerGrpc;
 import ru.yandex.practicum.model.Action;
@@ -18,13 +17,13 @@ import ru.yandex.practicum.model.Action;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class HubActionExecutor implements HubExecutor<Action, ActionProcessingException> {
+public class HubActionSender implements HubSender<Action, ActionProcessingException> {
     @GrpcClient("hub-router")
     HubRouterControllerGrpc.HubRouterControllerBlockingStub hubRouterClient;
     RequestBuilder<DeviceActionRequest, Action> requestBuilder;
 
     @Override
-    public void execute(Action action, String hubId) throws ActionProcessingException {
+    public void send(Action action, String hubId) throws ActionProcessingException {
         DeviceActionRequest request = requestBuilder.build(action, hubId);
         sendRequest(request, hubId, action);
     }
