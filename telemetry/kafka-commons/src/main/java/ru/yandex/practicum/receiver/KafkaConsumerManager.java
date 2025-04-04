@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.errors.WakeupException;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.time.Duration;
@@ -36,15 +37,24 @@ public class KafkaConsumerManager<K, V> {
             try {
 
                 while (running) {
-                    log.info("Поток {} выполняет poll()", threadName);
-                    ConsumerRecords<K, V> records = consumer.poll(Duration.ofMillis(pollTimeout));
-                    if (!records.isEmpty()) {
-                        log.info("Поток {} получил {} сообщений", threadName, records.count());
-                        handler.accept(records);
+                    try {
+                        log.info("Поток {} выполняет poll()", threadName);
+                        ConsumerRecords<K, V> records = consumer.poll(Duration.ofMillis(pollTimeout));
+                        if (!records.isEmpty()) {
+                            log.info("Поток {} получил {} сообщений", threadName, records.count());
+                            handler.accept(records);
+                        }
+                    } catch (WakeupException e) {
+                        if (!running) {
+                            log.info("Поток {} получил WakeupException при завершении работы", threadName);
+                            break;
+                        }
+                        log.warn("Поток {} получил неожиданный WakeupException", threadName, e);
                     }
                 }
             } catch (Exception e) {
                 log.error("Поток {} завершился с ошибкой", threadName, e);
+
             } finally {
                 log.info("Поток {} завершает работу", threadName);
                 closeResources();
