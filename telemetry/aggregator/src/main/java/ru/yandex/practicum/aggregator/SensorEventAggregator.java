@@ -14,7 +14,6 @@ import ru.yandex.practicum.receiver.KafkaConsumerManager;
 import ru.yandex.practicum.receiver.OffsetCommitManager;
 import ru.yandex.practicum.record_process.RecordProcessor;
 import ru.yandex.practicum.record_process.RecordsBatchProcessor;
-
 import java.util.List;
 
 @Slf4j
