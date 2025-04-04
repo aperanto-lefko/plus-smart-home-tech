@@ -10,11 +10,11 @@ import java.util.concurrent.Executors;
 @Configuration
 @Slf4j
 public class AggregatorExecutorConfig {
-    @Bean(name = "snapshotExecutor")
+    @Bean(name = "eventToSnapshotExecutor")
     public ExecutorService snapshotExecutor() {
         return Executors.newSingleThreadExecutor(r -> {
-            log.info("Создание потока event-snapshot-consumer");
-               return new Thread(r, "event-snapshot-consumer");}
+            log.info("Создание потока event-to-snapshot-worker");
+               return new Thread(r, "event-to-snapshot-worker");}
         );
     }
 }

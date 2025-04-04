@@ -36,10 +36,10 @@ public class KafkaConsumerManager<K, V> {
             try {
 
                 while (running) {
-                    log.debug("Поток {} выполняет poll()", threadName);
+                    log.info("Поток {} выполняет poll()", threadName);
                     ConsumerRecords<K, V> records = consumer.poll(Duration.ofMillis(pollTimeout));
                     if (!records.isEmpty()) {
-                        log.debug("Поток {} получил {} сообщений", threadName, records.count());
+                        log.info("Поток {} получил {} сообщений", threadName, records.count());
                         handler.accept(records);
                     }
                 }
