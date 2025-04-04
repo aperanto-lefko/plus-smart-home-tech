@@ -29,7 +29,7 @@ public class DeserializeFactory {
         if (targetType == null) {
             throw new NullValueException("Неизвестный тип десериализатора " + type);
         }
-        // Безопасное приведение, так как мы контролируем типы в registry
+        // Безопасное приведение, контролируем типы в registry
         return (Deserializer<T>) new BaseAvroDeserializer<>(targetType);
     }
 }

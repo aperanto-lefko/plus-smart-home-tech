@@ -21,7 +21,7 @@ import lombok.experimental.FieldDefaults;
 import ru.yandex.practicum.exception.NotMutchException;
 
 @Entity
-@Table(name = "scenario_condition")
+@Table(name = "scenario_conditions")
 @Data
 @Builder
 @AllArgsConstructor
