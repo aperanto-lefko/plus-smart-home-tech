@@ -22,7 +22,7 @@ public class KafkaConsumerManager<K, V> {
     @Value("${kafka.consumer_manager.poll_timeout}")
     private int pollTimeout;
     private final KafkaConsumer<K, V> consumer;
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final ExecutorService executorService;
     private volatile boolean running = true;
 
     public void subscribe(List<String> topics) {
@@ -32,16 +32,21 @@ public class KafkaConsumerManager<K, V> {
 
     public void startPolling(Consumer<ConsumerRecords<K, V>> handler) {
         executorService.submit(() -> {
+            String threadName = Thread.currentThread().getName();
             try {
+
                 while (running) {
+                    log.debug("Поток {} выполняет poll()", threadName);
                     ConsumerRecords<K, V> records = consumer.poll(Duration.ofMillis(pollTimeout));
                     if (!records.isEmpty()) {
+                        log.debug("Поток {} получил {} сообщений", threadName, records.count());
                         handler.accept(records);
                     }
                 }
             } catch (Exception e) {
-                log.error("Загрузка сообщений pool завершилась с ошибкой", e);
+                log.error("Поток {} завершился с ошибкой", threadName, e);
             } finally {
+                log.info("Поток {} завершает работу", threadName);
                 closeResources();
             }
         });

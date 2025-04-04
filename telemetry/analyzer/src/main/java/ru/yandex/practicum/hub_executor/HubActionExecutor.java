@@ -38,9 +38,9 @@ public class HubActionExecutor implements HubExecutor<Action, ActionProcessingEx
                 log.warn("В результате отправки action {} на hubId {} пришел ответ null",action, hubId);
             }
         } catch (StatusRuntimeException e) {
-            log.error("Отправка действие action {} на hubId {} завершилась неудачей", action, hubId);
+            log.error("Отправка действия action {} на hubId {} завершилась неудачей", action, hubId);
             throw new ActionProcessingException(
-                    "Отправка действие action "+ action + "на hubId " +  hubId + " завершилась неудачей", e);
+                    "Отправка действия action "+ action + "на hubId " +  hubId + " завершилась неудачей", e);
         }
     }
 

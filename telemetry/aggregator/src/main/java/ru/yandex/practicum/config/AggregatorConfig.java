@@ -2,6 +2,8 @@ package ru.yandex.practicum.config;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.yandex.practicum.receiver.KafkaConsumerManager;
@@ -13,6 +15,7 @@ import ru.yandex.practicum.handler.SnapshotHandler;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Configuration
@@ -33,8 +36,9 @@ public class AggregatorConfig {
     }
     @Bean
     public KafkaConsumerManager<String, SensorEventAvro> sensorEventConsumerManager(
-            KafkaConsumer<String, SensorEventAvro> consumer) {
-        return new KafkaConsumerManager<>(consumer);
+            KafkaConsumer<String, SensorEventAvro> consumer,
+            @Qualifier("snapshotExecutor")ExecutorService executor) {
+        return new KafkaConsumerManager<>(consumer, executor);
     }
 
 }
