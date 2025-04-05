@@ -13,6 +13,7 @@ import java.util.function.Consumer;
 public class HubEventButchProcessor<K,V> implements Consumer<ConsumerRecords<K, V>> {
     private final OffsetCommitManager<K, V> offsetCommitManager;
     private final AtomicBoolean processing;
+    private final RecordProcessor<V> recordProcessor;
     @Override
     public void accept(ConsumerRecords<K, V> records) {
         processing.set(true);
@@ -21,8 +22,9 @@ public class HubEventButchProcessor<K,V> implements Consumer<ConsumerRecords<K, 
                 try {
                     offsetCommitManager.recordProcessed(record);
                     log.info("Получена снапшот для обработки {}", record.value());
-                    //обработка одного hubevent - сохранение удаление
-                    // HubEventAvro hubEventAvro = record.value();
+                    //обработка одного event - сохранение удаление
+                    var event = record.value();
+                    recordProcessor.process(event);
                     //далее работа с базой данных
 //                    Optional<R> result = recordProcessor.process(record.value());
 //                    result.ifPresent(snapshotHandler::handle);

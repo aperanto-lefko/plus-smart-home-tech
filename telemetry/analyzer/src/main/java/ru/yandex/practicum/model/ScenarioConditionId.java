@@ -17,5 +17,5 @@ import lombok.experimental.FieldDefaults;
 public class ScenarioConditionId {
     Long scenarioId;
     String sensorId;
-    Long actionId;
+    Long conditionId;
 }
