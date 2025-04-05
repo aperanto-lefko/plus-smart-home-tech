@@ -10,7 +10,7 @@ import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
 import ru.yandex.practicum.receiver.BaseAggregator;
 import ru.yandex.practicum.receiver.KafkaConsumerManager;
 import ru.yandex.practicum.receiver.OffsetCommitManager;
-import ru.yandex.practicum.record_process.HubEventButchProcessor;
+import ru.yandex.practicum.record_process.EventButchProcessor;
 import ru.yandex.practicum.record_process.RecordProcessor;
 
 
@@ -37,9 +37,9 @@ public class HubEventAggregator extends BaseAggregator<String, HubEventAvro> {
     }
 
     @Override
-    protected HubEventButchProcessor<String, HubEventAvro> createBatchProcessor()
+    protected EventButchProcessor<String, HubEventAvro> createBatchProcessor()
     {
-        return new HubEventButchProcessor<>(
+        return new EventButchProcessor<>(
                 offsetCommitManager,
                 processing,
                 recordProcessor
