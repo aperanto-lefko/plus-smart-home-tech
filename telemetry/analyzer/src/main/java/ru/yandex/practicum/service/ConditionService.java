@@ -9,15 +9,21 @@ import ru.yandex.practicum.mapper.ConditionMapper;
 import ru.yandex.practicum.model.Condition;
 import ru.yandex.practicum.repository.ConditionRepository;
 
+import java.util.List;
+
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ConditionService {
     ConditionRepository conditionRepository;
-    ConditionMapper mapper;
+    ConditionMapper conditionMapper;
 
-    public Condition save(ScenarioConditionAvro conditionAvro) {
-        Condition condition = mapper.toCondition(conditionAvro);
-        return conditionRepository.save(condition);
+    public List<Condition> saveAll(List<ScenarioConditionAvro> conditions) {
+        return conditionRepository.saveAll(
+                conditions.stream()
+                        .map(conditionMapper::toCondition)
+                        .toList()
+        );
     }
 }

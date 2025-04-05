@@ -46,4 +46,6 @@ public class Condition {
     @OneToMany(mappedBy = "condition", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private Set<ScenarioCondition> scenarioConditions = new HashSet<>();
+
+
     }
