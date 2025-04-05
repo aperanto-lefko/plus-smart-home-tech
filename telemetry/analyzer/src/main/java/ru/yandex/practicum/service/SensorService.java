@@ -19,10 +19,6 @@ import java.util.stream.Collectors;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SensorService {
     SensorRepository sensorRepository;
-//    public Sensor findById(String id) {
-//        return sensorRepository.findById(id)
-//                .orElseThrow(() -> new IllegalArgumentException("Сенсор с id" + id +" не найден "));
-//    }
 
     public Map<String, Sensor> findAllByIds(Set<String> sensorIds) {
         if (sensorIds == null || sensorIds.isEmpty()) {

@@ -1,5 +1,6 @@
 package ru.yandex.practicum.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -45,9 +46,7 @@ public class ScenarioService {
                         .build());
 
         Scenario savedScenario = scenarioRepository.save(scenario);
-        // Очищаем существующие условия и действия (если это обновление)
-        scenario.getScenarioConditions().clear();
-        scenario.getScenarioActions().clear();
+
         // Обрабатываем условия
         processConditions(event.getConditions(), savedScenario);
         // Обрабатываем действия
@@ -57,28 +56,6 @@ public class ScenarioService {
 
     }
 
-    /*создание через цикл
-    private void processConditions(List<ScenarioConditionAvro> conditions, Scenario scenario) {
-        conditions.forEach(conditionAvro -> {
-            Sensor sensor = sensorService.findById(conditionAvro.getSensorId());
-            Condition condition = conditionService.save(conditionAvro);
-
-            // Создаем ID вручную
-            ScenarioConditionId id = new ScenarioConditionId();
-            id.setScenarioId(scenario.getId());  // ID сценария уже есть!
-            id.setSensorId(sensor.getId());
-            id.setConditionId(condition.getId());
-
-            ScenarioCondition scenarioCondition = new ScenarioCondition();
-            scenarioCondition.setId(id);
-            scenarioCondition.setScenario(scenario);
-            scenarioCondition.setSensor(sensor);
-            scenarioCondition.setCondition(condition);
-
-            // ID установится автоматически при сохранении благодаря каскаду
-            scenario.getScenarioConditions().add(scenarioCondition);
-        });
-    }*/
     private void processConditions(List<ScenarioConditionAvro> conditions, Scenario scenario) {
         // 1. Пакетно загружаем сенсоры
         Set<String> sensorIds = conditions.stream()
@@ -108,29 +85,6 @@ public class ScenarioService {
         scenario.getScenarioConditions().addAll(scenarioConditions);
     }
 
-    /*создание через цикл
-    private void processActions(List<DeviceActionAvro> actions, Scenario scenario) {
-        for (DeviceActionAvro actionAvro : actions) {
-            // Проверяем существование сенсора
-            Sensor sensor = sensorService.findById(actionAvro.getSensorId());
-            // Создаем действие
-            Action action = actionService.save(actionAvro);
-            // Создаем связь сценарий-сенсор-действие
-            ScenarioAction scenarioAction = ScenarioAction.builder()
-                    .id(ScenarioActionId.builder()
-                            .scenarioId(scenario.getId())
-                            .sensorId(sensor.getId())
-                            .actionId(action.getId())
-                            .build())
-                    .scenario(scenario)
-                    .sensor(sensor)
-                    .action(action)
-                    .build();
-
-            // Добавляем в коллекцию (каскад сохранит action)
-            scenario.getScenarioActions().add(scenarioAction);
-        }
-    }*/
     private void processActions(List<DeviceActionAvro> actions, Scenario scenario) {
 
         // 1. Пакетно загружаем сенсоры
@@ -169,4 +123,63 @@ public class ScenarioService {
         // 5. Добавляем все связи сразу
         scenario.getScenarioActions().addAll(scenarioActions);
     }
+
+
+    @Transactional
+    public void removeScenario(String name){
+        //чтобы каскадно удалить связи - надо их загрузить
+        Scenario scenario = scenarioRepository.findByName(name)
+                .orElseThrow(() -> new EntityNotFoundException("Сценарий не найден"));
+        scenarioRepository.delete(scenario);
+    }
+
 }
+    /*создание через цикл
+    private void processConditions(List<ScenarioConditionAvro> conditions, Scenario scenario) {
+        conditions.forEach(conditionAvro -> {
+            Sensor sensor = sensorService.findById(conditionAvro.getSensorId());
+            Condition condition = conditionService.save(conditionAvro);
+
+            // Создаем ID вручную
+            ScenarioConditionId id = new ScenarioConditionId();
+            id.setScenarioId(scenario.getId());  // ID сценария уже есть!
+            id.setSensorId(sensor.getId());
+            id.setConditionId(condition.getId());
+
+            ScenarioCondition scenarioCondition = new ScenarioCondition();
+            scenarioCondition.setId(id);
+            scenarioCondition.setScenario(scenario);
+            scenarioCondition.setSensor(sensor);
+            scenarioCondition.setCondition(condition);
+
+            // ID установится автоматически при сохранении благодаря каскаду
+            scenario.getScenarioConditions().add(scenarioCondition);
+        });
+    }*/
+
+
+    /*создание через цикл
+    private void processActions(List<DeviceActionAvro> actions, Scenario scenario) {
+        for (DeviceActionAvro actionAvro : actions) {
+            // Проверяем существование сенсора
+            Sensor sensor = sensorService.findById(actionAvro.getSensorId());
+            // Создаем действие
+            Action action = actionService.save(actionAvro);
+            // Создаем связь сценарий-сенсор-действие
+            ScenarioAction scenarioAction = ScenarioAction.builder()
+                    .id(ScenarioActionId.builder()
+                            .scenarioId(scenario.getId())
+                            .sensorId(sensor.getId())
+                            .actionId(action.getId())
+                            .build())
+                    .scenario(scenario)
+                    .sensor(sensor)
+                    .action(action)
+                    .build();
+
+            // Добавляем в коллекцию (каскад сохранит action)
+            scenario.getScenarioActions().add(scenarioAction);
+        }
+    }*/
+
+
