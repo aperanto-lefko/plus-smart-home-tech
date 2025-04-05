@@ -18,6 +18,7 @@ public class AnalyzerExecutorConfig {
                 }
         );
     }
+
     @Bean(name = "hubEventAnalyzer")
     public ExecutorService hubEventAnalyzerExecutor() {
         return Executors.newSingleThreadExecutor(r -> {

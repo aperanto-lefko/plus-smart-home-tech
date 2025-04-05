@@ -15,11 +15,12 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class ActionServiceImpl implements ActionService{
+public class ActionServiceImpl implements ActionService {
     ActionRepository actionRepository;
     ActionMapper actionMapper;
-@Override
-@Transactional
+
+    @Override
+    @Transactional
     public List<Action> saveAll(List<DeviceActionAvro> actions) {
         return actionRepository.saveAll(
                 actions.stream()

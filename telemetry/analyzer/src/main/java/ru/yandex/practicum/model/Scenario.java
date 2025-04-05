@@ -24,7 +24,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "scenarios",
-uniqueConstraints = @UniqueConstraint(columnNames = {"hub_id", "name"}))
+        uniqueConstraints = @UniqueConstraint(columnNames = {"hub_id", "name"}))
 @Data
 @Builder
 @AllArgsConstructor

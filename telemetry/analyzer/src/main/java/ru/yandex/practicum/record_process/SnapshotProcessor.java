@@ -51,6 +51,7 @@ public class SnapshotProcessor implements RecordProcessor<SensorsSnapshotAvro> {
                                 snapshot
                         ));
     }
+
     private boolean checkCondition(Condition condition, Sensor sensor, SensorsSnapshotAvro snapshot) {
         SensorStateAvro record = snapshot.getSensorsState().get(sensor.getId());
 
@@ -64,46 +65,47 @@ public class SnapshotProcessor implements RecordProcessor<SensorsSnapshotAvro> {
             return switch (condition.getType()) {
                 case TEMPERATURE -> sensorData instanceof TemperatureSensorEventAvro tempData &&
                         evaluateCondition(
-                        tempData.getTemperatureC(),
-                        condition.getOperationType(),
-                        condition.getValue()
-                );
+                                tempData.getTemperatureC(),
+                                condition.getOperationType(),
+                                condition.getValue()
+                        );
                 case HUMIDITY -> sensorData instanceof ClimateSensorEventAvro tempData &&
                         evaluateCondition(
-                        tempData.getHumidity(),
-                        condition.getOperationType(),
-                        condition.getValue()
-                );
+                                tempData.getHumidity(),
+                                condition.getOperationType(),
+                                condition.getValue()
+                        );
                 case CO2LEVEL -> sensorData instanceof ClimateSensorEventAvro tempData &&
                         evaluateCondition(
-                        tempData.getCo2Level(),
-                        condition.getOperationType(),
-                        condition.getValue()
-                );
+                                tempData.getCo2Level(),
+                                condition.getOperationType(),
+                                condition.getValue()
+                        );
                 case LUMINOSITY -> sensorData instanceof LightSensorEventAvro tempData &&
                         evaluateCondition(
-                        tempData.getLuminosity(),
-                        condition.getOperationType(),
-                        condition.getValue()
-                );
+                                tempData.getLuminosity(),
+                                condition.getOperationType(),
+                                condition.getValue()
+                        );
                 case MOTION -> sensorData instanceof MotionSensorEventAvro tempData &&
                         evaluateCondition(
-                        tempData.getMotion() ? 1 : 0,
-                        condition.getOperationType(),
-                        condition.getValue()
-                );
+                                tempData.getMotion() ? 1 : 0,
+                                condition.getOperationType(),
+                                condition.getValue()
+                        );
                 case SWITCH -> sensorData instanceof SwitchSensorEventAvro tempData &&
                         evaluateCondition(
-                        tempData.getState() ? 1 : 0,
-                        condition.getOperationType(),
-                        condition.getValue()
-                );
+                                tempData.getState() ? 1 : 0,
+                                condition.getOperationType(),
+                                condition.getValue()
+                        );
             };
         } catch (ClassCastException e) {
             log.error("Type mismatch for sensor {}: {}", sensor.getId(), e.getMessage());
             return false;
         }
     }
+
     private boolean evaluateCondition(int sensorValue, ConditionOperationType operation, int targetValue) {
         return switch (operation) {
             case EQUALS -> sensorValue == targetValue;
@@ -111,6 +113,7 @@ public class SnapshotProcessor implements RecordProcessor<SensorsSnapshotAvro> {
             case LOWER_THAN -> sensorValue < targetValue;
         };
     }
+
     private void sendAction(Scenario scenario, String hubId) {
         scenario.getScenarioActions().forEach(scenarioAction -> {
             Action action = scenarioAction.getAction();

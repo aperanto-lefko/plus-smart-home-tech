@@ -19,15 +19,16 @@ import java.util.List;
 @Component
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SnapshotAggregator extends BaseAggregator<String, SensorsSnapshotAvro> {
-final RecordProcessor<SensorsSnapshotAvro> recordProcessor;
+    final RecordProcessor<SensorsSnapshotAvro> recordProcessor;
+
     @Autowired
     public SnapshotAggregator(KafkaConsumerManager<String, SensorsSnapshotAvro> consumerManager,
                               OffsetCommitManager<String, SensorsSnapshotAvro> offsetCommitManager,
-            RecordProcessor<SensorsSnapshotAvro> recordProcessor)
-    {
-        super (consumerManager, offsetCommitManager);
+                              RecordProcessor<SensorsSnapshotAvro> recordProcessor) {
+        super(consumerManager, offsetCommitManager);
         this.recordProcessor = recordProcessor;
     }
+
     @Value("${kafka.topics.snapshots_topic}")
     private String inputTopic;
 
@@ -35,13 +36,13 @@ final RecordProcessor<SensorsSnapshotAvro> recordProcessor;
     protected List<String> getInputTopics() {
         return List.of(inputTopic);
     }
+
     @Override
-protected EventButchProcessor<String, SensorsSnapshotAvro> createBatchProcessor()
-    {
-       return new EventButchProcessor<>(
-               offsetCommitManager,
-               processing,
-               recordProcessor
-       );
+    protected EventButchProcessor<String, SensorsSnapshotAvro> createBatchProcessor() {
+        return new EventButchProcessor<>(
+                offsetCommitManager,
+                processing,
+                recordProcessor
+        );
     }
 }

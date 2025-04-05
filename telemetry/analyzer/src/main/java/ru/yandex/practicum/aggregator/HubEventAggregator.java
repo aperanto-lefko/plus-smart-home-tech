@@ -21,13 +21,15 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class HubEventAggregator extends BaseAggregator<String, HubEventAvro> {
     final RecordProcessor<HubEventAvro> recordProcessor;
+
     @Autowired
     public HubEventAggregator(KafkaConsumerManager<String, HubEventAvro> consumerManager,
                               OffsetCommitManager<String, HubEventAvro> offsetCommitManager,
-                              RecordProcessor<HubEventAvro> recordProcessor ) {
-        super (consumerManager, offsetCommitManager);
+                              RecordProcessor<HubEventAvro> recordProcessor) {
+        super(consumerManager, offsetCommitManager);
         this.recordProcessor = recordProcessor;
     }
+
     @Value("${kafka.topics.hub_events_topic}")
     private String inputTopic;
 
@@ -37,8 +39,7 @@ public class HubEventAggregator extends BaseAggregator<String, HubEventAvro> {
     }
 
     @Override
-    protected EventButchProcessor<String, HubEventAvro> createBatchProcessor()
-    {
+    protected EventButchProcessor<String, HubEventAvro> createBatchProcessor() {
         return new EventButchProcessor<>(
                 offsetCommitManager,
                 processing,

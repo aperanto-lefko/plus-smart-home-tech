@@ -40,7 +40,7 @@ public class ScenarioServiceImpl implements ScenarioService {
     @Transactional
     public void addScenario(ScenarioAddedEventAvro event, String hubId) {
 
-        Scenario scenario = scenarioRepository.findByHubIdAndName(hubId, event.getName())
+        Scenario scenario = scenarioRepository.findByHubIdAndNameWithRelations(hubId, event.getName())
                 .orElseGet(() -> Scenario.builder()
                         .hubId(hubId)
                         .name(event.getName())
@@ -129,7 +129,7 @@ public class ScenarioServiceImpl implements ScenarioService {
     @Transactional
     public void removeScenario(String name, String hubId) {
         //чтобы каскадно удалить связи - надо их загрузить
-        Scenario scenario = scenarioRepository.findByHubIdAndName(hubId, name)
+        Scenario scenario = scenarioRepository.findByHubIdAndNameWithRelations(hubId, name)
                 .orElseThrow(() -> new EntityNotFoundException("Сценарий не найден"));
         scenarioRepository.delete(scenario);
     }

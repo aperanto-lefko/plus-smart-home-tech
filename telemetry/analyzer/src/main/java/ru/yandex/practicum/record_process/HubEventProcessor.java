@@ -34,7 +34,7 @@ public class HubEventProcessor implements RecordProcessor<HubEventAvro> {
             case ScenarioAddedEventAvro scenarioAddedEvent ->
                     scenarioService.addScenario(scenarioAddedEvent, event.getHubId());
             case ScenarioRemovedEventAvro scenarioRemovedEvent ->
-                    scenarioService.removeScenario(scenarioRemovedEvent.getName(),event.getHubId());
+                    scenarioService.removeScenario(scenarioRemovedEvent.getName(), event.getHubId());
             case null, default -> log.warn("Неизвестный тип для обработки: {}", event.getEvent().getClass().getName());
         }
     }

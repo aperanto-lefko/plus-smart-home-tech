@@ -1,6 +1,5 @@
 package ru.yandex.practicum.model;
 
-import jakarta.persistence.Embedded;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -52,7 +51,7 @@ public class ScenarioCondition {
     @PrePersist
     @PreUpdate
     private void validateHubId() {
-        if(!scenario.getHubId().equals(sensor.getHubId())) {
+        if (!scenario.getHubId().equals(sensor.getHubId())) {
             throw new NotMutchException(String.format("id хабов не совпадают для сценария {} и для сенсора {}",
                     scenario.getId(), sensor.getId()));
         }

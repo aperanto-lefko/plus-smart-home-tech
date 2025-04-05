@@ -31,15 +31,15 @@ public class HubActionSender implements HubSender<Action, ActionProcessingExcept
     private void sendRequest(DeviceActionRequest request, String hubId, Action action) {
         try {
             Empty response = hubRouterClient.handleDeviceAction(request);
-            if(response!=null) {
+            if (response != null) {
                 log.info("Действие action {} успешно отправлено на hubId {}", action, hubId);
             } else {
-                log.warn("В результате отправки action {} на hubId {} пришел ответ null",action, hubId);
+                log.warn("В результате отправки action {} на hubId {} пришел ответ null", action, hubId);
             }
         } catch (StatusRuntimeException e) {
             log.error("Отправка действия action {} на hubId {} завершилась неудачей", action, hubId);
             throw new ActionProcessingException(
-                    "Отправка действия action "+ action + "на hubId " +  hubId + " завершилась неудачей", e);
+                    "Отправка действия action " + action + "на hubId " + hubId + " завершилась неудачей", e);
         }
     }
 

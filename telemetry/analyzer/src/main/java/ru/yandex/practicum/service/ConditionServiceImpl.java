@@ -19,8 +19,9 @@ import java.util.List;
 public class ConditionServiceImpl implements ConditionService {
     ConditionRepository conditionRepository;
     ConditionMapper conditionMapper;
-@Override
-@Transactional
+
+    @Override
+    @Transactional
     public List<Condition> saveAll(List<ScenarioConditionAvro> conditions) {
         return conditionRepository.saveAll(
                 conditions.stream()

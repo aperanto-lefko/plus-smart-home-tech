@@ -26,6 +26,7 @@ public class DeviceActionRequestBuilder implements RequestBuilder<DeviceActionRe
                 .setTimestamp(getCurrentTimestamp())
                 .build();
     }
+
     private Optional<ScenarioAction> findScenarioActionForHub(Action action, String hubId) {
         return action.getScenarioActions().stream()
                 .filter(sa -> sa.getScenario().getHubId().equals(hubId))

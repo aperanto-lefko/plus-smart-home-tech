@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class SensorServiceImpl implements SensorService {
     SensorRepository sensorRepository;
+
     @Override
     public Map<String, Sensor> findAllByIds(Set<String> sensorIds) {
         if (sensorIds == null || sensorIds.isEmpty()) {
@@ -34,6 +35,7 @@ public class SensorServiceImpl implements SensorService {
                         Function.identity()
                 ));
     }
+
     @Override
     @Transactional
     public void addSensor(String sensorId, String hubId) {
@@ -45,18 +47,20 @@ public class SensorServiceImpl implements SensorService {
                 .hubId(hubId)
                 .build());
     }
+
     @Override
     @Transactional
     public void removeSensor(String sensorId, String hubId) {
-        getSensorByIdAndHubId(sensorId, hubId).ifPresent(sensorRepository::delete);
+        getSensorByIdAndHubIdWithRelations(sensorId, hubId).ifPresent(sensorRepository::delete);
+        //чтобы удалить в связанных таблицах надо явно загрузить связи
     }
 
     private boolean existsBySensorIdsAndHubId(String hubId, String sensorId) {
         return sensorRepository.existsByIdInAndHubId(List.of(sensorId), hubId);
     }
 
-    private Optional<Sensor> getSensorByIdAndHubId(String sensorId, String hubId) {
-        return sensorRepository.findByIdAndHubId(sensorId, hubId);
+    private Optional<Sensor> getSensorByIdAndHubIdWithRelations(String sensorId, String hubId) {
+        return sensorRepository.findByIdAndHubIdWithRelations(sensorId, hubId);
     }
 
 }

@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface ScenarioService {
     void addScenario(ScenarioAddedEventAvro event, String hubId);
+
     void removeScenario(String name, String hubId);
+
     List<Scenario> getScenariosByHubId(String hubId);
 }
