@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface ScenarioRepository extends JpaRepository<Scenario, Long> {
     Optional<Scenario> findByHubIdAndName(String hubId, String name);
-    Optional<Scenario> findByName(String name);
+
 }

@@ -126,9 +126,9 @@ public class ScenarioService {
 
 
     @Transactional
-    public void removeScenario(String name){
+    public void removeScenario(String name, String hubId){
         //чтобы каскадно удалить связи - надо их загрузить
-        Scenario scenario = scenarioRepository.findByName(name)
+        Scenario scenario = scenarioRepository.findByHubIdAndName(hubId, name)
                 .orElseThrow(() -> new EntityNotFoundException("Сценарий не найден"));
         scenarioRepository.delete(scenario);
     }
