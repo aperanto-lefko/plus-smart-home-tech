@@ -29,6 +29,7 @@ import java.util.stream.IntStream;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Transactional(readOnly = true)
 public class ScenarioServiceImpl implements ScenarioService {
     ScenarioRepository scenarioRepository;
     SensorService sensorService;
@@ -134,7 +135,6 @@ public class ScenarioServiceImpl implements ScenarioService {
     }
 
     @Override
-    @Transactional
     public List<Scenario> getScenariosByHubId(String hubId) {
         return scenarioRepository.findByHubId(hubId);
     }

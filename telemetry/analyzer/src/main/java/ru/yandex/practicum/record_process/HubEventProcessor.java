@@ -11,7 +11,6 @@ import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.ScenarioAddedEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.ScenarioRemovedEventAvro;
 import ru.yandex.practicum.service.ScenarioService;
-import ru.yandex.practicum.service.ScenarioServiceImpl;
 import ru.yandex.practicum.service.SensorService;
 
 
