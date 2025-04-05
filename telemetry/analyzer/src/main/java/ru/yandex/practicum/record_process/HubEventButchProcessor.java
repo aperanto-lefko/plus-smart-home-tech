@@ -21,7 +21,7 @@ public class HubEventButchProcessor<K,V> implements Consumer<ConsumerRecords<K, 
             for (ConsumerRecord<K, V> record : records) {
                 try {
                     offsetCommitManager.recordProcessed(record);
-                    log.info("Получена снапшот для обработки {}", record.value());
+                    log.info("Получена запись для обработки {}", record.value());
                     //обработка одного event - сохранение удаление
                     var event = record.value();
                     recordProcessor.process(event);

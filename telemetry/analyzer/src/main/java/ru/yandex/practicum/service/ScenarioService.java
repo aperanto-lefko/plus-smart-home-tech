@@ -132,6 +132,11 @@ public class ScenarioService {
                 .orElseThrow(() -> new EntityNotFoundException("Сценарий не найден"));
         scenarioRepository.delete(scenario);
     }
+    @Transactional
+    public List<Scenario> getScenariosByHubId(String hubId) {
+        return scenarioRepository.findByHubId(hubId);
+    }
+
 
 }
     /*создание через цикл
