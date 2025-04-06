@@ -26,19 +26,35 @@ public interface ScenarioRepository extends JpaRepository<Scenario, Long> {
 //            "LEFT JOIN FETCH s.scenarioActions " +
 //            "WHERE s.hubId = :hubId")
 //    List<Scenario> findByHubIdWithRelations(@Param("hubId") String hubId);
-    @EntityGraph(attributePaths = {
-            "scenarioConditions",
-            "scenarioConditions.condition",  // Загружаем вложенную сущность
-            "scenarioActions",
-            "scenarioActions.action"
-    })
-    List<Scenario> findByHubId(String hubId);
+
+//    @EntityGraph(attributePaths = {
+//            "scenarioConditions",
+//            "scenarioConditions.condition",  // Загружаем вложенную сущность
+//            "scenarioActions",
+//            "scenarioActions.action"
+//    })
+//    List<Scenario> findByHubId(String hubId);
 
     @EntityGraph(attributePaths = {
             "scenarioConditions",
-            "scenarioConditions.condition",  // Загружаем вложенную сущность Condition
+            "scenarioConditions.condition",
+            "scenarioConditions.sensor",
             "scenarioActions",
-            "scenarioActions.action"        // Загружаем вложенную сущность Action
+            "scenarioActions.action",
+            "scenarioActions.sensor",
+            "scenarioActions.action.scenarioActions"
+    })
+    List<Scenario> findByHubId(String hubId);
+
+
+    @EntityGraph(attributePaths = {
+            "scenarioConditions",
+            "scenarioConditions.condition",
+            "scenarioConditions.sensor",
+            "scenarioActions",
+            "scenarioActions.action",
+            "scenarioActions.sensor",
+            "scenarioActions.action.scenarioActions"
     })
     Optional<Scenario> findByHubIdAndName(
             @Param("hubId") String hubId,

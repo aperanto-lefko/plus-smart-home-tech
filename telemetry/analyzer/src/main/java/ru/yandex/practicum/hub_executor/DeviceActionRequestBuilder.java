@@ -34,11 +34,13 @@ public class DeviceActionRequestBuilder implements RequestBuilder<DeviceActionRe
     }
 
     private DeviceActionProto buildActionProto(ScenarioAction scenarioAction) {
-        return DeviceActionProto.newBuilder()
+        DeviceActionProto.Builder builder = DeviceActionProto.newBuilder()
                 .setSensorId(scenarioAction.getSensor().getId())
-                .setType(ActionTypeProto.valueOf(scenarioAction.getAction().getType().name()))
-                .setValue(scenarioAction.getAction().getValue())
-                .build();
+                .setType(ActionTypeProto.valueOf(scenarioAction.getAction().getType().name()));
+        Optional.ofNullable(scenarioAction.getAction().getValue())
+                .ifPresent(builder::setValue);
+        return builder.build();
+
     }
 
     private Timestamp getCurrentTimestamp() {
