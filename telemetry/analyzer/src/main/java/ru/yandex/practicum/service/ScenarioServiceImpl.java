@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.kafka.telemetry.event.DeviceActionAvro;
@@ -30,6 +31,7 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Transactional(readOnly = true)
+@Slf4j
 public class ScenarioServiceImpl implements ScenarioService {
     ScenarioRepository scenarioRepository;
     SensorService sensorService;
@@ -45,7 +47,7 @@ public class ScenarioServiceImpl implements ScenarioService {
                         .hubId(hubId)
                         .name(event.getName())
                         .build());
-
+        log.info("Добавление сценария {}", scenario);
         Scenario savedScenario = scenarioRepository.save(scenario);
 
         // Обрабатываем условия
@@ -62,8 +64,9 @@ public class ScenarioServiceImpl implements ScenarioService {
         Set<String> sensorIds = conditions.stream()
                 .map(ScenarioConditionAvro::getSensorId)
                 .collect(Collectors.toSet());
+        log.info("Поиск сенсоров по ids из conditions");
         Map<String, Sensor> sensors = sensorService.findAllByIds(sensorIds);
-
+        log.info("Сохранение списка conditions");
         // 2. Пакетно сохраняем условия
         List<Condition> savedConditions = conditionService.saveAll(conditions);
 
@@ -86,8 +89,9 @@ public class ScenarioServiceImpl implements ScenarioService {
         scenario.getScenarioConditions().addAll(scenarioConditions);
     }
 
-    private void processActions(List<DeviceActionAvro> actions, Scenario scenario) {
 
+    private void processActions(List<DeviceActionAvro> actions, Scenario scenario) {
+        log.info("Поиск сенсоров по ids из actions");
         // 1. Пакетно загружаем сенсоры
         Set<String> sensorIds = actions.stream()
                 .map(DeviceActionAvro::getSensorId)
@@ -95,6 +99,7 @@ public class ScenarioServiceImpl implements ScenarioService {
         Map<String, Sensor> sensors = sensorService.findAllByIds(sensorIds);
         // 2. Пакетно создаем Action сущности
         // 3. Пакетно сохраняем Action
+        log.info("Сохранение списка actions");
         List<Action> savedActions = actionService.saveAll(actions);
 
         // 4. Создаем связи ScenarioAction
@@ -131,11 +136,13 @@ public class ScenarioServiceImpl implements ScenarioService {
         //чтобы каскадно удалить связи - надо их загрузить
         Scenario scenario = scenarioRepository.findByHubIdAndNameWithRelations(hubId, name)
                 .orElseThrow(() -> new EntityNotFoundException("Сценарий не найден"));
+        log.info("Удаление scenario {}", scenario);
         scenarioRepository.delete(scenario);
     }
 
     @Override
     public List<Scenario> getScenariosByHubId(String hubId) {
+        log.info("Поиск scenario по hubId {}", hubId);
         return scenarioRepository.findByHubId(hubId);
     }
 

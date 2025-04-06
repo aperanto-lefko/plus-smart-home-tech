@@ -30,6 +30,7 @@ public class SensorServiceImpl implements SensorService {
         if (sensorIds == null || sensorIds.isEmpty()) {
             return Collections.emptyMap();
         }
+        log.info("Поиск списка sensors по ids");
         List<Sensor> sensors = sensorRepository.findAllByIdIn(sensorIds);
         return sensors.stream()
                 .collect(Collectors.toMap(
@@ -55,15 +56,18 @@ public class SensorServiceImpl implements SensorService {
     @Override
     @Transactional
     public void removeSensor(String sensorId, String hubId) {
+        log.info("Удаление sensor по id {} и hubId {}", sensorId, hubId);
         getSensorByIdAndHubIdWithRelations(sensorId, hubId).ifPresent(sensorRepository::delete);
         //чтобы удалить в связанных таблицах надо явно загрузить связи
     }
 
     private boolean existsBySensorIdsAndHubId(String hubId, String sensorId) {
+        log.info("Поиск совпадений sensors по id {} и hubId {}", sensorId, hubId);
         return sensorRepository.existsByIdInAndHubId(List.of(sensorId), hubId);
     }
 
     private Optional<Sensor> getSensorByIdAndHubIdWithRelations(String sensorId, String hubId) {
+        log.info("Поиск sensors по id {} и hubId {} со связями ", sensorId, hubId);
         return sensorRepository.findByIdAndHubIdWithRelations(sensorId, hubId);
     }
 
