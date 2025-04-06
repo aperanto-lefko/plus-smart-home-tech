@@ -18,7 +18,7 @@ import ru.yandex.practicum.model.Action;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class HubActionSender implements HubSender<Action, ActionProcessingException> {
-    //@GrpcClient("hub-router")
+
     HubRouterControllerGrpc.HubRouterControllerBlockingStub hubRouterClient;
     RequestBuilder<DeviceActionRequest, Action> requestBuilder;
 
