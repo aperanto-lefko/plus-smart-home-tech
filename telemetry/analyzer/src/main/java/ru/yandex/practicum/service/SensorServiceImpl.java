@@ -3,6 +3,7 @@ package ru.yandex.practicum.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.model.Sensor;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Transactional(readOnly = true)
+@Slf4j
 public class SensorServiceImpl implements SensorService {
     SensorRepository sensorRepository;
 
@@ -39,13 +41,15 @@ public class SensorServiceImpl implements SensorService {
     @Override
     @Transactional
     public void addSensor(String sensorId, String hubId) {
+        log.info("Добавление сенсора с id {} с hubId {}", sensorId, hubId);
         if (existsBySensorIdsAndHubId(hubId, sensorId)) {
             return;
         }
-        sensorRepository.save(Sensor.builder()
+        Sensor sensor = sensorRepository.save(Sensor.builder()
                 .id(sensorId)
                 .hubId(hubId)
                 .build());
+        log.info("Успешно добавлен сенсор {}", sensor);
     }
 
     @Override

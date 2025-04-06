@@ -39,7 +39,7 @@ public class Action {
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
     DeviceActionType type;
-    @Column(name = "value", nullable = false)
+    @Column(name = "value")
     Integer value;
     @OneToMany(mappedBy = "action", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
