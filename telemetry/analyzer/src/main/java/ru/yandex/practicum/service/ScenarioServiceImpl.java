@@ -145,8 +145,6 @@ public class ScenarioServiceImpl implements ScenarioService {
         log.info("Поиск scenario по hubId {}", hubId);
         return scenarioRepository.findByHubId(hubId);
     }
-
-
 }
     /*создание через цикл
     private void processConditions(List<ScenarioConditionAvro> conditions, Scenario scenario) {
