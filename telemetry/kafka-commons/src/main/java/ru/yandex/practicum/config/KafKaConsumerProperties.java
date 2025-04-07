@@ -19,7 +19,6 @@ import java.util.Properties;
 @Setter
 public class KafKaConsumerProperties {
     String bootstrapServer;
-    String autoOffsetResetConfig;
     Boolean enableAutoCommitConfig;
     String keyDeserializeClass;
     String autoOffsetReset;

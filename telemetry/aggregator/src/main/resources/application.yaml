@@ -12,14 +12,13 @@ kafka:
     shutdown_timeout: 60
     poll_timeout: 100
   commit_manager:
-    batch-size: 10
+    batch-size: 5
   consumer:
     common:
       bootstrap_server: localhost:9092
       key_serialize_class: org.apache.kafka.common.serialization.StringSerializer
       value_serialize_class: ru.yandex.practicum.serializer.AvroSerializer
-      auto_offset_reset_config: earliest
-      enable_auto_commit_config: true
+      enable_auto_commit_config: false
       auto_offset_reset: earliest
       enable_auto_commit: false
       session_timeout: 45000

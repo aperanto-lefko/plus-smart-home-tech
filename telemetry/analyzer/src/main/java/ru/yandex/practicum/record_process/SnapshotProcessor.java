@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.exception.ActionProcessingException;
 import ru.yandex.practicum.hub_executor.HubActionSender;
 import ru.yandex.practicum.kafka.telemetry.event.ClimateSensorEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.LightSensorEventAvro;
@@ -17,16 +18,12 @@ import ru.yandex.practicum.model.Action;
 import ru.yandex.practicum.model.Condition;
 import ru.yandex.practicum.model.ConditionOperationType;
 import ru.yandex.practicum.model.Scenario;
-import ru.yandex.practicum.model.ScenarioCondition;
 import ru.yandex.practicum.model.Sensor;
 import ru.yandex.practicum.service.ScenarioService;
 
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+
 
 @Slf4j
 @Component
@@ -38,13 +35,15 @@ public class SnapshotProcessor implements RecordProcessor<SensorsSnapshotAvro> {
 
     @Override
     public void process(SensorsSnapshotAvro snapshot) {
-        String hubId = snapshot.getHubId();
-        List<Scenario> scenarios = scenarioService.getScenariosByHubId(hubId);
-
-        scenarios.stream()
-                .filter(scenario -> isScenarioMatch(scenario, snapshot))
-                .forEach(scenario -> sendAction(scenario, hubId));
-
+       try {
+           String hubId = snapshot.getHubId();
+           List<Scenario> scenarios = scenarioService.getScenariosByHubId(hubId);
+           scenarios.stream()
+                   .filter(scenario -> isScenarioMatch(scenario, snapshot))
+                   .forEach(scenario -> sendAction(scenario, hubId));
+       } catch (ActionProcessingException e) {
+           log.warn("отправка сообщения на hub не удалась {}", e.getMessage(), e.getCause());
+       }
     }
 
     private boolean isScenarioMatch(Scenario scenario, SensorsSnapshotAvro snapshot) {

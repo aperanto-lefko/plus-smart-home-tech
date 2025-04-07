@@ -30,7 +30,6 @@ public abstract class BaseAggregator<K, V> {
 
     @PreDestroy
     public void shutdown() {
-
         consumerManager.shutdown();
         waitForCompletion();
     }
@@ -44,7 +43,7 @@ public abstract class BaseAggregator<K, V> {
                 Thread.currentThread().interrupt();
             }
         }
-        offsetCommitManager.commitOffsets();
-        log.info("Final offsets committed during shutdown");
+
     }
+
 }
