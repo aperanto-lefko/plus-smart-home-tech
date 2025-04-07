@@ -38,7 +38,7 @@ kafka:
     shutdown_timeout: 60
     poll_timeout: 100
   commit_manager:
-    batch-size: 5
+    batch-size: 1
   consumer:
       common:
           bootstrap_server: localhost:9092
