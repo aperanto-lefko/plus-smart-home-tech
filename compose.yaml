@@ -57,3 +57,17 @@ services:
       KAFKA_BROKERCONNECT: kafka:29092
     depends_on:
       - kafka
+  analyzer-db:
+    image: postgres:16.1
+    container_name: analyzer-db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=analyzer-db
+      - POSTGRES_USER=analyzer
+      - POSTGRES_PASSWORD=analyzer
+    healthcheck: #секция  обеспечения того, что другие контейнеры (например, ваше приложение) не будут пытаться подключиться к базе данных, пока она не будет готова.
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10

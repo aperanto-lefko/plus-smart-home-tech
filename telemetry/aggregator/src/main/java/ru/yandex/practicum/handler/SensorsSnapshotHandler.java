@@ -13,7 +13,7 @@ import ru.yandex.practicum.producer.KafkaEventSender;
 
 @Slf4j
 @Component
-public class SensorsSnapshotHandler extends KafkaEventSender<SensorsSnapshotAvro> implements SnapshotHandler <SensorsSnapshotAvro> {
+public class SensorsSnapshotHandler extends KafkaEventSender<SensorsSnapshotAvro> implements SnapshotHandler<SensorsSnapshotAvro> {
     @Value("${kafka.topics.snapshots_topic}")
     private String snapshotsTopic;
 

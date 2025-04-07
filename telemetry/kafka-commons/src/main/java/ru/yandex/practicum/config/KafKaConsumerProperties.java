@@ -13,15 +13,12 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Properties;
 
 @Configuration
-@ConfigurationProperties(prefix = "kafka.consumer")
+@ConfigurationProperties(prefix = "kafka.consumer.common")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Getter
 @Setter
 public class KafKaConsumerProperties {
     String bootstrapServer;
-    String clientId;
-    String groupId;
-    String autoOffsetResetConfig;
     Boolean enableAutoCommitConfig;
     String keyDeserializeClass;
     String autoOffsetReset;
@@ -38,8 +35,6 @@ public class KafKaConsumerProperties {
     public Properties buildProperties() {
         Properties properties = new Properties();
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
-        properties.put(ConsumerConfig.CLIENT_ID_CONFIG, clientId);
-        properties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset); // Что делать при отсутствии оффсета: "earliest", "latest", "none"
         properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, enableAutoCommit); // Автоматически коммитить оффсеты (true/false)
         properties.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, sessionTimeout); // Таймаут сессии (мс) - если consumer не отправляет heartbeat дольше этого времени, считается мертвым

@@ -1,5 +1,6 @@
-package ru.yandex.practicum.eventAggregator;
+package ru.yandex.practicum.record_process;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecord;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
@@ -10,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 @Component
+@Slf4j
 public class SensorSnapshotUpdater {
     private final Map<String, SensorsSnapshotAvro> snapshots = new HashMap<>();
 
@@ -38,10 +40,13 @@ public class SensorSnapshotUpdater {
                     if (oldState != null &&
                             (oldState.getTimestamp().isAfter(e.getTimestamp()) ||
                                     dataEquals((SpecificRecord)oldState.getData(), (SpecificRecord)e.getEvent()))) {
+                        log.info("Событие проверено, существовало ранее, либо timestamp " +
+                                "существующего состояний новее либо данные не прошли проверку dataequals");
                         return null;
                     }
 
                     // Обновляем состояние
+                    log.info("Обновляем состояние");
                     SensorStateAvro newState = new SensorStateAvro(e.getTimestamp(), e.getEvent());
                     snapshot.getSensorsState().put(e.getId(), newState);
                     snapshot.setTimestamp(e.getTimestamp());
