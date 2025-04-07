@@ -11,5 +11,4 @@ public interface SensorService {
     void addSensor(String sensorId, String hubId);
 
     void removeSensor(String sensorId, String hubId);
-
 }

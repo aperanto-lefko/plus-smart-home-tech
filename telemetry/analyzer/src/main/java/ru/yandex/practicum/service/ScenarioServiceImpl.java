@@ -41,7 +41,6 @@ public class ScenarioServiceImpl implements ScenarioService {
     @Override
     @Transactional
     public void addScenario(ScenarioAddedEventAvro event, String hubId) {
-
         Scenario scenario = scenarioRepository.findByHubIdAndName(hubId, event.getName())
                 .orElseGet(() -> Scenario.builder()
                         .hubId(hubId)
