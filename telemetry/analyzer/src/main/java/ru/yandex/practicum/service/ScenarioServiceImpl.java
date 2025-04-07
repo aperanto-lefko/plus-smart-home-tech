@@ -147,64 +147,20 @@ public class ScenarioServiceImpl implements ScenarioService {
         scenarios.forEach(scenario -> {
             if (scenario.getScenarioConditions() != null && !scenario.getScenarioConditions().isEmpty()) {
                 log.info("Условия сценария с id {}: ({}):", scenario.getId(), scenario.getScenarioConditions());
-        } else {
-            log.info("У сценария нет условий");
-        }});
+            } else {
+                log.info("У сценария нет условий");
+            }
+        });
         scenarios.forEach(scenario -> {
             if (scenario.getScenarioConditions() != null && !scenario.getScenarioConditions().isEmpty()) {
-                log.info("Действия сценария с id {}: ({}):",scenario.getId(), scenario.getScenarioActions());
+                log.info("Действия сценария с id {}: ({}):", scenario.getId(), scenario.getScenarioActions());
             } else {
                 log.info("У сценария нет действий");
-            }});
+            }
+        });
         return scenarios;
     }
 }
-    /*создание через цикл
-    private void processConditions(List<ScenarioConditionAvro> conditions, Scenario scenario) {
-        conditions.forEach(conditionAvro -> {
-            Sensor sensor = sensorService.findById(conditionAvro.getSensorId());
-            Condition condition = conditionService.save(conditionAvro);
 
-            // Создаем ID вручную
-            ScenarioConditionId id = new ScenarioConditionId();
-            id.setScenarioId(scenario.getId());  // ID сценария уже есть!
-            id.setSensorId(sensor.getId());
-            id.setConditionId(condition.getId());
-
-            ScenarioCondition scenarioCondition = new ScenarioCondition();
-            scenarioCondition.setId(id);
-            scenarioCondition.setScenario(scenario);
-            scenarioCondition.setSensor(sensor);
-            scenarioCondition.setCondition(condition);
-
-            // ID установится автоматически при сохранении благодаря каскаду
-            scenario.getScenarioConditions().add(scenarioCondition);
-        });
-    }*/
-
-
-    /*создание через цикл
-    private void processActions(List<DeviceActionAvro> actions, Scenario scenario) {
-        for (DeviceActionAvro actionAvro : actions) {
-            // Проверяем существование сенсора
-            Sensor sensor = sensorService.findById(actionAvro.getSensorId());
-            // Создаем действие
-            Action action = actionService.save(actionAvro);
-            // Создаем связь сценарий-сенсор-действие
-            ScenarioAction scenarioAction = ScenarioAction.builder()
-                    .id(ScenarioActionId.builder()
-                            .scenarioId(scenario.getId())
-                            .sensorId(sensor.getId())
-                            .actionId(action.getId())
-                            .build())
-                    .scenario(scenario)
-                    .sensor(sensor)
-                    .action(action)
-                    .build();
-
-            // Добавляем в коллекцию (каскад сохранит action)
-            scenario.getScenarioActions().add(scenarioAction);
-        }
-    }*/
 
 
