@@ -17,11 +17,16 @@ import ru.yandex.practicum.model.Action;
 import ru.yandex.practicum.model.Condition;
 import ru.yandex.practicum.model.ConditionOperationType;
 import ru.yandex.practicum.model.Scenario;
+import ru.yandex.practicum.model.ScenarioCondition;
 import ru.yandex.practicum.model.Sensor;
 import ru.yandex.practicum.service.ScenarioService;
 
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -43,8 +48,10 @@ public class SnapshotProcessor implements RecordProcessor<SensorsSnapshotAvro> {
     }
 
     private boolean isScenarioMatch(Scenario scenario, SensorsSnapshotAvro snapshot) {
+        log.info("Проверка сценария: {}", scenario.getName());
         return scenario.getScenarioConditions().stream()
-                .allMatch(scenarioCondition ->
+                .peek(cond -> log.info("Проверка условия для датчика: {}", cond.getSensor().getId()))
+                .anyMatch(scenarioCondition ->
                         checkCondition(
                                 scenarioCondition.getCondition(),
                                 scenarioCondition.getSensor(),
@@ -54,21 +61,28 @@ public class SnapshotProcessor implements RecordProcessor<SensorsSnapshotAvro> {
 
     private boolean checkCondition(Condition condition, Sensor sensor, SensorsSnapshotAvro snapshot) {
         SensorStateAvro record = snapshot.getSensorsState().get(sensor.getId());
-
+        log.info("Проверка полученной записи {} ", record);
         if (record == null) {
             log.warn("Данные для сенсора с id  {} отсутствуют", sensor.getId());
             return false;
         }
-
+        log.info("Обработка показаний датчика {}", record);
         try {
             Object sensorData = record.getData();
             return switch (condition.getType()) {
-                case TEMPERATURE -> sensorData instanceof TemperatureSensorEventAvro tempData &&
-                        evaluateCondition(
-                                tempData.getTemperatureC(),
-                                condition.getOperationType(),
-                                condition.getValue()
-                        );
+                case TEMPERATURE -> {
+                    int temperature;
+                    if (sensorData instanceof TemperatureSensorEventAvro tempData) {
+                        temperature = tempData.getTemperatureC();
+                    } else if (sensorData instanceof ClimateSensorEventAvro climateData) {
+                        temperature = climateData.getTemperatureC();
+                    } else {
+                        yield false;
+                    }
+                    yield evaluateCondition(temperature, condition.getOperationType(), condition.getValue());
+
+                }
+
                 case HUMIDITY -> sensorData instanceof ClimateSensorEventAvro tempData &&
                         evaluateCondition(
                                 tempData.getHumidity(),

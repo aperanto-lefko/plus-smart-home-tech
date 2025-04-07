@@ -142,17 +142,17 @@ public class ScenarioServiceImpl implements ScenarioService {
     @Override
     public List<Scenario> getScenariosByHubId(String hubId) {
         log.info("Поиск scenario по hubId {}", hubId);
-        List<Scenario> scenarios = scenarioRepository.findByHubIdWithFullGraph(hubId);
+        List<Scenario> scenarios = scenarioRepository.findByHubId(hubId);
         log.info("Найденные сценарии {}", scenarios);
         scenarios.forEach(scenario -> {
             if (scenario.getScenarioConditions() != null && !scenario.getScenarioConditions().isEmpty()) {
-                log.info("Условия сценария ({}):", scenario.getScenarioConditions());
+                log.info("Условия сценария с id {}: ({}):", scenario.getId(), scenario.getScenarioConditions());
         } else {
             log.info("У сценария нет условий");
         }});
         scenarios.forEach(scenario -> {
             if (scenario.getScenarioConditions() != null && !scenario.getScenarioConditions().isEmpty()) {
-                log.info("Действия сценария ({}):", scenario.getScenarioActions());
+                log.info("Действия сценария с id {}: ({}):",scenario.getId(), scenario.getScenarioActions());
             } else {
                 log.info("У сценария нет действий");
             }});
