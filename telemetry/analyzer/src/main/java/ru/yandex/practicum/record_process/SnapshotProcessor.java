@@ -79,9 +79,7 @@ public class SnapshotProcessor implements RecordProcessor<SensorsSnapshotAvro> {
                         yield false;
                     }
                     yield evaluateCondition(temperature, condition.getOperationType(), condition.getValue());
-
                 }
-
                 case HUMIDITY -> sensorData instanceof ClimateSensorEventAvro tempData &&
                         evaluateCondition(
                                 tempData.getHumidity(),
