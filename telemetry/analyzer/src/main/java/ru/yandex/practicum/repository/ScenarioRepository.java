@@ -13,49 +13,57 @@ import java.util.Optional;
 @Repository
 public interface ScenarioRepository extends JpaRepository<Scenario, Long> {
 
-//    @Query("SELECT DISTINCT s FROM Scenario s " +
-//            "LEFT JOIN FETCH s.scenarioConditions " +
-//            "LEFT JOIN FETCH s.scenarioActions " +
-//            "WHERE s.hubId = :hubId AND s.name = :name")
-//    Optional<Scenario> findByHubIdAndNameWithRelations(
-//            @Param("hubId") String hubId,
-//            @Param("name") String name);
+    /*
+        @EntityGraph(attributePaths = {
+                "scenarioConditions",
+                "scenarioConditions.condition",
+                "scenarioConditions.sensor",
+                "scenarioActions",
+                "scenarioActions.action",
+                "scenarioActions.sensor",
+                "scenarioActions.action.scenarioActions"
+        })
+        List<Scenario> findByHubId(String hubId);
+    */
+    @Query("""
+                SELECT DISTINCT s FROM Scenario s
+                LEFT JOIN FETCH s.scenarioConditions sc
+                LEFT JOIN FETCH sc.condition
+                LEFT JOIN FETCH sc.sensor
+                LEFT JOIN FETCH s.scenarioActions sa
+                LEFT JOIN FETCH sa.action
+                LEFT JOIN FETCH sa.sensor
+                LEFT JOIN FETCH sa.action.scenarioActions
+                WHERE s.hubId = :hubId
+            """)
+    List<Scenario> findByHubIdWithFullGraph(@Param("hubId") String hubId);
 
-    //    @Query("SELECT DISTINCT s FROM Scenario s " +
-//            "LEFT JOIN FETCH s.scenarioConditions " +
-//            "LEFT JOIN FETCH s.scenarioActions " +
-//            "WHERE s.hubId = :hubId")
-//    List<Scenario> findByHubIdWithRelations(@Param("hubId") String hubId);
-
-//    @EntityGraph(attributePaths = {
-//            "scenarioConditions",
-//            "scenarioConditions.condition",  // Загружаем вложенную сущность
-//            "scenarioActions",
-//            "scenarioActions.action"
-//    })
-//    List<Scenario> findByHubId(String hubId);
-
-    @EntityGraph(attributePaths = {
-            "scenarioConditions",
-            "scenarioConditions.condition",
-            "scenarioConditions.sensor",
-            "scenarioActions",
-            "scenarioActions.action",
-            "scenarioActions.sensor",
-            "scenarioActions.action.scenarioActions"
-    })
-    List<Scenario> findByHubId(String hubId);
-
-
-    @EntityGraph(attributePaths = {
-            "scenarioConditions",
-            "scenarioConditions.condition",
-            "scenarioConditions.sensor",
-            "scenarioActions",
-            "scenarioActions.action",
-            "scenarioActions.sensor",
-            "scenarioActions.action.scenarioActions"
-    })
+    /*
+        @EntityGraph(attributePaths = {
+                "scenarioConditions",
+                "scenarioConditions.condition",
+                "scenarioConditions.sensor",
+                "scenarioActions",
+                "scenarioActions.action",
+                "scenarioActions.sensor",
+                "scenarioActions.action.scenarioActions"
+        })
+        Optional<Scenario> findByHubIdAndName(
+                @Param("hubId") String hubId,
+                @Param("name") String name);
+    }
+    */
+    @Query("""
+                SELECT DISTINCT s FROM Scenario s
+                LEFT JOIN FETCH s.scenarioConditions sc
+                LEFT JOIN FETCH sc.condition
+                LEFT JOIN FETCH sc.sensor
+                LEFT JOIN FETCH s.scenarioActions sa
+                LEFT JOIN FETCH sa.action
+                LEFT JOIN FETCH sa.sensor
+                LEFT JOIN FETCH sa.action.scenarioActions
+                WHERE s.hubId = :hubId AND s.name = :name
+            """)
     Optional<Scenario> findByHubIdAndName(
             @Param("hubId") String hubId,
             @Param("name") String name);

@@ -35,7 +35,7 @@ public class OffsetCommitManager <K,V>{
         }
     }
 
-    private void commitOffsets() {
+    public void commitOffsets() {
         try {
             if (!offsetsToCommit.isEmpty()) {
                 consumer.commitSync(offsetsToCommit);

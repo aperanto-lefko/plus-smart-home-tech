@@ -26,10 +26,11 @@ public class ConditionServiceImpl implements ConditionService {
     @Transactional
     public List<Condition> saveAll(List<ScenarioConditionAvro> conditions) {
         log.info("Добавление списка условий {}", conditions);
-        return conditionRepository.saveAll(
+        List<Condition> savedConditions = conditionRepository.saveAll(
                 conditions.stream()
                         .map(conditionMapper::toCondition)
-                        .toList()
-        );
+                        .toList());
+        log.info("Условия успешно сохранены {}", savedConditions);
+        return savedConditions;
     }
 }

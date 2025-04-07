@@ -25,10 +25,11 @@ public class ActionServiceImpl implements ActionService {
     @Transactional
     public List<Action> saveAll(List<DeviceActionAvro> actions) {
         log.info("Добавление списка действий {}", actions);
-        return actionRepository.saveAll(
+        List<Action> savedActions = actionRepository.saveAll(
                 actions.stream()
                         .map(actionMapper::toAction)
-                        .toList()
-        );
+                        .toList());
+        log.info("Действия успешно сохранены {}", savedActions);
+        return savedActions;
     }
 }
