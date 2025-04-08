@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
+import ru.yandex.practicum.exception.SendMessageException;
 import ru.yandex.practicum.receiver.OffsetCommitManager;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -26,7 +27,7 @@ public class EventButchProcessor<K, V> implements Consumer<ConsumerRecords<K, V>
                     log.info("Получена запись для обработки {}", record.value());
                     var event = record.value();
                     recordProcessor.process(event);
-                } catch (Exception e) {
+                } catch (SendMessageException e) {
                     log.error("Ошибка обработки записи {}",  e.getMessage(), e);
                 }
             }

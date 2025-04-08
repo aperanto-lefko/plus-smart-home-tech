@@ -7,6 +7,7 @@ import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
 import ru.yandex.practicum.exception.NoHandlerException;
+import ru.yandex.practicum.exception.SendMessageException;
 import ru.yandex.practicum.grpc.telemetry.collector.CollectorControllerGrpc;
 import ru.yandex.practicum.grpc.telemetry.event.HubEventProto;
 import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
@@ -80,17 +81,13 @@ public class CollectorController extends CollectorControllerGrpc.CollectorContro
                                 throw new NoHandlerException(errorMessage);
                             }
                     );
-        } catch (Exception e) {
-            log.error("Ошибка в процессе обработки сообщения {}", eventType, e);
-
-            Status status;
-            if (e instanceof NoHandlerException) {
-                status = Status.NOT_FOUND.withDescription(e.getMessage());
-            } else {
-                String errorDetails = String.format("Ошибка обработки события %s: %s",
-                        eventType, e.getMessage());
-                status = Status.INTERNAL.withDescription(errorDetails);
-            }
+        } catch (NoHandlerException e) {
+            log.error("Ошибка в процессе обработки сообщения-не найден обработчик для сообщения {}", eventType, e);
+            Status status = Status.NOT_FOUND.withDescription(e.getMessage());
+            responseObserver.onError(new StatusRuntimeException(status));
+        } catch (SendMessageException e) {
+            String errorDetails = String.format("Ошибка обработки события %s: %s", eventType, e.getMessage());
+            Status status = Status.INTERNAL.withDescription(errorDetails);
             responseObserver.onError(new StatusRuntimeException(status));
         }
     }

@@ -5,13 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.KafkaException;
+import org.apache.kafka.common.errors.AuthorizationException;
 import org.apache.kafka.common.errors.WakeupException;
 import org.springframework.beans.factory.annotation.Value;
+import ru.yandex.practicum.exception.SerializationException;
 
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -38,7 +40,6 @@ public class KafkaConsumerManager<K, V> {
 
                 while (running) {
                     try {
-                        //log.info("Поток {} выполняет poll()", threadName);
                         ConsumerRecords<K, V> records = consumer.poll(Duration.ofMillis(pollTimeout));
                         if (!records.isEmpty()) {
                             log.info("Поток {} получил {} сообщений", threadName, records.count());
@@ -52,35 +53,42 @@ public class KafkaConsumerManager<K, V> {
                         log.warn("Поток {} получил неожиданный WakeupException", threadName, e);
                     }
                 }
-            } catch (Exception e) {
-                log.error("Поток {} завершился с ошибкой", threadName, e);
+            } catch (SerializationException e) {
+                log.error("Ошибка десериализации сообщения в потоке {}", threadName, e);
+            } catch (AuthorizationException e) {
+                log.error("Ошибка доступа к Kafka в потоке {}", threadName, e);
+            } catch (IllegalStateException e) {
+                log.error("Некорректное состояние consumer в потоке {}", threadName, e);
+            } catch (KafkaException e) {
+                log.error("Ошибка Kafka в потоке {}", threadName, e);
 
-            } finally {
-                log.info("Поток {} завершает работу", threadName);
-                closeResources();
-            }
-        });
-    }
 
-    public void shutdown() {
-        running = false;
-        executorService.shutdown();
-        try {
-            if (!executorService.awaitTermination(shutdownTimeout, TimeUnit.SECONDS)) {
-                executorService.shutdownNow();
-            }
-        } catch (InterruptedException e) {
+        } finally{
+            log.info("Поток {} завершает работу", threadName);
+            closeResources();
+        }
+    });
+}
+
+public void shutdown() {
+    running = false;
+    executorService.shutdown();
+    try {
+        if (!executorService.awaitTermination(shutdownTimeout, TimeUnit.SECONDS)) {
             executorService.shutdownNow();
-            Thread.currentThread().interrupt();
         }
-        consumer.wakeup();
+    } catch (InterruptedException e) {
+        executorService.shutdownNow();
+        Thread.currentThread().interrupt();
     }
+    consumer.wakeup();
+}
 
-    private void closeResources() {
-        try {
-            consumer.close(Duration.ofSeconds(5));
-        } catch (Exception e) {
-            log.error("Ошибка при закрытии consumer", e);
-        }
+private void closeResources() {
+    try {
+        consumer.close(Duration.ofSeconds(5));
+    } catch (KafkaException e) {
+        log.error("Ошибка при закрытии consumer", e);
     }
+}
 }
