@@ -16,6 +16,7 @@ import ru.yandex.practicum.model.hub.HubEvent;
 public class DeviceRemovedEvent extends HubEvent {
     @NotBlank
     String id;
+
     @Override
     public HubEventType getType() {
         return HubEventType.DEVICE_REMOVED;

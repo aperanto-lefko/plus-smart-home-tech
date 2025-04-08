@@ -1,0 +1,9 @@
+
+logging:
+  level:
+    io.grpc: DEBUG
+    org:
+      zalando:
+        logbook: DEBUG
+      springframework:
+        web: DEBUG

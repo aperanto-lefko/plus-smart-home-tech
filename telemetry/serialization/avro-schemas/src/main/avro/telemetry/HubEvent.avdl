@@ -1,7 +1,7 @@
 @namespace("ru.yandex.practicum.kafka.telemetry.event")
 protocol HubEventProtocol {
 
-	enum DeviceTypeAvro {
+	enum DeviceTypeAvro { //Тип устройства (датчик движения, температуры и т.д.)
 		MOTION_SENSOR,
 		TEMPERATURE_SENSOR,
 		LIGHT_SENSOR,
@@ -9,13 +9,13 @@ protocol HubEventProtocol {
 		SWITCH_SENSOR
 	}
 
-	enum ConditionOperationTypeAvro {
+	enum ConditionOperationTypeAvro { //Операции сравнения (EQUALS, GREATER_THAN, LOWER_THAN)
 		EQUALS,
 		GREATER_THAN,
 		LOWER_THAN
 	}
 
-	enum ConditionTypeAvro {
+	enum ConditionTypeAvro { //Тип условия (движение, освещенность, температура и т.д.)
 		MOTION,
 		LUMINOSITY,
 		SWITCH,
@@ -24,53 +24,54 @@ protocol HubEventProtocol {
 		HUMIDITY
 	}
 
-	enum DeviceActionTypeAvro {
+	enum DeviceActionTypeAvro { //Действие с устройством (активация, деактивация, инверсия, установка значения)
 		ACTIVATE,
 		DEACTIVATE,
 		INVERSE,
 		SET_VALUE
 	}
 
-	enum HubEventTypeAvro {
+	enum HubEventTypeAvro { //Тип события (добавление/удаление устройства или сценария)
 		DEVICE_ADDED,
 		DEVICE_REMOVED,
 		SCENARIO_ADDED,
 		SCENARIO_REMOVED
 	}
 
-	record DeviceActionAvro {
+
+	record DeviceActionAvro { //Действие, выполняемое над устройством (sensorId, тип действия, значение)
 		string sensorId;
 		DeviceActionTypeAvro type;
 		int? value;
 	}
 
-	record ScenarioConditionAvro {
+	record ScenarioConditionAvro { //Условие для срабатывания сценария (sensorId, тип, операция, значение)
 		string sensorId;
 		ConditionTypeAvro type;
 		ConditionOperationTypeAvro operation;
 		union {null, int, boolean} value;
 	}
 
-	record DeviceAddedEventAvro {
+	record DeviceAddedEventAvro { //Событие добавления устройства (id, deviceType)
 		string id;
 		DeviceTypeAvro deviceType;
 	}
 
-	record DeviceRemovedEventAvro {
+	record DeviceRemovedEventAvro { //Событие удаления устройства (id)
 		string id;
 	}
 
-	record ScenarioAddedEventAvro {
+	record ScenarioAddedEventAvro { //Событие добавления сценария (name, условия, действия)
 		string name;
 		array<ScenarioConditionAvro> conditions;
 		array<DeviceActionAvro> actions;
 	}
 
-	record ScenarioRemovedEventAvro {
+	record ScenarioRemovedEventAvro { //Событие удаления сценария (name)
 		string name;
 	}
 
-	record HubEventAvro {
+	record HubEventAvro { //Основное событие (hub_id, метка времени, конкретное событие)
 		string hub_id;
 		timestamp_ms timestamp;
 		union{DeviceAddedEventAvro,

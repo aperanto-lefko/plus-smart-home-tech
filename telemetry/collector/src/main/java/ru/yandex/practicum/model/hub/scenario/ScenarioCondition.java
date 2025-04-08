@@ -12,7 +12,7 @@ import ru.yandex.practicum.enums.ConditionType;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ScenarioCondition {//Условие сценария, которое содержит информацию о датчике, типе условия, операции и значении.
+public class ScenarioCondition { //Условие сценария, которое содержит информацию о датчике, типе условия, операции и значении.
     String sensorId;
     ConditionType type;
     ConditionOperationType operation;
