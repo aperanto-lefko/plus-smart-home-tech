@@ -1,0 +1,66 @@
+grpc:
+  client:
+    hub-router:
+      address: 'static://localhost:59090'
+      enable-keep-alive: true
+      keep-alive-without-calls: true
+      negotiation-type: plaintext
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/analyzer-db
+    username: analyzer
+    password: analyzer
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5 #Настройки пула соединений (HikariCP — дефолтный пул в Spring Boot).
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true #Показывать SQL-запросы в логах
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+kafka:
+  topics:
+    sensor_events_topic: telemetry.sensors.v1
+    hub_events_topic: telemetry.hubs.v1
+    snapshots_topic: telemetry.snapshots.v1
+  producer:
+    bootstrap_server: localhost:9092
+    key_serialize_class: org.apache.kafka.common.serialization.StringSerializer
+    value_serialize_class: ru.yandex.practicum.serializer.AvroSerializer
+  consumer_manager:
+    shutdown_timeout: 60
+    poll_timeout: 100
+  commit_manager:
+    batch-size: 1
+  consumer:
+    common:
+      bootstrap_server: localhost:9092
+      key_serialize_class: org.apache.kafka.common.serialization.StringSerializer
+      value_serialize_class: ru.yandex.practicum.serializer.AvroSerializer
+      enable_auto_commit_config: false
+      auto_offset_reset: earliest
+      enable_auto_commit: false
+      session_timeout: 45000
+      heartbeat_interval: 5000
+      max_poll_interval: 5000
+      fetch_max_wait: 500
+      fetch_min_size: 1024
+      fetch_max_bytes: 52428800
+      max_partition_fetch_bytes: 1048576
+      max_poll_records: 1000
+    event_to_snapshot:
+      client_id: aggregator.consumer
+      group_id: aggregator.group.id
+    hub_event_consumer:
+      client_id: analyzer.hub_event.consumer
+      group_id: analyzer.hub_event.group.id
+    snapshot_consumer:
+      client_id: analyzer.snapshot.consumer
+      group_id: analyzer.snapshot.group.id
