@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Properties;
 
 @Configuration
-@ConfigurationProperties(prefix = "kafka.producer")
+@ConfigurationProperties(prefix = "collector.kafka.producer")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Getter
 @Setter
