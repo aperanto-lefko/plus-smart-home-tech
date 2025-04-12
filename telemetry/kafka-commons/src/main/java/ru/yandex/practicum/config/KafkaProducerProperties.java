@@ -8,12 +8,14 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import java.util.Properties;
 
 @Configuration
-@ConfigurationProperties(prefix = "kafka-commons.kafka.producer")
+@ConfigurationProperties(prefix = "kafka.producer")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Getter
 @Setter

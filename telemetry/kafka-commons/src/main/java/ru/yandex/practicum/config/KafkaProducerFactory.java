@@ -12,13 +12,15 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 
 import java.util.Properties;
+
 @Configuration
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@ConfigurationProperties(prefix = "kafka-commons.kafka.producer")
+//@ConfigurationProperties(prefix = "kafka.producer")
 @Getter
 @Setter
 @Slf4j
@@ -27,13 +29,13 @@ public class KafkaProducerFactory {
     KafkaProducer<String, SpecificRecordBase> pr;
     final KafkaProducerProperties config;
 
-   @Bean
- public KafkaProducer<String, SpecificRecordBase> producer() {
+    @Bean
+    public KafkaProducer<String, SpecificRecordBase> producer() {
         Properties properties = config.buildProperties();
-        if (properties==null) {
+        if (properties == null) {
             log.info("Настройки не загружены");
         }
-       log.info("Загруженная конфигурация {}: ", properties);
+        log.info("Загруженная конфигурация {}: ", properties);
         pr = new KafkaProducer<>(properties);
         log.info("Создан kafka-producer {}", pr);
         return pr;

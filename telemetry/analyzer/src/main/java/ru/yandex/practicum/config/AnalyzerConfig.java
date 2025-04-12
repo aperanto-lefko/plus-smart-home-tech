@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.yandex.practicum.deserializer.DeserializerType;
@@ -16,6 +17,7 @@ import java.util.concurrent.ExecutorService;
 
 @Configuration
 @RequiredArgsConstructor
+@ConfigurationProperties(prefix="analyzer.kafka")
 public class AnalyzerConfig {
     private final KafkaConsumerFactory factory;
     @Value("${kafka.consumer.hub_event_consumer.client_id}")
