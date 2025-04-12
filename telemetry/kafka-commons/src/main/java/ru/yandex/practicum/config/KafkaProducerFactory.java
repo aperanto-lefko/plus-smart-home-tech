@@ -16,8 +16,9 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.Properties;
 @Configuration
-@ConfigurationProperties(prefix = "collector.kafka.producer")
+
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@ConfigurationProperties(prefix = "kafka-commons.kafka.producer")
 @Getter
 @Setter
 @Slf4j
@@ -27,8 +28,11 @@ public class KafkaProducerFactory {
     final KafkaProducerProperties config;
 
    @Bean
-    public KafkaProducer<String, SpecificRecordBase> producer() {
+ public KafkaProducer<String, SpecificRecordBase> producer() {
         Properties properties = config.buildProperties();
+        if (properties==null) {
+            log.info("Настройки не загружены");
+        }
        log.info("Загруженная конфигурация {}: ", properties);
         pr = new KafkaProducer<>(properties);
         log.info("Создан kafka-producer {}", pr);

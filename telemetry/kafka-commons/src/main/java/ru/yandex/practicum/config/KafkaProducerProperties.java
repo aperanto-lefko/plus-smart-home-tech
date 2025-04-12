@@ -1,5 +1,6 @@
 package ru.yandex.practicum.config;
 
+import jakarta.annotation.PostConstruct;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Properties;
 
 @Configuration
-@ConfigurationProperties(prefix = "collector.kafka.producer")
+@ConfigurationProperties(prefix = "kafka-commons.kafka.producer")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Getter
 @Setter
@@ -28,5 +29,11 @@ public class KafkaProducerProperties {
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, keySerializeClass);
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, valueSerializeClass);
         return properties;
+    }
+
+    @PostConstruct
+    public void init() {
+        log.info("Loaded Kafka producer config: bootstrap={}, keySerializer={}, valueSerializer={}",
+                bootstrapServer, keySerializeClass, valueSerializeClass);
     }
 }

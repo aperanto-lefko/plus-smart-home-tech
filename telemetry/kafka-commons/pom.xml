@@ -36,6 +36,8 @@
             <artifactId>spring-boot-starter</artifactId>
             <version>3.4.4</version>
         </dependency>
+
+        <!--    / Spring Cloud Config-->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-config</artifactId>
