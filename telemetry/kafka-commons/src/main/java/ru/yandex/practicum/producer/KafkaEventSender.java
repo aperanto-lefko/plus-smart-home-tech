@@ -14,6 +14,7 @@ import java.util.function.Function;
 @Slf4j
 @RequiredArgsConstructor
 public abstract class KafkaEventSender<T> {
+
     protected final KafkaProducer<String, SpecificRecordBase> kafkaProducer;
 
     protected void sendToKafka(T event, Function<T, SpecificRecordBase> mapper, String topic) {

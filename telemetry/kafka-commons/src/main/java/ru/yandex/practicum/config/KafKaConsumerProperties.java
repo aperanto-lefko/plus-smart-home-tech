@@ -20,7 +20,6 @@ import java.util.Properties;
 public class KafKaConsumerProperties {
     String bootstrapServer;
     Boolean enableAutoCommitConfig;
-    String keyDeserializeClass;
     String autoOffsetReset;
     Boolean enableAutoCommit;
     String sessionTimeout;
