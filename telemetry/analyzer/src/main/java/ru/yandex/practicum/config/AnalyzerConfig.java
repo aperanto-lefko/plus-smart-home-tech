@@ -17,7 +17,6 @@ import java.util.concurrent.ExecutorService;
 
 @Configuration
 @RequiredArgsConstructor
-@ConfigurationProperties(prefix="analyzer.kafka")
 public class AnalyzerConfig {
     private final KafkaConsumerFactory factory;
     @Value("${kafka.consumer.hub_event_consumer.client_id}")
