@@ -21,7 +21,6 @@ import java.util.concurrent.ExecutorService;
 
 @Configuration
 @RequiredArgsConstructor
-@ConfigurationProperties("aggregator.kafka")
 public class AggregatorConfig {
     private final KafkaConsumerFactory factory;
     private final SnapshotHandler<SensorsSnapshotAvro> snapshotHandler;

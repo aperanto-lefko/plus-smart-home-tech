@@ -8,7 +8,7 @@ grpc:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/analyzer-db
+    url: jdbc:postgresql://localhost:5435/analyzer-db
     username: analyzer
     password: analyzer
     driver-class-name: org.postgresql.Driver
