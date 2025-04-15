@@ -19,13 +19,6 @@
         <module>telemetry</module>
         <module>infra</module>
         <module>commerce</module>
-        <module>telemetry/analyzer</module>
-        <module>infra/config-server</module>
-        <module>infra/discovery-server</module>
-        <module>commerce/shopping-store</module>
-        <module>commerce/shopping-cart</module>
-        <module>commerce/warehouse</module>
-        <module>commerce/interaction-api</module>
     </modules>
 
     <properties>
@@ -38,6 +31,9 @@
         <protobuf.version>3.23.4</protobuf.version>
         <grpc.version>1.63.0</grpc.version>
         <spring-cloud-dependencies.version>2023.0.3</spring-cloud-dependencies.version>
+        <resilience4j-spring-boot2.version>2.0.2</resilience4j-spring-boot2.version>
+        <resilience4j-circuitbreaker.version>2.0.2</resilience4j-circuitbreaker.version>
+
 
         <!--       Plugins       -->
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
@@ -95,15 +91,27 @@
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>1.18.36</version>
-                <scope>provided</scope>
             </dependency>
-
+            <!--    / Cloud dependencies management        -->
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
                 <version>${spring-cloud-dependencies.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+
+            <!--    / resilience4j dependencies management        -->
+            <dependency>
+                <groupId>io.github.resilience4j</groupId>
+                <artifactId>resilience4j-spring-boot2</artifactId>
+                <version>${resilience4j-spring-boot2.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.resilience4j</groupId>
+                <artifactId>resilience4j-circuitbreaker</artifactId>
+                <version>${resilience4j-circuitbreaker.version}</version>
             </dependency>
         </dependencies>
 
