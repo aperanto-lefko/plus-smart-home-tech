@@ -1,24 +1,24 @@
-package ru.yandex.practicum.store.model;
+package ru.yandex.practicum.store.dto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import ru.yandex.practicum.store.enums.QuantityState;
 
 import java.util.UUID;
 
 @Data
+@RequiredArgsConstructor
 @AllArgsConstructor
-@NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class SetProductQuantityStateRequest {
-    @NotNull(message = "id товара должен быть указан")
+public class UpdateQtyStateDto {
+    @NotNull(message = "id продукта должен быть указан")
     UUID productId;
-    @NotNull(message = "Статус товара должен быть указан")
+    @NotNull(message = "Статус количества товара должен быть указан")
     QuantityState quantityState;
 }

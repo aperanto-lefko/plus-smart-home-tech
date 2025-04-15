@@ -1,4 +1,4 @@
-package ru.yandex.practicum.store.model;
+package ru.yandex.practicum.store.dto;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -16,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class PageableRequest {
+public class PageableDto {
     @NotNull(message = "Номер страницы должен быть указан")
     @Min(value= 0, message = "Минимальное значение page должно быть 0")
     int page;
