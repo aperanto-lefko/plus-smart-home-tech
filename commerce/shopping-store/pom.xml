@@ -21,7 +21,6 @@
         <dependency>
             <groupId>ru.yandex.practicum</groupId>
             <artifactId>interaction-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
     </dependencies>
