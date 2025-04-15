@@ -66,9 +66,9 @@ public class ShoppingStoreController {
                 .body(productService.updateQuantityState(updateQtyStateDto));
     }
     @GetMapping("/{productId}")
-    public ResponseEntity<ProductDto> getProductById(@PathVariable UUID uuid) {
+    public ResponseEntity<ProductDto> getProductById(@PathVariable("productId") UUID productId) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(productService.getProductDtoById(uuid));
+                .body(productService.getProductDtoById(productId));
     }
 }

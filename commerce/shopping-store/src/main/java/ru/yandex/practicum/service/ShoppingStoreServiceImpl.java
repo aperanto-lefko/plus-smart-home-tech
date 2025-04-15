@@ -81,8 +81,8 @@ public class ShoppingStoreServiceImpl implements ShoppingStoreService {
         return true;
     }
     @Override
-    public ProductDto getProductDtoById(UUID uuid) {
-        return productMapper.toDto(getProductById(uuid));
+    public ProductDto getProductDtoById(UUID productId) {
+        return productMapper.toDto(getProductById(productId));
     }
 
     private Product getProductById(UUID uuid) {
