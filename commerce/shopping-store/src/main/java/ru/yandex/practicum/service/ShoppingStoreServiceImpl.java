@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.exception.ProductNotFoundException;
 import ru.yandex.practicum.mapper.PageableMapper;
 import ru.yandex.practicum.mapper.ProductMapper;
 import ru.yandex.practicum.model.Product;
@@ -16,6 +17,7 @@ import ru.yandex.practicum.store.enums.ProductCategory;
 import ru.yandex.practicum.store.model.PageableRequest;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -35,5 +37,25 @@ public class ShoppingStoreServiceImpl implements ShoppingStoreService {
         return products.stream()
                 .map(productMapper::toDto)
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public ProductDto createProduct(ProductDto productDto) {
+        log.info("Создание нового товара {}", productDto);
+        Product product = productRepository.save(productMapper.toEntity(productDto));
+        return productMapper.toDto(product);
+    }
+
+    @Override
+    @Transactional
+    public ProductDto updateProduct(ProductDto productDto) {
+        log.info("Обновление товара {}", productDto);
+        Product product = getProductById(productDto.getProductId());
+    }
+
+    private Product getProductById(UUID uuid) {
+        return productRepository.findById(uuid)
+                .orElseThrow(() -> new ProductNotFoundException("Продукт не найден id " + uuid));
     }
 }
