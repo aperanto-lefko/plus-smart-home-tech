@@ -52,9 +52,14 @@ public class ShoppingStoreServiceImpl implements ShoppingStoreService {
     public ProductDto updateProduct(ProductDto productDto) {
         log.info("Обновление товара {}", productDto);
         Product product = getProductById(productDto.getProductId());
+        productMapper.updateProductFromDto(productDto, product);
+        log.info("Сохранение обновленного товара {}", product);
+        Product updatedProduct = productRepository.save(product);
+        return productMapper.toDto(updatedProduct);
     }
 
     private Product getProductById(UUID uuid) {
+        log.info("Поиск товара по id {}", uuid);
         return productRepository.findById(uuid)
                 .orElseThrow(() -> new ProductNotFoundException("Продукт не найден id " + uuid));
     }

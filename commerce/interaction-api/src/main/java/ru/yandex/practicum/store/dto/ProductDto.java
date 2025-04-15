@@ -2,6 +2,7 @@ package ru.yandex.practicum.store.dto;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,11 +28,11 @@ public class ProductDto {
     @NotBlank
     String description;
     String imageSrc;
-    @NotBlank(message = "Поле \"Состояние остатка\" не должно быть пустым")
+    @NotNull(message = "Поле \"Состояние остатка\" не должно быть пустым")
     QuantityState quantityState;
-    @NotBlank(message = "Поле \"Статус товара\" не должно быть пустым")
+    @NotNull(message = "Поле \"Статус товара\" не должно быть пустым")
     ProductState productState;
-    @NotBlank(message = "Поле \"Категория товара\" не должно быть пустым")
+    @NotNull(message = "Поле \"Категория товара\" не должно быть пустым")
     ProductCategory productCategory;
     @DecimalMin(value = "1.0", message = "Цена товара должна быть не меньше 1")
     BigDecimal price;
