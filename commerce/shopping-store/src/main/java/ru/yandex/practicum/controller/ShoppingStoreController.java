@@ -7,6 +7,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -33,7 +34,7 @@ public class ShoppingStoreController {
 
     @GetMapping
     public ResponseEntity<List<ProductDto>> getProducts(@RequestParam ProductCategory category,
-                                                        @Valid @RequestParam PageableDto pageableDto) {
+                                                        @Valid @ModelAttribute PageableDto pageableDto) {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(productService.getProductsByCategory(category, pageableDto));
@@ -59,18 +60,13 @@ public class ShoppingStoreController {
                 .status(HttpStatus.OK)
                 .body(productService.removeProduct(productRemoveDto));
     }
-//    @PostMapping("/quantityState")
-//    public ResponseEntity<Boolean> updateProductQuantityState(@RequestBody @Valid UpdateQtyStateDto updateQtyStateDto) {
-//        return ResponseEntity
-//                .status(HttpStatus.OK)
-//                .body(productService.updateQuantityState(updateQtyStateDto));
-//    }
-@PostMapping("/quantityState")
-public ResponseEntity<Boolean> updateProductQuantityState(@RequestBody @Valid UpdateQtyStateDto updateQtyStateDto) {
-    return ResponseEntity
-            .status(HttpStatus.OK)
-            .body(productService.updateQuantityState(updateQtyStateDto));
-}
+    @PostMapping("/quantityState")
+    public ResponseEntity<Boolean> updateProductQuantityState(@ModelAttribute UpdateQtyStateDto updateQtyStateDto) { //в тестах не тело а строка запроса, поставить значение по умолчанию
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(productService.updateQuantityState(updateQtyStateDto));
+    }
+
 
     @GetMapping("/{productId}")
     public ResponseEntity<ProductDto> getProductById(@PathVariable("productId") UUID productId) {
