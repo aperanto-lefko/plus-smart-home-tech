@@ -5,6 +5,7 @@ import ru.yandex.practicum.store.dto.ProductDto;
 import ru.yandex.practicum.store.dto.UpdateQtyStateDto;
 import ru.yandex.practicum.store.enums.ProductCategory;
 import ru.yandex.practicum.store.dto.PageableDto;
+import ru.yandex.practicum.store.enums.QuantityState;
 
 import java.util.List;
 import java.util.UUID;

@@ -5,4 +5,4 @@ public enum QuantityState {
     FEW,
     ENOUGH,
     MANY
-}
+    }

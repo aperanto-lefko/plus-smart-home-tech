@@ -19,7 +19,7 @@ import ru.yandex.practicum.store.enums.ProductCategory;
 import ru.yandex.practicum.store.dto.PageableDto;
 import ru.yandex.practicum.store.enums.ProductState;
 
-import java.util.List;
+
 import java.util.UUID;
 
 @Service
@@ -33,13 +33,13 @@ public class ShoppingStoreServiceImpl implements ShoppingStoreService {
     final ProductMapper productMapper;
 
 
-@Override
-public Page<ProductDto> getProductsByCategory(ProductCategory category, PageableDto pageableDto) {
-    log.info("Поиск товара по категории {}", category);
-    Pageable pageable = pageableMapper.toPageable(pageableDto);
-    Page<Product> productPage = productRepository.findByProductCategory(category, pageable);
-    return productPage.map(productMapper::toDto);
-}
+    @Override
+    public Page<ProductDto> getProductsByCategory(ProductCategory category, PageableDto pageableDto) {
+        log.info("Поиск товара по категории {}", category);
+        Pageable pageable = pageableMapper.toPageable(pageableDto);
+        Page<Product> productPage = productRepository.findByProductCategory(category, pageable);
+        return productPage.map(productMapper::toDto);
+    }
 
     @Override
     @Transactional
@@ -67,7 +67,7 @@ public Page<ProductDto> getProductsByCategory(ProductCategory category, Pageable
         log.info("Изменение статуса товара с id {}", uuid);
         product.setProductState(ProductState.DEACTIVATE);
         log.info("Сохранение товара со статусом DEACTIVATE");
-        productRepository.save(product);
+//        productRepository.save(product);
         return true;
     }
 
@@ -78,9 +78,10 @@ public Page<ProductDto> getProductsByCategory(ProductCategory category, Pageable
         log.info("Обновление состояния количества товара для id {}", updateQtyStateDto.getProductId());
         Product product = getProductById(updateQtyStateDto.getProductId());
         product.setQuantityState(updateQtyStateDto.getQuantityState());
-        productRepository.save(product);
         return true;
     }
+
+
     @Override
     public ProductDto getProductDtoById(UUID productId) {
         return productMapper.toDto(getProductById(productId));

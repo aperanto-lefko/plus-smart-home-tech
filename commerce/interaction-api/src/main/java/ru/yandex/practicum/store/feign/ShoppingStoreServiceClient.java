@@ -3,6 +3,7 @@ package ru.yandex.practicum.store.feign;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -34,7 +35,7 @@ public interface ShoppingStoreServiceClient {
     Boolean removeProduct(@RequestBody UUID uuid);
 
     @PostMapping("/quantityState")
-    Boolean updateProductQuantityState(@RequestBody UpdateQtyStateDto updateQtyStateDto);
+    Boolean updateProductQuantityState(@SpringQueryMap UpdateQtyStateDto updateQtyStateDto);
 
     @GetMapping("/{productId}")
     ProductDto getProductById(@PathVariable("productId") UUID productId);

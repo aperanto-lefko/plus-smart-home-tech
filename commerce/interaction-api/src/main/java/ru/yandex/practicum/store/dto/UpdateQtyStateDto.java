@@ -20,7 +20,7 @@ import java.util.UUID;
 public class UpdateQtyStateDto {
     @NotNull(message = "id продукта должен быть указан")
     UUID productId;
-    @NotNull(message = "Статус количества товара должен быть указан")
+    //@NotNull(message = "Статус количества товара должен быть указан")
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     QuantityState quantityState;
 
