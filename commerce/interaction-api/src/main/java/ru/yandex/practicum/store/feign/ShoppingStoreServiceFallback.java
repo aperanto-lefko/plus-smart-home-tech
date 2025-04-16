@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.exception.ServiceUnavailableException;
 import ru.yandex.practicum.store.dto.PageableDto;
 import ru.yandex.practicum.store.dto.ProductDto;
-import ru.yandex.practicum.store.dto.RemoveProductDto;
 import ru.yandex.practicum.store.dto.UpdateQtyStateDto;
 import ru.yandex.practicum.store.enums.ProductCategory;
 
@@ -35,8 +34,8 @@ public class ShoppingStoreServiceFallback implements ShoppingStoreServiceClient 
     }
 
     @Override
-    public Boolean removeProduct(RemoveProductDto productRemoveDto) {
-        log.warn("Активирован резервный вариант для removeProduct с id: {}", productRemoveDto.getProductId());
+    public Boolean removeProduct(UUID uuid) {
+        log.warn("Активирован резервный вариант для removeProduct с id: {}", uuid);
         throw new ServiceUnavailableException("Shopping store service недоступен");
     }
 

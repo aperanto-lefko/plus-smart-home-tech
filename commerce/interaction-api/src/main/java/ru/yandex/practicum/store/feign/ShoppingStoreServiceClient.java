@@ -1,6 +1,5 @@
 package ru.yandex.practicum.store.feign;
 
-import jakarta.validation.Valid;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.yandex.practicum.store.dto.PageableDto;
 import ru.yandex.practicum.store.dto.ProductDto;
-import ru.yandex.practicum.store.dto.RemoveProductDto;
 import ru.yandex.practicum.store.dto.UpdateQtyStateDto;
 import ru.yandex.practicum.store.enums.ProductCategory;
 
@@ -33,7 +31,7 @@ public interface ShoppingStoreServiceClient {
     ProductDto updateProduct(@RequestBody ProductDto productDto);
 
     @PostMapping("/removeProductFromStore")
-    Boolean removeProduct(@RequestBody RemoveProductDto productRemoveDto);
+    Boolean removeProduct(@RequestBody UUID uuid);
 
     @PostMapping("/quantityState")
     Boolean updateProductQuantityState(@RequestBody UpdateQtyStateDto updateQtyStateDto);

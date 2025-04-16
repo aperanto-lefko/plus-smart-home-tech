@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.service.ShoppingStoreServiceImpl;
 import ru.yandex.practicum.store.dto.ProductDto;
-import ru.yandex.practicum.store.dto.RemoveProductDto;
 import ru.yandex.practicum.store.dto.UpdateQtyStateDto;
 import ru.yandex.practicum.store.enums.ProductCategory;
 import ru.yandex.practicum.store.dto.PageableDto;
@@ -32,13 +32,13 @@ import java.util.UUID;
 public class ShoppingStoreController {
     final ShoppingStoreServiceImpl productService;
 
-    @GetMapping
-    public ResponseEntity<List<ProductDto>> getProducts(@RequestParam ProductCategory category,
-                                                        @Valid @ModelAttribute PageableDto pageableDto) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(productService.getProductsByCategory(category, pageableDto));
-    }
+@GetMapping
+public ResponseEntity<Page<ProductDto>> getProducts(
+        @RequestParam ProductCategory category,
+        @Valid @ModelAttribute PageableDto pageableDto) {
+
+    return ResponseEntity.ok(productService.getProductsByCategory(category, pageableDto));
+}
 
     @PutMapping
     public ResponseEntity<ProductDto> createProduct(@RequestBody @Valid ProductDto productDto) {
@@ -55,10 +55,10 @@ public class ShoppingStoreController {
     }
 
     @PostMapping("/removeProductFromStore")
-    public ResponseEntity<Boolean> removeProduct(@RequestBody @Valid RemoveProductDto productRemoveDto) {
+    public ResponseEntity<Boolean> removeProduct(@RequestBody UUID uuid) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(productService.removeProduct(productRemoveDto));
+                .body(productService.removeProduct(uuid));
     }
     @PostMapping("/quantityState")
     public ResponseEntity<Boolean> updateProductQuantityState(@ModelAttribute UpdateQtyStateDto updateQtyStateDto) { //в тестах не тело а строка запроса, поставить значение по умолчанию

@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +14,6 @@ import ru.yandex.practicum.mapper.ProductMapper;
 import ru.yandex.practicum.model.Product;
 import ru.yandex.practicum.repository.ProductRepository;
 import ru.yandex.practicum.store.dto.ProductDto;
-import ru.yandex.practicum.store.dto.RemoveProductDto;
 import ru.yandex.practicum.store.dto.UpdateQtyStateDto;
 import ru.yandex.practicum.store.enums.ProductCategory;
 import ru.yandex.practicum.store.dto.PageableDto;
@@ -32,15 +32,14 @@ public class ShoppingStoreServiceImpl implements ShoppingStoreService {
     final PageableMapper pageableMapper;
     final ProductMapper productMapper;
 
-    @Override
-    public List<ProductDto> getProductsByCategory(ProductCategory category, PageableDto pageableDto) {
-        log.info("Поиск товара по категории {}", category);
-        Pageable pageable = pageableMapper.toPageable(pageableDto);
-        List<Product> products = productRepository.findByProductCategory(category, pageable).getContent();
-        return products.stream()
-                .map(productMapper::toDto)
-                .toList();
-    }
+
+@Override
+public Page<ProductDto> getProductsByCategory(ProductCategory category, PageableDto pageableDto) {
+    log.info("Поиск товара по категории {}", category);
+    Pageable pageable = pageableMapper.toPageable(pageableDto);
+    Page<Product> productPage = productRepository.findByProductCategory(category, pageable);
+    return productPage.map(productMapper::toDto);
+}
 
     @Override
     @Transactional
@@ -63,8 +62,7 @@ public class ShoppingStoreServiceImpl implements ShoppingStoreService {
 
     @Override
     @Transactional
-    public Boolean removeProduct(RemoveProductDto removeProductDto) {
-        UUID uuid = removeProductDto.getProductId();
+    public Boolean removeProduct(UUID uuid) {
         Product product = getProductById(uuid);
         log.info("Изменение статуса товара с id {}", uuid);
         product.setProductState(ProductState.DEACTIVATE);
