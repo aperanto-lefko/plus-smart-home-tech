@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5433/shopping_store_db
-    username: shopping
-    password: shopping
+    url: jdbc:postgresql://localhost:5436/store-db
+    username: store
+    password: store
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 5 #Настройки пула соединений (HikariCP — дефолтный пул в Spring Boot).

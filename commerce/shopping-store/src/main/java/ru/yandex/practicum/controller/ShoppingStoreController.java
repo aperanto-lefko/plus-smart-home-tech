@@ -59,12 +59,19 @@ public class ShoppingStoreController {
                 .status(HttpStatus.OK)
                 .body(productService.removeProduct(productRemoveDto));
     }
-    @PostMapping("/quantityState")
-    public ResponseEntity<Boolean> updateProductQuantityState(@RequestBody @Valid UpdateQtyStateDto updateQtyStateDto) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(productService.updateQuantityState(updateQtyStateDto));
-    }
+//    @PostMapping("/quantityState")
+//    public ResponseEntity<Boolean> updateProductQuantityState(@RequestBody @Valid UpdateQtyStateDto updateQtyStateDto) {
+//        return ResponseEntity
+//                .status(HttpStatus.OK)
+//                .body(productService.updateQuantityState(updateQtyStateDto));
+//    }
+@PostMapping("/quantityState")
+public ResponseEntity<Boolean> updateProductQuantityState(@RequestBody @Valid UpdateQtyStateDto updateQtyStateDto) {
+    return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(productService.updateQuantityState(updateQtyStateDto));
+}
+
     @GetMapping("/{productId}")
     public ResponseEntity<ProductDto> getProductById(@PathVariable("productId") UUID productId) {
         return ResponseEntity

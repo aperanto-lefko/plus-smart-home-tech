@@ -13,11 +13,7 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface PageableMapper {
-    @Mapping(target = ".", source = ".", qualifiedByName = "toPageable")
-    Pageable toPageable(PageableDto pageableRequest);
-
-    @Named("toPageable")
-    default Pageable convertToPageable(PageableDto pageableRequest) {
+    default Pageable toPageable(PageableDto pageableRequest) {
         if (pageableRequest.getSort() == null || pageableRequest.getSort().isEmpty()) {
             return PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize());
         }

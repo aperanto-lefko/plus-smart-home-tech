@@ -22,7 +22,6 @@
             <groupId>ru.yandex.practicum</groupId>
             <artifactId>interaction-api</artifactId>
         </dependency>
-
     </dependencies>
     <build>
         <plugins>

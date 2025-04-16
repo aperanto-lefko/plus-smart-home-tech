@@ -83,6 +83,6 @@ public class ErrorHandler {
                 null;
     }
     private void logging(String message, Throwable ex) {
-        log.error(message, ex.getMessage());
+        log.error(message, ex.toString(), ex);
     }
 }

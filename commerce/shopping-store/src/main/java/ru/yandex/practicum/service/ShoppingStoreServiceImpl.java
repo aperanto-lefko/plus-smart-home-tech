@@ -17,6 +17,7 @@ import ru.yandex.practicum.store.dto.RemoveProductDto;
 import ru.yandex.practicum.store.dto.UpdateQtyStateDto;
 import ru.yandex.practicum.store.enums.ProductCategory;
 import ru.yandex.practicum.store.dto.PageableDto;
+import ru.yandex.practicum.store.enums.ProductState;
 
 import java.util.List;
 import java.util.UUID;
@@ -65,8 +66,10 @@ public class ShoppingStoreServiceImpl implements ShoppingStoreService {
     public Boolean removeProduct(RemoveProductDto removeProductDto) {
         UUID uuid = removeProductDto.getProductId();
         Product product = getProductById(uuid);
-        log.info("Удаление товара с id {}", uuid);
-        productRepository.delete(product);
+        log.info("Изменение статуса товара с id {}", uuid);
+        product.setProductState(ProductState.DEACTIVATE);
+        log.info("Сохранение товара со статусом DEACTIVATE");
+        productRepository.save(product);
         return true;
     }
 
