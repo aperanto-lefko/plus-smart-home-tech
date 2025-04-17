@@ -16,14 +16,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.yandex.practicum.service.ShoppingStoreServiceImpl;
+import ru.yandex.practicum.service.ShoppingStoreService;
 import ru.yandex.practicum.store.dto.ProductDto;
 import ru.yandex.practicum.store.dto.UpdateQtyStateDto;
 import ru.yandex.practicum.store.enums.ProductCategory;
 import ru.yandex.practicum.store.dto.PageableDto;
-import ru.yandex.practicum.store.enums.QuantityState;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -31,7 +29,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ShoppingStoreController {
-    final ShoppingStoreServiceImpl productService;
+    final ShoppingStoreService productService;
 
 @GetMapping
 public ResponseEntity<Page<ProductDto>> getProducts(
