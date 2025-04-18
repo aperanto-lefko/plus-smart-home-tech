@@ -23,9 +23,9 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProductDto {
     UUID productId;
-    @NotBlank
+    @NotBlank(message = "Наименование товара должно быть указано")
     String productName;
-    @NotBlank
+    @NotBlank(message = "Описание товара должно быть указано")
     String description;
     String imageSrc;
     @NotNull(message = "Поле \"Состояние остатка\" не должно быть пустым")
