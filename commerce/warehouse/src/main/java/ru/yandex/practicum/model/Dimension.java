@@ -2,8 +2,10 @@ package ru.yandex.practicum.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import lombok.Getter;
 
 @Embeddable
+@Getter
 public class Dimension {
     @Column(name = "width", nullable = false)
     private double width;

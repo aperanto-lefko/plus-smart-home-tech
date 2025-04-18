@@ -11,6 +11,7 @@ import ru.yandex.practicum.exception.ProductInShoppingCartLowQuantityInWarehouse
 import ru.yandex.practicum.exception.SpecifiedProductAlreadyInWarehouseException;
 import ru.yandex.practicum.exception.WarehouseProductNotFoundException;
 import ru.yandex.practicum.mapper.WarehouseProductMapper;
+import ru.yandex.practicum.model.Dimension;
 import ru.yandex.practicum.model.WarehouseItem;
 import ru.yandex.practicum.model.WarehouseProduct;
 import ru.yandex.practicum.repository.WarehouseItemRepository;
@@ -67,7 +68,7 @@ public class WarehouseServiceImpl implements WarehouseService {
             throw new WarehouseProductNotFoundException("Товары отсутствуют на складе: " + missingProducts);
         }
         log.info("Проверка товаров по количеству на складе");
-        List<WarehouseItem> items = warehouseItemRepository.findAllByProductIdIn(requestedProducts.keySet());
+        List<WarehouseItem> items = warehouseItemRepository.findAllByProduct_IdIn(requestedProducts.keySet());
         Map<UUID, Integer> insufficientProducts = items.stream()
                 .filter(item -> {
                     Integer requested = requestedProducts.get(item.getProduct().getId());
@@ -81,17 +82,48 @@ public class WarehouseServiceImpl implements WarehouseService {
         if (!insufficientProducts.isEmpty()) {
             throw new ProductInShoppingCartLowQuantityInWarehouse("Не хватает на складе товаров: " + insufficientProducts);
         }
-        return null;
+        return getBookedProduct(requestedProducts, items);
     }
+
 
     @Override
     public void addAndChangeQuantityProduct(AddProductToWarehouseRequest productRequest) {
-
+        log.info("Добавление количества товара на складе");
+WarehouseItem item = warehouseItemRepository.findByProduct_Id(productRequest.getProductId())
+        .orElseThrow(()-> new WarehouseProductNotFoundException(
+                String.format("Товар с ID %s не найден на складе", productRequest.getProductId())));
     }
 
     @Override
     public AddressDto getAddress() {
         return null;
 
+    }
+
+    private BookedProductsDto getBookedProduct(Map<UUID, Integer> requestedProducts, List<WarehouseItem> items) {
+        log.info("Подсчет объема поставки");
+        double deliveryWeight = items.stream()
+                .mapToDouble(item -> {
+                    int requestedQty = requestedProducts.get(item.getProduct().getId());
+                    return item.getProduct().getWeight() * requestedQty;
+                })
+                .sum();
+
+        double deliveryVolume = items.stream()
+                .mapToDouble(item -> {
+                    int requestedQty = requestedProducts.get(item.getProduct().getId());
+                    Dimension dim = item.getProduct().getDimension();
+                    return dim.getWidth() * dim.getHeight() * dim.getDepth() * requestedQty;
+                })
+                .sum();
+
+        boolean fragile = items.stream()
+                .map(WarehouseItem::getProduct)
+                .anyMatch(WarehouseProduct::isFragile);
+        return BookedProductsDto.builder()
+                .fragile(fragile)
+                .deliveryVolume(deliveryVolume)
+                .deliveryWeight(deliveryWeight)
+                .build();
     }
 }
