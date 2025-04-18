@@ -67,7 +67,6 @@ public class ShoppingStoreServiceImpl implements ShoppingStoreService {
         log.info("Изменение статуса товара с id {}", uuid);
         product.setProductState(ProductState.DEACTIVATE);
         log.info("Сохранение товара со статусом DEACTIVATE");
-//        productRepository.save(product);
         return true;
     }
 

@@ -15,7 +15,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class NewProductInWareHouseRequest {
+public class WarehouseProductDto {
     @NotNull(message = "id товара должен быть указан")
     UUID productId;
     @NotNull(message = "Поле \"хрупкость\" должно быть указано")

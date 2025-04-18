@@ -8,9 +8,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.Getter;
 
 @Entity
 @Table(name = "warehouse_item")
+@Getter
 public class WarehouseItem {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -19,5 +21,5 @@ public class WarehouseItem {
     @JoinColumn(name = "product_id", referencedColumnName = "id", nullable = false)
     private WarehouseProduct product;
     @Column(name = "quantity", nullable = false)
-    private long quantity;
+    private int quantity;
 }

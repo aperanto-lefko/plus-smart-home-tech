@@ -4,11 +4,9 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,13 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.cart.dto.ShoppingCartDto;
 import ru.yandex.practicum.service.WarehouseService;
-import ru.yandex.practicum.store.dto.ProductDto;
 import ru.yandex.practicum.warehouse.dto.AddProductToWarehouseRequest;
 import ru.yandex.practicum.warehouse.dto.AddressDto;
 import ru.yandex.practicum.warehouse.dto.BookedProductsDto;
-import ru.yandex.practicum.warehouse.dto.NewProductInWareHouseRequest;
-
-import java.util.UUID;
+import ru.yandex.practicum.warehouse.dto.WarehouseProductDto;
 
 @RestController
 @RequestMapping("/api/v1/warehouse")
@@ -32,7 +27,7 @@ public class WarehouseController {
     final WarehouseService warehouseService;
 
     @PutMapping
-    public ResponseEntity<Void> addNewProduct(@RequestBody @Valid NewProductInWareHouseRequest newProduct) {
+    public ResponseEntity<Void> addNewProduct(@RequestBody @Valid WarehouseProductDto newProduct) {
         warehouseService.createProduct(newProduct);
         return ResponseEntity
                 .status(HttpStatus.OK)

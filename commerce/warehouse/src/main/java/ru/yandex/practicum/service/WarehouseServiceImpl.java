@@ -7,14 +7,24 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.cart.dto.ShoppingCartDto;
+import ru.yandex.practicum.exception.ProductInShoppingCartLowQuantityInWarehouse;
 import ru.yandex.practicum.exception.SpecifiedProductAlreadyInWarehouseException;
+import ru.yandex.practicum.exception.WarehouseProductNotFoundException;
 import ru.yandex.practicum.mapper.WarehouseProductMapper;
+import ru.yandex.practicum.model.WarehouseItem;
 import ru.yandex.practicum.model.WarehouseProduct;
+import ru.yandex.practicum.repository.WarehouseItemRepository;
 import ru.yandex.practicum.repository.WarehouseProductRepository;
 import ru.yandex.practicum.warehouse.dto.AddProductToWarehouseRequest;
 import ru.yandex.practicum.warehouse.dto.AddressDto;
 import ru.yandex.practicum.warehouse.dto.BookedProductsDto;
-import ru.yandex.practicum.warehouse.dto.NewProductInWareHouseRequest;
+import ru.yandex.practicum.warehouse.dto.WarehouseProductDto;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,11 +33,12 @@ import ru.yandex.practicum.warehouse.dto.NewProductInWareHouseRequest;
 @Transactional(readOnly = true)
 public class WarehouseServiceImpl implements WarehouseService {
     final WarehouseProductRepository warehouseProductRepository;
+    final WarehouseItemRepository warehouseItemRepository;
     final WarehouseProductMapper warehouseProductMapper;
 
     @Override
     @Transactional
-    public void createProduct(NewProductInWareHouseRequest newProduct) {
+    public void createProduct(WarehouseProductDto newProduct) {
         log.info("Проверка товара на складе");
         if (warehouseProductRepository.existsById(newProduct.getProductId())) {
             throw new SpecifiedProductAlreadyInWarehouseException(
@@ -40,6 +51,36 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public BookedProductsDto checkShoppingCart(ShoppingCartDto shoppingCartDto) {
+        Map<UUID, Integer> requestedProducts = shoppingCartDto.getProducts();
+        // Проверяем отсутствующие товары
+        log.info("Проверка товаров из корзины существования на складе");
+        Set<UUID> existingIds = warehouseProductRepository.findAllById(requestedProducts.keySet())
+                .stream()
+                .map(WarehouseProduct::getId)
+                .collect(Collectors.toSet());
+
+        List<UUID> missingProducts = requestedProducts.keySet().stream()
+                .filter(id -> !existingIds.contains(id))
+                .toList();
+
+        if (!missingProducts.isEmpty()) {
+            throw new WarehouseProductNotFoundException("Товары отсутствуют на складе: " + missingProducts);
+        }
+        log.info("Проверка товаров по количеству на складе");
+        List<WarehouseItem> items = warehouseItemRepository.findAllByProductIdIn(requestedProducts.keySet());
+        Map<UUID, Integer> insufficientProducts = items.stream()
+                .filter(item -> {
+                    Integer requested = requestedProducts.get(item.getProduct().getId());
+                    return requested != null && item.getQuantity() < requested;
+                })
+                .collect(Collectors.toMap(
+                        item -> item.getProduct().getId(),
+                        WarehouseItem::getQuantity
+                ));
+
+        if (!insufficientProducts.isEmpty()) {
+            throw new ProductInShoppingCartLowQuantityInWarehouse("Не хватает на складе товаров: " + insufficientProducts);
+        }
         return null;
     }
 

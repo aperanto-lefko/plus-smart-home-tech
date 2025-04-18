@@ -1,0 +1,15 @@
+package ru.yandex.practicum.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.model.WarehouseItem;
+
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
+
+@Repository
+public interface WarehouseItemRepository extends JpaRepository<WarehouseItem, Long> {
+    List<WarehouseItem> findAllByProductIdIn(Set<UUID> productIds);
+}
