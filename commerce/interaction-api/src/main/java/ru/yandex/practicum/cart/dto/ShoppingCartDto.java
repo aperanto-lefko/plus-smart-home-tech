@@ -1,4 +1,4 @@
-package ru.yandex.practicum.cart;
+package ru.yandex.practicum.cart.dto;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
