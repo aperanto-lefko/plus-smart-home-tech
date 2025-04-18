@@ -101,3 +101,17 @@ services:
       timeout: 5s
       interval: 5s
       retries: 10
+  warehouse-db:
+    image: postgres:16.1
+    container_name: warehouse-db
+    ports:
+      - "5438:5432"
+    environment:
+      - POSTGRES_DB=warehouse-db
+      - POSTGRES_USER=warehouse
+      - POSTGRES_PASSWORD=warehouse
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
