@@ -78,6 +78,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         if(items==null || items.size()!= existingIds.size()) {
             throw new WarehouseProductNotFoundException("Продукты заведены на складе, но количество не задано, найденные WarehouseItem" + items);
         }
+        //проверка соответствия количества
         Map<UUID, Integer> insufficientProducts = items.stream()
                 .filter(item -> {
                     Integer requested = requestedProducts.get(item.getProduct().getId());
@@ -117,7 +118,8 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Override
     public AddressDto getAddress() {
         log.info("Запрос адреса склада");
-        Address address = Address.fromString(ADDRESSES[Random.from(new SecureRandom()).nextInt(0, 1)]);
+        int randomIndex = new SecureRandom().nextInt(ADDRESSES.length);
+        Address address = Address.fromString(ADDRESSES[randomIndex]);
         return addressMapper.toDto(address);
     }
 
