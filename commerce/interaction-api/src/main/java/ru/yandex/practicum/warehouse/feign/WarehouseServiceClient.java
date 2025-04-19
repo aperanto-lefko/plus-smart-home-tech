@@ -1,5 +1,6 @@
 package ru.yandex.practicum.warehouse.feign;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.validation.Valid;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
@@ -13,12 +14,16 @@ import ru.yandex.practicum.warehouse.dto.AddressDto;
 import ru.yandex.practicum.warehouse.dto.BookedProductsDto;
 import ru.yandex.practicum.warehouse.dto.WarehouseProductDto;
 
-@FeignClient(name = "warehouse", path = "/api/v1/warehouse", fallback = WarehouseServiceFallback.class)
+@FeignClient(name = "warehouse",
+        path = "/api/v1/warehouse",
+        configuration = FeignCircuitBreakerConfig.class,
+        fallback = WarehouseServiceFallback.class)
 public interface WarehouseServiceClient {
     @PutMapping
     ResponseEntity<Void> addNewProduct(@RequestBody @Valid WarehouseProductDto newProduct);
 
     @PostMapping("/check")
+    @CircuitBreaker(name = "warehouseService")
     ResponseEntity<BookedProductsDto> checkShoppingCart(@RequestBody ShoppingCartDto cart);
 
     @PostMapping("/add")

@@ -7,6 +7,10 @@ spring:
     hikari:
       maximum-pool-size: 5 #Настройки пула соединений (HikariCP — дефолтный пул в Spring Boot).
       connection-timeout: 30000
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true # явно включаем CB для Feign
 
   jpa:
     hibernate:
@@ -17,6 +21,36 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 100
+        failureRateThreshold: 60
+        slowCallRateThreshold: 50
+        slowCallDurationThreshold: 2s
+        minimumNumberOfCalls: 20
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 10
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+    instances:
+      warehouseService:
+        baseConfig: default
+        waitDurationInOpenState: 15s
+
 logging:
   level:
+    org.springframework.cloud.openfeign: DEBUG
     ru.yandex.practicum.RequestLoggingFilter: INFO
+    io.github.resilience4j: DEBUG
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,circuitbreakers
+  endpoint:
+    health:
+      show-details: always
+    circuitbreakers:
+      enabled: true
