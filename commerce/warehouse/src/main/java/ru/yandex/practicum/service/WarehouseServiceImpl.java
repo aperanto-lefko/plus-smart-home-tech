@@ -75,6 +75,9 @@ public class WarehouseServiceImpl implements WarehouseService {
         }
         log.info("Проверка товаров по количеству на складе");
         List<WarehouseItem> items = warehouseItemRepository.findAllByProduct_IdIn(requestedProducts.keySet());
+        if(items==null || items.size()!= existingIds.size()) {
+            throw new WarehouseProductNotFoundException("Продукты заведены на складе, но количество не задано, найденные WarehouseItem" + items);
+        }
         Map<UUID, Integer> insufficientProducts = items.stream()
                 .filter(item -> {
                     Integer requested = requestedProducts.get(item.getProduct().getId());
@@ -97,12 +100,18 @@ public class WarehouseServiceImpl implements WarehouseService {
     public void addAndChangeQuantityProduct(AddProductToWarehouseRequest productRequest) {
         log.info("Добавление количества товара на складе по запросу {}", productRequest);
         UUID uuid = productRequest.getProductId();
-        if(!warehouseProductRepository.existsById(uuid)){
-               throw new WarehouseProductNotFoundException(
-                        String.format("Товар с ID %s не найден на складе", productRequest.getProductId()));}
+        log.info("Поиск product по uuid {} в warehouse", uuid);
+        WarehouseProduct product = warehouseProductRepository.findById(uuid)
+                .orElseThrow(() -> new WarehouseProductNotFoundException(
+                        String.format("Товар с ID %s не найден на складе", productRequest.getProductId())));
+        log.info("Поиск item по uuid {} в warehouse или создание нового",uuid);
         WarehouseItem item = warehouseItemRepository.findByProduct_Id(uuid)
-                        .orElseGet(WarehouseItem::new);
+                .orElseGet(() -> WarehouseItem.builder()
+                        .product(product)
+                        .build());
+
         item.setQuantity(productRequest.getQuantity());
+        warehouseItemRepository.save(item);
     }
 
     @Override
@@ -113,7 +122,8 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     private BookedProductsDto getBookedProduct(Map<UUID, Integer> requestedProducts, List<WarehouseItem> items) {
-        log.info("Подсчет объема поставки");
+
+        log.info("Подсчет объема поставки для requestedProducts {} и найденных WarehouseItem {}",requestedProducts, items);
         double deliveryWeight = items.stream()
                 .mapToDouble(item -> {
                     int requestedQty = requestedProducts.get(item.getProduct().getId());
