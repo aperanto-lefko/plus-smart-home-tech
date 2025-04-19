@@ -6,9 +6,13 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.Builder;
+import lombok.Setter;
 
 @Entity
 @Table(name = "address")
+@Setter
+@Builder
 public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -23,4 +27,14 @@ public class Address {
     private String house;
     @Column(name = "flat")
     private String flat;
+
+    public static Address fromString(String addressValue) {
+        return Address.builder()
+                .country(addressValue)
+                .city(addressValue)
+                .street(addressValue)
+                .house(addressValue)
+                .flat(addressValue)
+                .build();
+    }
 }

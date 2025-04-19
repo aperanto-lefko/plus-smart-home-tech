@@ -46,11 +46,10 @@ public class WarehouseController {
                 .status(HttpStatus.OK)
                 .build();
     }
-    @GetMapping("/address}")
+    @GetMapping("/address")
     public ResponseEntity<AddressDto> getProductById() {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(warehouseService.getAddress());
     }
-
 }

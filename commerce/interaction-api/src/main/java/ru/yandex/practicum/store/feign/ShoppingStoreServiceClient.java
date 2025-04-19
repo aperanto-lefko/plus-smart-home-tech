@@ -18,7 +18,7 @@ import ru.yandex.practicum.store.enums.ProductCategory;
 import java.util.List;
 import java.util.UUID;
 
-@FeignClient(name = "shopping-store-service", path = "/api/v1/shopping-store", fallback = ShoppingStoreServiceFallback.class)
+@FeignClient(name = "shopping-store", path = "/api/v1/shopping-store", fallback = ShoppingStoreServiceFallback.class)
 public interface ShoppingStoreServiceClient {
 
     @GetMapping

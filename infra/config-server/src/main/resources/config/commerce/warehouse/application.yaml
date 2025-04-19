@@ -20,3 +20,4 @@ spring:
 logging:
   level:
     ru.yandex.practicum.RequestLoggingFilter: INFO
+    ru.yandex.practicum.warehouse.feign.WarehouseServiceClient: DEBUG

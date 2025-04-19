@@ -10,7 +10,9 @@ import ru.yandex.practicum.cart.dto.ShoppingCartDto;
 import ru.yandex.practicum.exception.ProductInShoppingCartLowQuantityInWarehouse;
 import ru.yandex.practicum.exception.SpecifiedProductAlreadyInWarehouseException;
 import ru.yandex.practicum.exception.WarehouseProductNotFoundException;
+import ru.yandex.practicum.mapper.AddressMapper;
 import ru.yandex.practicum.mapper.WarehouseProductMapper;
+import ru.yandex.practicum.model.Address;
 import ru.yandex.practicum.model.Dimension;
 import ru.yandex.practicum.model.WarehouseItem;
 import ru.yandex.practicum.model.WarehouseProduct;
@@ -21,8 +23,10 @@ import ru.yandex.practicum.warehouse.dto.AddressDto;
 import ru.yandex.practicum.warehouse.dto.BookedProductsDto;
 import ru.yandex.practicum.warehouse.dto.WarehouseProductDto;
 
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -36,6 +40,8 @@ public class WarehouseServiceImpl implements WarehouseService {
     final WarehouseProductRepository warehouseProductRepository;
     final WarehouseItemRepository warehouseItemRepository;
     final WarehouseProductMapper warehouseProductMapper;
+    final AddressMapper addressMapper;
+    static final String[] ADDRESSES = new String[]{"ADDRESS_1", "ADDRESS_2"};
 
     @Override
     @Transactional
@@ -87,17 +93,23 @@ public class WarehouseServiceImpl implements WarehouseService {
 
 
     @Override
+    @Transactional
     public void addAndChangeQuantityProduct(AddProductToWarehouseRequest productRequest) {
-        log.info("Добавление количества товара на складе");
-WarehouseItem item = warehouseItemRepository.findByProduct_Id(productRequest.getProductId())
-        .orElseThrow(()-> new WarehouseProductNotFoundException(
-                String.format("Товар с ID %s не найден на складе", productRequest.getProductId())));
+        log.info("Добавление количества товара на складе по запросу {}", productRequest);
+        UUID uuid = productRequest.getProductId();
+        if(!warehouseProductRepository.existsById(uuid)){
+               throw new WarehouseProductNotFoundException(
+                        String.format("Товар с ID %s не найден на складе", productRequest.getProductId()));}
+        WarehouseItem item = warehouseItemRepository.findByProduct_Id(uuid)
+                        .orElseGet(WarehouseItem::new);
+        item.setQuantity(productRequest.getQuantity());
     }
 
     @Override
     public AddressDto getAddress() {
-        return null;
-
+        log.info("Запрос адреса склада");
+        Address address = Address.fromString(ADDRESSES[Random.from(new SecureRandom()).nextInt(0, 1)]);
+        return addressMapper.toDto(address);
     }
 
     private BookedProductsDto getBookedProduct(Map<UUID, Integer> requestedProducts, List<WarehouseItem> items) {

@@ -14,6 +14,7 @@ import ru.yandex.practicum.exception.NotAuthorizedUserException;
 import ru.yandex.practicum.mapper.CartMapper;
 import ru.yandex.practicum.model.ShoppingCart;
 import ru.yandex.practicum.repository.ShoppingCartRepository;
+import ru.yandex.practicum.warehouse.feign.WarehouseServiceClient;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +30,7 @@ import java.util.UUID;
 public class ShoppingCartServiceImpl implements ShoppingCartService {
     final ShoppingCartRepository shoppingCartRepository;
     final CartMapper cartMapper;
+    final WarehouseServiceClient warehouseServiceClient;
 
     @Override
     public ShoppingCartDto getShoppingCart(String userName) {
@@ -45,7 +47,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         log.info("Добавление продуктов {} для пользователя {}", products, userName);
         ShoppingCart cart = getOrCreateCartForUser(userName);
         cart.setProducts(products);
-        //проверка на складе
+        log.info("Отправка проверки корзины (наличия товаров) склад");
+        warehouseServiceClient.checkShoppingCart(cartMapper.toDto(cart));
+
         //изменение количества на складе
         return cartMapper.toDto(shoppingCartRepository.save(cart));
 

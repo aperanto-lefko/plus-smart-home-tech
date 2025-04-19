@@ -29,42 +29,42 @@ public class ShoppingCartController {
     final ShoppingCartService shoppingCartService;
 
     @GetMapping
-    public ResponseEntity<ShoppingCartDto> getShoppingCart(@RequestParam String userName) {
+    public ResponseEntity<ShoppingCartDto> getShoppingCart(@RequestParam String username) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(shoppingCartService.getShoppingCart(userName));
+                .body(shoppingCartService.getShoppingCart(username));
     }
 
     @PutMapping
-    public ResponseEntity<ShoppingCartDto> addProducts(@RequestParam String userName,
+    public ResponseEntity<ShoppingCartDto> addProducts(@RequestParam String username,
                                                        @RequestBody Map<UUID, Integer> products) {
                 return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(shoppingCartService.addProducts(userName, products));
+                .body(shoppingCartService.addProducts(username, products));
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deactivateShoppingCart(@RequestParam String userName) {
-        shoppingCartService.deactivateShoppingCart(userName);
+    public ResponseEntity<Void> deactivateShoppingCart(@RequestParam String username) {
+        shoppingCartService.deactivateShoppingCart(username);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .build();
     }
 
     @PostMapping("/remove")
-    public ResponseEntity<ShoppingCartDto> removeProducts(@RequestParam String userName,
+    public ResponseEntity<ShoppingCartDto> removeProducts(@RequestParam String username,
                                                           @RequestBody List<UUID> productIds) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(shoppingCartService.removeProducts(userName, productIds));
+                .body(shoppingCartService.removeProducts(username, productIds));
     }
 
     @PostMapping("/change-quantity")
-    public ResponseEntity<ShoppingCartDto> changeProductQuantity(@RequestParam String userName,
+    public ResponseEntity<ShoppingCartDto> changeProductQuantity(@RequestParam String username,
                                                                  @RequestBody ChangeProductQuantityRequest request) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(shoppingCartService.changeProductQuantity(userName, request));
+                .body(shoppingCartService.changeProductQuantity(username, request));
     }
 
 
