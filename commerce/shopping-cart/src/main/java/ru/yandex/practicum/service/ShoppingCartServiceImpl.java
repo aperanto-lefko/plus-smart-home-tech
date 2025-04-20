@@ -1,5 +1,6 @@
 package ru.yandex.practicum.service;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -42,6 +43,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     @Transactional
+    @CircuitBreaker(name = "warehouseService", fallbackMethod = "fallbackAddProducts")
     public ShoppingCartDto addProducts(String userName, Map<UUID, Integer> products) {
         validateUser(userName);
         log.info("Добавление продуктов {} для пользователя {}", products, userName);
@@ -49,10 +51,14 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         cart.setProducts(products);
         log.info("Отправка проверки корзины (наличия товаров) склад");
         warehouseServiceClient.checkShoppingCart(cartMapper.toDto(cart));
-
         //изменение количества на складе
         return cartMapper.toDto(shoppingCartRepository.save(cart));
 
+    }
+
+    public ShoppingCartDto fallbackAddProducts(String userName, Map<UUID, Integer> products, Exception ex) {
+        log.error("Fallback Circuit для addProducts: {}", ex.getMessage());
+        return null;
     }
 
     @Override

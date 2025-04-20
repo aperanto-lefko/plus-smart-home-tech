@@ -16,7 +16,6 @@ import ru.yandex.practicum.warehouse.dto.WarehouseProductDto;
 
 @FeignClient(name = "warehouse",
         path = "/api/v1/warehouse",
-        configuration = FeignCircuitBreakerConfig.class,
         fallback = WarehouseServiceFallback.class)
 public interface WarehouseServiceClient {
     @PutMapping
