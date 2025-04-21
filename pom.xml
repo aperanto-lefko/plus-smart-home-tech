@@ -33,6 +33,7 @@
         <spring-cloud-dependencies.version>2023.0.3</spring-cloud-dependencies.version>
         <resilience4j-spring-boot2.version>2.0.2</resilience4j-spring-boot2.version>
         <resilience4j-circuitbreaker.version>2.0.2</resilience4j-circuitbreaker.version>
+        <redis.version>3.4.4</redis.version>
 
 
         <!--       Plugins       -->
@@ -100,11 +101,17 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
-                     <dependency>
+            <!--    circuitbreaker dependencies management        -->
+            <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
-                         <version>3.2.1</version>
+                <version>3.2.1</version>
+            </dependency>
+            <!--    Redis dependencies management        -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-data-redis</artifactId>
+                <version>${redis.version}</version>
             </dependency>
         </dependencies>
 

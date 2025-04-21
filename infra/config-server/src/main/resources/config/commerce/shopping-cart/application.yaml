@@ -20,6 +20,10 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+  redis:
+    host: redis  # Имя сервиса в Docker Compose
+    port: 6379
+
 
 resilience4j:
   circuitbreaker:
@@ -38,6 +42,9 @@ resilience4j:
       warehouseService:
         baseConfig: default
         waitDurationInOpenState: 15s
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException.BadRequest
+          - feign.FeignException$BadRequest
 
 logging:
   level:

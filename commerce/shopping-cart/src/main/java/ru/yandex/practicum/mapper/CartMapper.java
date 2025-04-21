@@ -7,4 +7,5 @@ import ru.yandex.practicum.model.ShoppingCart;
 @Mapper(componentModel = "spring")
 public interface CartMapper {
     ShoppingCartDto toDto(ShoppingCart cart);
+    ShoppingCart toEntity(ShoppingCartDto cart);
 }
