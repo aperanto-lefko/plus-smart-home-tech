@@ -1,11 +1,13 @@
 package ru.yandex.practicum.service;
 
+import feign.FeignException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import ru.yandex.practicum.cart.dto.ShoppingCartDto;
 import ru.yandex.practicum.exception.CartNotFoundException;
 import ru.yandex.practicum.exception.NoProductInShoppingCartException;
 import ru.yandex.practicum.exception.NotAuthorizedUserException;
+import ru.yandex.practicum.exception.WarehouseServiceException;
 import ru.yandex.practicum.mapper.CartMapper;
 import ru.yandex.practicum.model.ShoppingCart;
 import ru.yandex.practicum.repository.ShoppingCartRepository;
@@ -57,10 +60,13 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         ShoppingCart cart = getOrCreateCartForUser(userName);
         cart.setProducts(products);
         log.info("Отправка проверки корзины (наличия товаров) склад");
-        warehouseServiceClient.checkShoppingCart(cartMapper.toDto(cart));
+
+            ResponseEntity<BookedProductsDto> response = warehouseServiceClient.checkShoppingCart(cartMapper.toDto(cart));
+            if (response.getStatusCode() == HttpStatus.BAD_REQUEST) {
+             throw new WarehouseServiceException("Ошибка при проверке корзины на складе ");
+        }
         //изменение количества на складе
         return cartMapper.toDto(shoppingCartRepository.save(cart));
-
     }
 
     public ShoppingCartDto fallbackAddProducts(String userName, Map<UUID, Integer> products, Exception ex) {

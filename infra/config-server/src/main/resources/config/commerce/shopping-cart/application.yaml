@@ -42,9 +42,12 @@ resilience4j:
       warehouseService:
         baseConfig: default
         waitDurationInOpenState: 15s
-        ignore-exceptions:
-          - org.springframework.web.client.HttpClientErrorException.BadRequest
-          - feign.FeignException$BadRequest
+        recordExceptions: # Какие исключения считать ошибками
+
+        ignoreExceptions: # Какие исключения игнорировать
+            - feign.FeignException$BadRequest
+            - org.springframework.web.client.HttpClientErrorException$NotFound
+            - java.io.IOException
 
 logging:
   level:
