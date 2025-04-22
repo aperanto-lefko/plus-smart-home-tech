@@ -31,6 +31,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @Service
 @Slf4j
@@ -63,7 +64,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
         try {
             warehouseServiceClient.checkShoppingCart(cartMapper.toDto(cart));
-        } catch (FeignException ex) {
+        } catch (FeignException.FeignClientException.BadRequest ex) {
             log.error("Сработал блок catch в FeignException");
             throw new WarehouseServiceException("Ошибка при проверке корзины на складе ");
         }
@@ -71,7 +72,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return cartMapper.toDto(shoppingCartRepository.save(cart));
     }
 
-    public ShoppingCartDto fallbackAddProducts(String userName, Map<UUID, Integer> products, Exception ex) {
+    public ShoppingCartDto fallbackAddProducts(String userName, Map<UUID, Integer> products, FeignException ex) {
         log.error("Fallback Circuit для addProducts: {}", ex.getMessage());
         log.info("fallbackAddProducts добавление продуктов {} для пользователя {}", products, userName);
         ShoppingCart cart = getOrCreateCartForUser(userName);
@@ -156,8 +157,6 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             }
         });
     }
-
-
 
 
     private int getAttemptCount(String attemptsKey) {
