@@ -23,6 +23,7 @@ import java.util.Properties;
 @Slf4j
 @RequiredArgsConstructor
 public class KafkaProducerFactory {
+
     KafkaProducer<String, SpecificRecordBase> pr;
     final KafkaProducerProperties config;
 
