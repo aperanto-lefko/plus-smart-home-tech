@@ -61,9 +61,11 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         cart.setProducts(products);
         log.info("Отправка проверки корзины (наличия товаров) склад");
 
-            ResponseEntity<BookedProductsDto> response = warehouseServiceClient.checkShoppingCart(cartMapper.toDto(cart));
-            if (response.getStatusCode() == HttpStatus.BAD_REQUEST) {
-             throw new WarehouseServiceException("Ошибка при проверке корзины на складе ");
+        try {
+            warehouseServiceClient.checkShoppingCart(cartMapper.toDto(cart));
+        } catch (FeignException ex) {
+            log.error("Сработал блок catch в FeignException");
+            throw new WarehouseServiceException("Ошибка при проверке корзины на складе ");
         }
         //изменение количества на складе
         return cartMapper.toDto(shoppingCartRepository.save(cart));

@@ -15,14 +15,12 @@ import ru.yandex.practicum.warehouse.dto.BookedProductsDto;
 import ru.yandex.practicum.warehouse.dto.WarehouseProductDto;
 
 @FeignClient(name = "warehouse",
-        path = "/api/v1/warehouse",
-        fallback = WarehouseServiceFallback.class)
+        path = "/api/v1/warehouse",fallback = WarehouseServiceFallback.class)
 public interface WarehouseServiceClient {
     @PutMapping
     ResponseEntity<Void> addNewProduct(@RequestBody @Valid WarehouseProductDto newProduct);
 
     @PostMapping("/check")
-    @CircuitBreaker(name = "warehouseService")
     ResponseEntity<BookedProductsDto> checkShoppingCart(@RequestBody ShoppingCartDto cart);
 
     @PostMapping("/add")
