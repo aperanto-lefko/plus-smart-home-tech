@@ -26,7 +26,6 @@ import ru.yandex.practicum.warehouse.dto.WarehouseProductDto;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -136,16 +135,16 @@ public class WarehouseServiceImpl implements WarehouseService {
         double deliveryVolume = items.stream()
                 .mapToDouble(item -> {
                     int requestedQty = requestedProducts.get(item.getProduct().getId());
-                    Dimension dim = item.getProduct().getDimension();
+                    Dimension dim = item.getProduct().getDimensions();
                     return dim.getWidth() * dim.getHeight() * dim.getDepth() * requestedQty;
                 })
                 .sum();
 
-        boolean fragile = items.stream()
+        boolean isFragile = items.stream()
                 .map(WarehouseItem::getProduct)
                 .anyMatch(WarehouseProduct::isFragile);
         return BookedProductsDto.builder()
-                .fragile(fragile)
+                .isFragile(isFragile)
                 .deliveryVolume(deliveryVolume)
                 .deliveryWeight(deliveryWeight)
                 .build();

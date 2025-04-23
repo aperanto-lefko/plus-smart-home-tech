@@ -19,9 +19,9 @@ public class WarehouseProductDto {
     @NotNull(message = "id товара должен быть указан")
     UUID productId;
     @NotNull(message = "Поле \"хрупкость\" должно быть указано")
-    boolean fragile;
+    boolean isFragile;
     @NotNull(message = "Размеры должны быть указаны")
-    DimensionDto dimension;
+    DimensionDto dimensions;
     @DecimalMin(value = "1.0", message = "Вес должен быть больше 1")
     double weight;
 }

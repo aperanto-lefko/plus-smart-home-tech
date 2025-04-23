@@ -31,17 +31,17 @@ import java.util.UUID;
 public class ShoppingCart {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID shoppingCartId;
+    UUID shoppingCartId;
 
     @Column(nullable = false)
-    private String userName;
+    String userName;
 
     @ElementCollection
     @CollectionTable(name = "shopping_cart_items", joinColumns = @JoinColumn(name = "shopping_cart_id"))
     @MapKeyColumn(name = "product_id")
     @Column(name = "quantity")
-    private Map<UUID, Integer> products = new HashMap<>();
+    Map<UUID, Integer> products = new HashMap<>();
 
     @Column(nullable = false)
-    private boolean active = true;
+    boolean active = true;
 }

@@ -59,3 +59,7 @@ management:
       show-details: always
     circuitbreakers:
       enabled: true
+
+cart:
+  process:
+    max-attempts: 3 #количество попыток отправки корзины
