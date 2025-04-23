@@ -15,5 +15,5 @@ import lombok.experimental.FieldDefaults;
 public class BookedProductsDto {
     double deliveryWeight;
     double deliveryVolume;
-    boolean fragile;
+    boolean isFragile;
 }

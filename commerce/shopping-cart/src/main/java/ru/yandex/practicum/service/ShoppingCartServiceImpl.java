@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.cart.dto.ChangeProductQuantityRequest;
 import ru.yandex.practicum.cart.dto.ShoppingCartDto;
+import ru.yandex.practicum.config.CartProcessingProperties;
 import ru.yandex.practicum.exception.CartNotFoundException;
 import ru.yandex.practicum.exception.NoProductInShoppingCartException;
 import ru.yandex.practicum.exception.NotAuthorizedUserException;
@@ -42,6 +44,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     final CartMapper cartMapper;
     final WarehouseServiceClient warehouseServiceClient;
     final RedisTemplate<String, Object> redisTemplate;
+    final CartProcessingProperties properties;
 
     @Override
     public ShoppingCartDto getShoppingCart(String userName) {
@@ -69,111 +72,6 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         }
         //изменение количества на складе
         return cartMapper.toDto(shoppingCartRepository.save(cart));
-    }
-
-    public ShoppingCartDto fallbackAddProducts(String userName, Map<UUID, Integer> products, FeignException ex) {
-        log.error("Fallback Circuit для addProducts: {}", ex.getMessage());
-        log.info("fallbackAddProducts добавление продуктов {} для пользователя {}", products, userName);
-        ShoppingCart cart = getOrCreateCartForUser(userName);
-        cart.setProducts(products);
-        log.info("Сохранение в redis корзины и name пользователя");
-
-        // Сохраняем всю корзину в Redis как JSON
-        String cartKey = "cart.pending:" + cart.getShoppingCartId();
-        redisTemplate.opsForValue().set(
-                cartKey,
-                cart,  // Преобразуем в DTO
-                24, TimeUnit.HOURS
-        );
-        log.info("Корзина в базу данных со списком продуктов не сохранена");
-        return null;
-    }
-
-    @Scheduled(fixedRate = 60000)  // Запуск каждые 60 секунд (но реальная задержка учитывается внутри)
-    public void processPendingCarts() {
-        log.info("Активирована фоновая отправка корзины на склад");
-        Set<String> keys = redisTemplate.keys("cart.pending:*");
-        if (keys == null || keys.isEmpty()) {
-            return;
-        }
-
-        keys.forEach(key -> {
-            String attemptsKey = null;
-            try {
-                // Получаем корзину
-                ShoppingCart cart = (ShoppingCart) redisTemplate.opsForValue().get(key);
-                if (cart == null) {
-                    redisTemplate.delete(key);  // Если корзина исчезла, чистим ключ
-                    return;
-                }
-
-                // Проверяем лимит попыток (макс. 3)
-                attemptsKey = "cart.attempts:" + cart.getShoppingCartId();
-                int attempts = getAttemptCount(attemptsKey);
-                if (attempts >= 3) {
-                    log.error("Корзина {} не обработана после 3 попыток. Удаление.", cart.getShoppingCartId());
-                    redisTemplate.delete(key);
-                    redisTemplate.delete(attemptsKey);
-                    return;
-                }
-
-                // Проверяем задержку (экспоненциальная: 60s, 120s, 240s)
-                String lastAttemptKey = "cart.last_attempt:" + cart.getShoppingCartId();
-                long lastAttemptTime = getLastAttemptTime(lastAttemptKey);
-                long delay = calculateDelay(attempts);  // 60s * 2^attempts
-                if (System.currentTimeMillis() - lastAttemptTime < delay) {
-                    log.info("Корзина {} ждет следующей попытки (через {} ms)", cart.getShoppingCartId(), delay);
-                    return;  // Пропускаем, если не прошло нужное время
-                }
-
-                // Обновляем время последней попытки
-                redisTemplate.opsForValue().set(lastAttemptKey, System.currentTimeMillis());
-
-                // Пытаемся отправить на склад
-                log.info("Попытка {} для корзины {}", attempts + 1, cart.getShoppingCartId());
-                ResponseEntity<BookedProductsDto> response =
-                        warehouseServiceClient.checkShoppingCart(cartMapper.toDto(cart));
-
-                if (response.getStatusCode().is2xxSuccessful()) {
-                    shoppingCartRepository.save(cart);
-                    redisTemplate.delete(key);
-                    redisTemplate.delete(attemptsKey);
-                    redisTemplate.delete(lastAttemptKey);
-                    log.info("Корзина {} успешно обработана!", cart.getShoppingCartId());
-                } else {
-                    incrementAttemptCount(attemptsKey);
-                    log.error("Склад вернул ошибку для корзины {}", cart.getShoppingCartId());
-                }
-            } catch (Exception e) {
-                // Feign-ошибка (таймаут/разрыв соединения) → увеличиваем счётчик
-                if (attemptsKey != null) { // Проверяем, что attemptsKey был инициализирован
-                    incrementAttemptCount(attemptsKey);
-                    log.error("Ошибка связи со складом (попытка {}/3): {}",
-                            getAttemptCount(attemptsKey), e.getMessage());
-                } else {
-                    log.error("Ошибка до инициализации attemptsKey: {}", e.getMessage());
-                }
-            }
-        });
-    }
-
-
-    private int getAttemptCount(String attemptsKey) {
-        Integer attempts = (Integer) redisTemplate.opsForValue().get(attemptsKey);
-        return attempts == null ? 0 : attempts;
-    }
-
-    private long getLastAttemptTime(String lastAttemptKey) {
-        Long lastAttempt = (Long) redisTemplate.opsForValue().get(lastAttemptKey);
-        return lastAttempt == null ? 0 : lastAttempt;
-    }
-
-    private void incrementAttemptCount(String attemptsKey) {
-        redisTemplate.opsForValue().increment(attemptsKey);
-    }
-
-    private long calculateDelay(int attempts) {
-        return 60000 * (1L << attempts);  // 60s, 120s, 240s
     }
 
 
@@ -243,4 +141,123 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             throw new NotAuthorizedUserException("Имя пользователя не должно быть пустым");
         }
     }
+
+    public ShoppingCartDto fallbackAddProducts(String userName, Map<UUID, Integer> products, FeignException ex) {
+        log.error("Fallback Circuit для addProducts: {}", ex.getMessage());
+        log.info("fallbackAddProducts добавление продуктов {} для пользователя {}", products, userName);
+        ShoppingCart cart = getOrCreateCartForUser(userName);
+        cart.setProducts(products);
+        log.info("Сохранение в redis корзины и name пользователя");
+
+        // Сохраняем всю корзину в Redis как JSON
+        String cartKey = "cart.pending:" + cart.getShoppingCartId();
+        redisTemplate.opsForValue().set(
+                cartKey,
+                cart,  // Преобразуем в DTO
+                24, TimeUnit.HOURS
+        );
+        log.info("Корзина в базу данных со списком продуктов не сохранена");
+        return null;
+    }
+
+    @Scheduled(fixedRate = 60000)  // Запуск каждые 60 секунд (но реальная задержка учитывается внутри)
+    public void processPendingCarts() {
+        log.info("Активирована фоновая отправка корзины на склад");
+        Set<String> keys = redisTemplate.keys("cart.pending:*");
+        if (keys == null || keys.isEmpty()) {
+            return;
+        }
+
+        keys.forEach(key -> {
+            String attemptsKey = null;
+            try {
+                // Получаем корзину
+                ShoppingCart cart = (ShoppingCart) redisTemplate.opsForValue().get(key);
+                if (cart == null) {
+                    redisTemplate.delete(key);  // Если корзина исчезла, чистим ключ
+                    return;
+                }
+
+                // Проверяем лимит попыток (макс. 3)
+                attemptsKey = "cart.attempts:" + cart.getShoppingCartId();
+                int attempts = getAttemptCount(attemptsKey);
+                log.info("Максимальное количество попыток отправки {}", properties.getMaxAttempts());
+                if (attempts >= properties.getMaxAttempts()) {
+                    log.error("Корзина {} не обработана после 3 попыток. Удаление.", cart.getShoppingCartId());
+                    redisTemplate.delete(key);
+                    redisTemplate.delete(attemptsKey);
+                    return;
+                }
+
+                // Проверяем задержку (экспоненциальная: 60s, 120s, 240s)
+                String lastAttemptKey = "cart.last_attempt:" + cart.getShoppingCartId();
+                long lastAttemptTime = getLastAttemptTime(lastAttemptKey);
+                long delay = calculateDelay(attempts);  // 60s * 2^attempts
+                if (System.currentTimeMillis() - lastAttemptTime < delay) {
+                    log.info("Корзина {} ждет следующей попытки (через {} ms)", cart.getShoppingCartId(), delay);
+                    return;  // Пропускаем, если не прошло нужное время
+                }
+
+                // Обновляем время последней попытки
+                redisTemplate.opsForValue().set(lastAttemptKey, System.currentTimeMillis());
+
+                // Пытаемся отправить на склад
+                log.info("Попытка {} для корзины {}", attempts + 1, cart.getShoppingCartId());
+                ResponseEntity<BookedProductsDto> response =
+                        warehouseServiceClient.checkShoppingCart(cartMapper.toDto(cart));
+
+                if (response.getStatusCode().is2xxSuccessful()) {
+                    shoppingCartRepository.save(cart);
+                    redisTemplate.delete(key);
+                    redisTemplate.delete(attemptsKey);
+                    redisTemplate.delete(lastAttemptKey);
+                    log.info("Корзина {} успешно обработана!", cart.getShoppingCartId());
+                } else {
+                    incrementAttemptCount(attemptsKey);
+                    log.error("Склад вернул ошибку для корзины {}", cart.getShoppingCartId());
+                }
+            } catch (FeignException e) {
+                handleFeignError(attemptsKey, e);
+            } catch (RedisConnectionFailureException e) {
+                log.error("Ошибка Redis: {}", e.getMessage());
+            } catch (RuntimeException e) {
+                log.error("Неожиданная ошибка: {}", e.getMessage());
+                if (attemptsKey != null) {
+                    incrementAttemptCount(attemptsKey);
+                }
+            }
+        });
+    }
+
+    private void handleFeignError(String attemptsKey, FeignException e) {
+        if (attemptsKey != null) {
+            incrementAttemptCount(attemptsKey);
+            log.error("Ошибка связи со складом (попытка {}/{}): {}",
+                    getAttemptCount(attemptsKey),
+                    properties.getMaxAttempts(),
+                    e.getMessage(),
+                    e.getCause());
+        } else {
+            log.error("Ошибка Feign до инициализации attemptsKey: {}", e.contentUTF8());
+        }
+    }
+
+    private int getAttemptCount(String attemptsKey) {
+        Integer attempts = (Integer) redisTemplate.opsForValue().get(attemptsKey);
+        return attempts == null ? 0 : attempts;
+    }
+
+    private long getLastAttemptTime(String lastAttemptKey) {
+        Long lastAttempt = (Long) redisTemplate.opsForValue().get(lastAttemptKey);
+        return lastAttempt == null ? 0 : lastAttempt;
+    }
+
+    private void incrementAttemptCount(String attemptsKey) {
+        redisTemplate.opsForValue().increment(attemptsKey);
+    }
+
+    private long calculateDelay(int attempts) {
+        return 60000 * (1L << attempts);  // 60s, 120s, 240s
+    }
+
 }

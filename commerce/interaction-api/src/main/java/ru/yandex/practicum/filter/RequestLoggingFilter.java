@@ -59,11 +59,10 @@ public class RequestLoggingFilter implements Filter {
     private String getParametersAsString(HttpServletRequest request) {
         StringBuilder params = new StringBuilder();
         request.getParameterMap().forEach((name, values) -> {
-            params.append("  ").append(name).append("=");
-            for (String value : values) {
-                params.append(value).append(",");
-            }
-            params.deleteCharAt(params.length() - 1).append("\n");
+            params.append("  ")
+                    .append(name)
+                    .append("=")
+                    .append(String.join(",", values));
         });
         return params.toString();
     }
