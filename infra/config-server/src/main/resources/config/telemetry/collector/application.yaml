@@ -1,0 +1,23 @@
+grpc:
+  server:
+    port: 59091
+
+
+kafka:
+  topics:
+    sensor_events_topic: telemetry.sensors.v1
+    hub_events_topic: telemetry.hubs.v1
+  producer:
+    bootstrap_server: localhost:9092
+    key_serialize_class: org.apache.kafka.common.serialization.StringSerializer
+    value_serialize_class: ru.yandex.practicum.serializer.AvroSerializer
+
+
+logging:
+  level:
+    io.grpc: DEBUG
+    org:
+      zalando:
+        logbook: DEBUG
+      springframework:
+        web: DEBUG
