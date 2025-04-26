@@ -18,10 +18,10 @@ public class WarehouseProduct {
     @Id
     @Column(name = "id", columnDefinition = "UUID", nullable = false)
     private UUID id;  // ID приходит извне, генерация отключена
-    @Column(name = "isFragile", nullable = false)
-    private boolean isFragile;
+    @Column(name = "fragile", nullable = false)
+    private boolean fragile;
     @Embedded
-    private Dimension dimensions;
+    private Dimension dimension;
     @Column(name = "weight", nullable = false)
     private double weight;
 }
