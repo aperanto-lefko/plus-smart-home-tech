@@ -1,12 +1,12 @@
 spring:
   cloud:
     gateway:
-      discovery.locator.enabled: false
+      discovery.locator.enabled: true # автообнаружение сервисов
       routes:
         - id: shopping_cart_service_route  # Уникальный идентификатор роута
           uri: lb://shopping-cart  # Куда перенаправлять запрос (lb:// - балансировка нагрузки)
           predicates: # Условия, при которых запрос попадает в этот роут
-            - Path=/shopping-cart,/shopping-cart/** # Все запросы, начинающиеся с `/shopping-cart/`
+            - Path=/shopping-cart/** # Все запросы, начинающиеся с `/shopping-cart/`
           filters: # Фильтры, применяемые к запросу
             - PrefixPath=/api/v1  # Добавляет `/api/v1` перед оригинальным путём
         - id: shopping_store_service_route
@@ -19,7 +19,8 @@ spring:
               args:
                 retries: 3  # Количество попыток
                 statuses: NOT_FOUND  # HTTP-статусы для повтора
-                exceptions: ru.yandex.practicum.exception.ProductNotFoundException  # Исключение для повтора
+#                exceptions:
+#                  - ru.yandex.practicum.exception.ProductNotFoundException  # Исключение для повтора
                 backoff:
                   firstBackoff: 100ms  # Первая задержка
                   maxBackoff: 1000ms   # Максимальная задержка
