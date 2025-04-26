@@ -135,7 +135,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         double deliveryVolume = items.stream()
                 .mapToDouble(item -> {
                     int requestedQty = requestedProducts.get(item.getProduct().getId());
-                    Dimension dim = item.getProduct().getDimensions();
+                    Dimension dim = item.getProduct().getDimension();
                     return dim.getWidth() * dim.getHeight() * dim.getDepth() * requestedQty;
                 })
                 .sum();
@@ -144,7 +144,7 @@ public class WarehouseServiceImpl implements WarehouseService {
                 .map(WarehouseItem::getProduct)
                 .anyMatch(WarehouseProduct::isFragile);
         return BookedProductsDto.builder()
-                .isFragile(isFragile)
+                .fragile(isFragile)
                 .deliveryVolume(deliveryVolume)
                 .deliveryWeight(deliveryWeight)
                 .build();
