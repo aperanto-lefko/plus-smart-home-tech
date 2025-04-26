@@ -19,8 +19,7 @@ spring:
               args:
                 retries: 3  # Количество попыток
                 statuses: NOT_FOUND  # HTTP-статусы для повтора
-#                exceptions:
-#                  - ru.yandex.practicum.exception.ProductNotFoundException  # Исключение для повтора
+
                 backoff:
                   firstBackoff: 100ms  # Первая задержка
                   maxBackoff: 1000ms   # Максимальная задержка
@@ -39,4 +38,4 @@ management:
   endpoints:
     web:
       exposure:
-        include: "env,health,metrics" #или "*"
+        include: "env,health,metrics"
