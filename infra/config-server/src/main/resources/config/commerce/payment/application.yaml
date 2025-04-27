@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5439/payment-db
+    username: payment
+    password: payment
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5 #Настройки пула соединений (HikariCP — дефолтный пул в Spring Boot).
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true #Показывать SQL-запросы в логах
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+logging:
+  level:
+    ru.yandex.practicum.RequestLoggingFilter: INFO
