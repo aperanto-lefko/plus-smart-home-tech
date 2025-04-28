@@ -1,4 +1,4 @@
-package ru.yandex.practicum.payment;
+package ru.yandex.practicum.payment.enums;
 
 public enum PaymentState {
     PENDING, //ожидает оплаты

@@ -14,7 +14,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import ru.yandex.practicum.payment.PaymentState;
+import ru.yandex.practicum.payment.enums.PaymentState;
 
 import java.math.BigDecimal;
 import java.util.UUID;

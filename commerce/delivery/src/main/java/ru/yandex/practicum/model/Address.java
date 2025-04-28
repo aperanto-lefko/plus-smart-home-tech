@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import java.util.UUID;
-
 @Data
 @Table(name = "addresses")
 @AllArgsConstructor
