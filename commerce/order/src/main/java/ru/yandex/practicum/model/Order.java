@@ -45,6 +45,8 @@ public class Order {
     UUID paymentId;
     @Column(name = "delivery_id", nullable = false)
     UUID deliveryId;
+    @Column(name = "user_name",nullable = false)
+    String username;
     @ElementCollection
     @CollectionTable(name = "order_products", joinColumns = @JoinColumn(name = "order_id"))
     @MapKeyColumn(name = "product_id")

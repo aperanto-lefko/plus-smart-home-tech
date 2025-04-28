@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.yandex.practicum.exception.NotAuthorizedUserException;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,6 +33,19 @@ public class BaseErrorHandler {
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         String errorUserMessage = "Внутренняя ошибка сервера";
+        logging(errorUserMessage, ex);
+        return ResponseEntity
+                .status(status)
+                .body(createErrorResponse(
+                        status,
+                        errorUserMessage,
+                        ex
+                ));
+    }
+    @ExceptionHandler(NotAuthorizedUserException.class)
+    public ResponseEntity<ErrorResponse> handleNotAuthorizedException(NotAuthorizedUserException ex) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        String errorUserMessage = "Пользователь не авторизован, поле имя некорректно";
         logging(errorUserMessage, ex);
         return ResponseEntity
                 .status(status)

@@ -24,15 +24,15 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/order")
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class OrderController {
-    final OrderService orderService;
+    OrderService orderService;
 
     @GetMapping
-    public ResponseEntity<List<OrderDto>> getClientOrders(@RequestParam String username) {
+    public ResponseEntity<List<OrderDto>> getClientOrders(@RequestParam String userName) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(orderService.getClientOrders(username));
+                .body(orderService.getClientOrders(userName));
     }
 
     @PutMapping
