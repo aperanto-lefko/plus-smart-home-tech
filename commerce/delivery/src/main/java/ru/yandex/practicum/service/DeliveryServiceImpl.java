@@ -6,8 +6,8 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.delivery.dto.DeliveryDto;
 import ru.yandex.practicum.order.dto.OrderDto;
-import ru.yandex.practicum.payment.dto.PaymentDto;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -17,27 +17,29 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class PaymentServiceImpl implements PaymentService {
+public class DeliveryServiceImpl implements DeliveryService {
 
     @Override
     @Transactional
-    public PaymentDto createPayment(OrderDto orderDto) {
+    public DeliveryDto createDelivery(DeliveryDto deliveryDto) {
         return null;
     }
+
     @Override
-    public BigDecimal calculateTotalCost(OrderDto orderDto) {
-        return null;
+    public void completeDelivery(UUID orderId) {
+
     }
+
     @Override
-    public void refundPayment(UUID paymentId) {
+    public void pickupOrderForDelivery(UUID orderId) {
+    }
+
+    @Override
+    public void failDelivery(UUID orderId) {
 
     }
     @Override
-    public BigDecimal calculateProductCost(OrderDto orderDto) {
+    public BigDecimal calculateTotalCostDelivery(OrderDto orderDto) {
         return null;
-    }
-    @Override
-    public void failPayment(UUID paymentId) {
-
     }
 }

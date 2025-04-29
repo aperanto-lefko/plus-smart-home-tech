@@ -11,4 +11,6 @@ public interface PaymentService {
     PaymentDto createPayment(OrderDto orderDto);
     BigDecimal calculateTotalCost(OrderDto orderDto);
     void refundPayment(UUID paymentId);
+    BigDecimal calculateProductCost(OrderDto orderDto);
+    void failPayment(UUID paymentId);
 }
