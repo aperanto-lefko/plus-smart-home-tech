@@ -57,6 +57,4 @@ public class DeliveryController {
                 .status(HttpStatus.OK)
                 .body(deliveryService.calculateTotalCostDelivery(orderDto));
     }
-
-
 }

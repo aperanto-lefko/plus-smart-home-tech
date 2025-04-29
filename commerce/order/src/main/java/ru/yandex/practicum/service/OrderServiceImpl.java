@@ -9,12 +9,15 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.cart.feign.ShoppingCartServiceClient;
 import ru.yandex.practicum.exception.NoOrderFoundException;
 import ru.yandex.practicum.exception.NotAuthorizedUserException;
+import ru.yandex.practicum.mapper.AddressMapper;
 import ru.yandex.practicum.mapper.OrderMapper;
 import ru.yandex.practicum.model.Order;
 import ru.yandex.practicum.order.dto.CreateNewOrderRequest;
 import ru.yandex.practicum.order.dto.OrderDto;
 import ru.yandex.practicum.order.dto.ProductReturnRequest;
+import ru.yandex.practicum.order.enums.OrderState;
 import ru.yandex.practicum.repository.OrderRepository;
+import ru.yandex.practicum.warehouse.dto.BookedProductsDto;
 import ru.yandex.practicum.warehouse.feign.WarehouseServiceClient;
 
 
@@ -29,6 +32,7 @@ import java.util.UUID;
 public class OrderServiceImpl implements OrderService {
     OrderRepository orderRepository;
     OrderMapper orderMapper;
+    AddressMapper addressMapper;
     ShoppingCartServiceClient cartServiceClient;
     WarehouseServiceClient warehouseServiceClient;
 
@@ -47,8 +51,19 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrderDto createOrder(CreateNewOrderRequest request) {
         log.info("Создание нового заказа {}", request);
-        warehouseServiceClient.checkShoppingCart(request.getShoppingCartDto());
-
+        BookedProductsDto bookedProductsDto = warehouseServiceClient.checkShoppingCart(request.getShoppingCartDto()).getBody();
+        if (bookedProductsDto==null) {
+            throw new
+        }
+        Order order = Order.builder()
+                .shoppingCartId(request.getShoppingCartDto().getShoppingCartId())
+                .state(OrderState.NEW)
+                .products(request.getShoppingCartDto().getProducts())
+                .deliveryWeight(bookedProductsDto.getDeliveryWeight())
+                .deliveryVolume(bookedProductsDto.getDeliveryVolume())
+                .fragile(bookedProductsDto.isFragile())
+                .deliveryAddress(addressMapper.toEntity(request.getAddressDto()))
+                .build();
         return null;
     }
 
