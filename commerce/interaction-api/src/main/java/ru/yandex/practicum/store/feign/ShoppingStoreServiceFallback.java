@@ -1,7 +1,10 @@
 package ru.yandex.practicum.store.feign;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.exception.ServiceUnavailableException;
 import ru.yandex.practicum.store.dto.PageableDto;
 import ru.yandex.practicum.store.dto.ProductDto;
@@ -9,6 +12,7 @@ import ru.yandex.practicum.store.dto.UpdateQtyStateDto;
 import ru.yandex.practicum.store.enums.ProductCategory;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Component
@@ -47,8 +51,12 @@ public class ShoppingStoreServiceFallback implements ShoppingStoreServiceClient 
 
     @Override
     public ProductDto getProductById(UUID productId) {
-        log.warn("FАктивирован резервный вариант для getProductById с id: {}", productId);
+        log.warn("Активирован резервный вариант для getProductById с id: {}", productId);
         throw new ServiceUnavailableException("Shopping store service недоступен");
     }
-
+    @Override
+    public ResponseEntity<List<ProductDto>> getProductsByIds(Set<UUID> productIds) {
+        log.warn("Активирован резервный вариант для getProductsByIds с ids: {}", productIds);
+        throw new ServiceUnavailableException("Shopping store service недоступен");
+    }
 }

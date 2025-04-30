@@ -67,8 +67,8 @@ public class Order {
     BigDecimal deliveryPrice; //цена доставки
     @Column(name = "product_price")
     BigDecimal productPrice; //цена всех товаров
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "delivery_address_id", nullable = false)
-    Address deliveryAddress;
+//    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+//    @JoinColumn(name = "delivery_address_id", nullable = false)
+//    Address deliveryAddress;
     //адрес склада?
 }
