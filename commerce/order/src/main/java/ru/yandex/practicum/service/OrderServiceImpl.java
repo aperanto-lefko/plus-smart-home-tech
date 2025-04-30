@@ -1,5 +1,6 @@
 package ru.yandex.practicum.service;
 
+import feign.FeignException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -13,11 +14,9 @@ import ru.yandex.practicum.delivery.feign.DeliveryServiceClient;
 import ru.yandex.practicum.exception.DeliveryServiceReturnedNullException;
 import ru.yandex.practicum.exception.PaymentServiceReturnedNullException;
 import ru.yandex.practicum.exception.WarehouseServiceReturnedNullException;
-import ru.yandex.practicum.exception.DeliveryNotFoundException;
 import ru.yandex.practicum.exception.NoOrderFoundException;
 import ru.yandex.practicum.exception.NotAuthorizedUserException;
 import ru.yandex.practicum.general_dto.AddressDto;
-import ru.yandex.practicum.mapper.AddressMapper;
 import ru.yandex.practicum.mapper.OrderMapper;
 import ru.yandex.practicum.model.Order;
 import ru.yandex.practicum.order.dto.CreateNewOrderRequest;
@@ -62,9 +61,16 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrderDto createOrder(CreateNewOrderRequest request) {
         log.info("Создание нового заказа {}", request);
-        BookedProductsDto bookedProductsDto = Optional.ofNullable(
-                warehouseServiceClient.checkShoppingCart(request.getShoppingCartDto()).getBody()
-        ).orElseThrow(() -> new WarehouseServiceReturnedNullException("Не удалось получить информацию о забронированных товарах"));
+        log.info("Отправка корзины для проверки на склад");
+        BookedProductsDto bookedProductsDto;
+        try {
+            bookedProductsDto = Optional.ofNullable(
+                    warehouseServiceClient.checkShoppingCart(request.getShoppingCartDto()).getBody()
+            ).orElseThrow(() -> new WarehouseServiceReturnedNullException("Не удалось получить информацию о забронированных товарах"));
+        } catch (FeignException.FeignClientException.BadRequest ex) {
+            log.error("Сервис склада вернул 400");
+            throw new WarehouseServiceReturnedNullException("Ошибка при проверке корзины на складе");
+        }
         Order order = Order.builder()
                 .shoppingCartId(request.getShoppingCartDto().getShoppingCartId())
                 .state(OrderState.NEW)
@@ -75,7 +81,7 @@ public class OrderServiceImpl implements OrderService {
                 .build();
 
         orderRepository.save(order);
-
+        log.info("Запрос на склад для получения адреса");
         AddressDto warehouseAddressDto = warehouseServiceClient.getAddress().getBody();
         DeliveryDto deliveryDto = DeliveryDto.builder()
                 .fromAddress(warehouseAddressDto)
@@ -83,22 +89,27 @@ public class OrderServiceImpl implements OrderService {
                 .orderId(order.getOrderId())
                 .deliveryState(DeliveryState.CREATED)
                 .build();
+        log.info("Запрос в сервис доставки для создания новой доставки {}", deliveryDto);
         DeliveryDto savedDeliveryDto = deliveryServiceClient.createDelivery(deliveryDto).getBody();
         if (savedDeliveryDto == null) {
-            throw new DeliveryNotFoundException("Доставку не удалось оформить");
+            throw new DeliveryServiceReturnedNullException("Доставку не удалось оформить");
         }
+        log.info("Доставка успешно создана с id {}", savedDeliveryDto.getDeliveryId());
         order.setDeliveryId(savedDeliveryDto.getDeliveryId());
-
+        log.info("Отправка в сервис доставки для расчета стоимости доставки для заказа id {}", order.getOrderId());
         BigDecimal deliveryPrice = Optional.ofNullable(deliveryServiceClient.calculateTotalCostDelivery(orderMapper.toDto(order)).getBody())
                 .orElseThrow(() -> new DeliveryServiceReturnedNullException("Не удалось получить стоимость доставки"));
+        log.info("Отправка в сервис платежей для расчета стоимости товаров для заказа id {}", order.getOrderId());
         BigDecimal productsPrice = Optional.ofNullable(paymentServiceClient.calculateProductCost(orderMapper.toDto(order)).getBody())
                 .orElseThrow(() -> new PaymentServiceReturnedNullException("Не удалось получить стоимость товаров"));
         order.setDeliveryPrice(deliveryPrice);
         order.setProductPrice(productsPrice);
+        log.info("Отправка в сервис платежей для расчета полной стоимости заказа id {}", order.getOrderId());
         BigDecimal totalPrice = Optional.ofNullable(paymentServiceClient.calculateTotalCost(orderMapper.toDto(order)).getBody())
                 .orElseThrow(() -> new PaymentServiceReturnedNullException("Не удалось получить полную стоимость по заказу"));
         order.setTotalPrice(totalPrice);
         orderRepository.save(order);
+        log.info("Заказ успешно создан {}", order.getOrderId());
         return orderMapper.toDto(order);
     }
 

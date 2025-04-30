@@ -6,16 +6,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.yandex.practicum.exception.DeliveryServiceException;
 import ru.yandex.practicum.exception.NotAuthorizedUserException;
+import ru.yandex.practicum.exception.PaymentServiceException;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
 @RestControllerAdvice
 @Slf4j
 public class BaseErrorHandler {
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ExceptionHandler({MethodArgumentNotValidException.class,})
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         String errorUserMessage = "Запрос составлен некорректно";
@@ -29,7 +32,7 @@ public class BaseErrorHandler {
                 ));
     }
 
-    @ExceptionHandler(Exception.class)
+    @ExceptionHandler({Exception.class, RuntimeException.class})
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         String errorUserMessage = "Внутренняя ошибка сервера";
@@ -42,10 +45,13 @@ public class BaseErrorHandler {
                         ex
                 ));
     }
-    @ExceptionHandler(NotAuthorizedUserException.class)
-    public ResponseEntity<ErrorResponse> handleNotAuthorizedException(NotAuthorizedUserException ex) {
+
+    @ExceptionHandler({NotAuthorizedUserException.class,
+            DeliveryServiceException.class,
+            PaymentServiceException.class})
+    public ResponseEntity<ErrorResponse> handleNotAuthorizedException(RuntimeException ex) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
-        String errorUserMessage = "Пользователь не авторизован, поле имя некорректно";
+        String errorUserMessage = getUserFriendlyMessage(ex);
         logging(errorUserMessage, ex);
         return ResponseEntity
                 .status(status)
@@ -55,9 +61,20 @@ public class BaseErrorHandler {
                         ex
                 ));
     }
+
+    private String getUserFriendlyMessage(Exception ex) {
+        return switch (ex) {
+            case NotAuthorizedUserException notAuthorizedUserException ->
+                    "Пользователь не авторизован, поле имя некорректно";
+            case DeliveryServiceException deliveryServiceException -> "Ошибка при работе с сервисом склада";
+            case PaymentServiceException paymentServiceException -> "Ошибка при работе с сервисом оплаты";
+            case null, default -> "Произошла непредвиденная ошибка";
+        };
+    }
+
     protected ErrorResponse createErrorResponse(HttpStatus status,
-                                              String message,
-                                              Throwable ex) {
+                                                String message,
+                                                Throwable ex) {
         return new ErrorResponse(
                 ex.getCause(),
                 getSafeStackTrace(ex),
@@ -79,6 +96,7 @@ public class BaseErrorHandler {
                 Arrays.asList(ex.getSuppressed()) :
                 null;
     }
+
     protected void logging(String message, Throwable ex) {
         log.error(message, ex.getMessage(), ex);
     }

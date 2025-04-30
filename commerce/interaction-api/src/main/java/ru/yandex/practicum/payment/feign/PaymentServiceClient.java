@@ -13,7 +13,9 @@ import java.util.UUID;
 
 
 @FeignClient(name = "payment",
-        path = "/api/v1/payment", fallback = PaymentServiceFallback.class)
+        path = "/api/v1/payment",
+        fallback = PaymentServiceFallback.class,
+        configuration = PaymentFeignConfig.class)
 public interface PaymentServiceClient {
     @PostMapping
     public ResponseEntity<PaymentDto> createPayment(@Valid @RequestBody OrderDto orderDto);
