@@ -8,8 +8,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.exception.IncompleteProductListException;
 import ru.yandex.practicum.exception.StoreServiceReturnedNullException;
+import ru.yandex.practicum.mapper.PaymentMapper;
+import ru.yandex.practicum.model.Payment;
 import ru.yandex.practicum.order.dto.OrderDto;
 import ru.yandex.practicum.payment.dto.PaymentDto;
+import ru.yandex.practicum.repository.PaymentRepository;
 import ru.yandex.practicum.store.dto.ProductDto;
 import ru.yandex.practicum.store.feign.ShoppingStoreServiceClient;
 
@@ -27,12 +30,27 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class PaymentServiceImpl implements PaymentService {
+    PaymentRepository paymentRepository;
+    PaymentMapper paymentMapper;
     ShoppingStoreServiceClient shoppingStoreServiceClient;
+
+    static BigDecimal TAX_RATE = BigDecimal.valueOf(10.0);
 
     @Override
     @Transactional
     public PaymentDto createPayment(OrderDto orderDto) {
-        return null;
+        log.info("Создание платежного документа для заказа {}", orderDto);
+        BigDecimal feeTotal = orderDto.getProductPrice()
+                .multiply(TAX_RATE)
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+
+        Payment payment = Payment.builder()
+                .deliveryTotal(orderDto.getDeliveryPrice())
+                .feeTotal(feeTotal)
+                .totalPayment(calculateTotalCost(orderDto))
+                .build();
+        log.info("Сохранение платежного документа {}", payment);
+        return paymentMapper.toDto(paymentRepository.save(payment));
     }
 
     @Override

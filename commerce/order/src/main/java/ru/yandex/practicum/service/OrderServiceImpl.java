@@ -23,6 +23,7 @@ import ru.yandex.practicum.order.dto.CreateNewOrderRequest;
 import ru.yandex.practicum.order.dto.OrderDto;
 import ru.yandex.practicum.order.dto.ProductReturnRequest;
 import ru.yandex.practicum.order.enums.OrderState;
+import ru.yandex.practicum.payment.dto.PaymentDto;
 import ru.yandex.practicum.payment.feign.PaymentServiceClient;
 import ru.yandex.practicum.repository.OrderRepository;
 import ru.yandex.practicum.warehouse.dto.BookedProductsDto;
@@ -64,9 +65,9 @@ public class OrderServiceImpl implements OrderService {
         log.info("Отправка корзины для проверки на склад");
         BookedProductsDto bookedProductsDto;
         try {
-//            bookedProductsDto = Optional.ofNullable(
-//                    warehouseServiceClient.checkShoppingCart(request.getShoppingCartDto()).getBody()
-//            ).orElseThrow(() -> new WarehouseServiceReturnedNullException("Не удалось получить информацию о забронированных товарах"));
+            bookedProductsDto = Optional.ofNullable(
+                    warehouseServiceClient.checkShoppingCart(request.getShoppingCartDto()).getBody()
+            ).orElseThrow(() -> new WarehouseServiceReturnedNullException("Не удалось получить информацию о забронированных товарах"));
         } catch (FeignException.FeignClientException.BadRequest ex) {
             log.error("Сервис склада вернул 400");
             throw new WarehouseServiceReturnedNullException("Ошибка при проверке корзины на складе");
@@ -90,24 +91,24 @@ public class OrderServiceImpl implements OrderService {
                 .deliveryState(DeliveryState.CREATED)
                 .build();
         log.info("Запрос в сервис доставки для создания новой доставки {}", deliveryDto);
-        DeliveryDto savedDeliveryDto = deliveryServiceClient.createDelivery(deliveryDto).getBody();
-        if (savedDeliveryDto == null) {
-            throw new DeliveryServiceReturnedNullException("Доставку не удалось оформить");
-        }
+        DeliveryDto savedDeliveryDto = Optional.ofNullable(deliveryServiceClient.createDelivery(deliveryDto).getBody())
+                .orElseThrow(()->new DeliveryServiceReturnedNullException("Доставку не удалось оформить"));
+
         log.info("Доставка успешно создана с id {}", savedDeliveryDto.getDeliveryId());
         order.setDeliveryId(savedDeliveryDto.getDeliveryId());
         log.info("Отправка в сервис доставки для расчета стоимости доставки для заказа id {}", order.getOrderId());
         BigDecimal deliveryPrice = Optional.ofNullable(deliveryServiceClient.calculateTotalCostDelivery(orderMapper.toDto(order)).getBody())
                 .orElseThrow(() -> new DeliveryServiceReturnedNullException("Не удалось получить стоимость доставки"));
-        log.info("Отправка в сервис платежей для расчета стоимости товаров для заказа id {}", order.getOrderId());
+        order.setDeliveryPrice(deliveryPrice);
+        log.info("Отправка в сервис платежей на расчет стоимости товаров");
         BigDecimal productsPrice = Optional.ofNullable(paymentServiceClient.calculateProductCost(orderMapper.toDto(order)).getBody())
                 .orElseThrow(() -> new PaymentServiceReturnedNullException("Не удалось получить стоимость товаров"));
-        order.setDeliveryPrice(deliveryPrice);
         order.setProductPrice(productsPrice);
-        log.info("Отправка в сервис платежей для расчета полной стоимости заказа id {}", order.getOrderId());
-        BigDecimal totalPrice = Optional.ofNullable(paymentServiceClient.calculateTotalCost(orderMapper.toDto(order)).getBody())
-                .orElseThrow(() -> new PaymentServiceReturnedNullException("Не удалось получить полную стоимость по заказу"));
-        order.setTotalPrice(totalPrice);
+        log.info("Отправка в сервис платежей на создание платежа");
+        PaymentDto paymentDto = Optional.ofNullable(paymentServiceClient.createPayment(orderMapper.toDto(order)).getBody())
+                .orElseThrow(() -> new PaymentServiceReturnedNullException("Не удалось получить платежный документ по заказу"));
+        order.setTotalPrice(paymentDto.getTotalPayment());
+        order.setPaymentId(paymentDto.getPaymentId());
         orderRepository.save(order);
         log.info("Заказ успешно создан {}", order.getOrderId());
         return orderMapper.toDto(order);
@@ -116,12 +117,20 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderDto returnOrder(ProductReturnRequest request) {
-        return null;
+        log.info("Оформление возврата заказа {}", request);
+        Order order = orderRepository.findById(request.getOrderId())
+                .orElseThrow(() -> new NoOrderFoundException("Заказ не найден id" + request.getOrderId()));
+        log.info("Отправка товаров на склад для переучета");
+        warehouseServiceClient.returnProductToWarehouse(request.getProducts());
+        order.setState(OrderState.PRODUCT_RETURNED);
+        log.info("Заказ {} успешно обработан для возврата", request);
+        return orderMapper.toDto(order);
     }
 
     @Override
     @Transactional
     public OrderDto paymentOrder(UUID orderId) {
+
         return null;
     }
 

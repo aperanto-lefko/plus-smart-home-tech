@@ -18,7 +18,11 @@ import ru.yandex.practicum.warehouse.dto.AddProductToWarehouseRequest;
 import ru.yandex.practicum.general_dto.AddressDto;
 import ru.yandex.practicum.warehouse.dto.AssemblyProductsForOrderRequest;
 import ru.yandex.practicum.warehouse.dto.BookedProductsDto;
+import ru.yandex.practicum.warehouse.dto.ShippedToDeliveryRequest;
 import ru.yandex.practicum.warehouse.dto.WarehouseProductDto;
+
+import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/warehouse")
@@ -59,4 +63,18 @@ public class WarehouseController {
                 .status(HttpStatus.OK)
                 .body(warehouseService.prepareOrderItemsForShipment(request));
     }
+    @PostMapping("/return")
+    public ResponseEntity<Void> returnProductToWarehouse(@RequestBody Map <UUID, Integer> products) {
+        warehouseService.returnProductToWarehouse(products);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .build();
+    }
+//    @PostMapping("/shipped")
+//    public ResponseEntity<Void> sendProductsToDelivery(@RequestBody @Valid ShippedToDeliveryRequest request) {
+//        warehouseService.sendProductsToDelivery(request);
+//        return ResponseEntity
+//                .status(HttpStatus.OK)
+//                .build();
+//    }
 }

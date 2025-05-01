@@ -44,7 +44,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     WarehouseOrderBookingRepository warehouseOrderBookingRepository;
     WarehouseProductMapper warehouseProductMapper;
 
-     AddressMapper addressMapper;
+    AddressMapper addressMapper;
     static final String[] ADDRESSES = new String[]{"ADDRESS_1", "ADDRESS_2"};
 
     @Override
@@ -97,6 +97,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Override
+    @Transactional
     public BookedProductsDto prepareOrderItemsForShipment(AssemblyProductsForOrderRequest request) {
         log.info("Подготовка товаров для заказа");
         Map<UUID, Integer> reservedProducts = request.getProducts();
@@ -110,6 +111,26 @@ public class WarehouseServiceImpl implements WarehouseService {
                 .build();
         warehouseOrderBookingRepository.save(orderBooking);
         return bookedProductsDto;
+    }
+
+    @Override
+    @Transactional
+    public void returnProductToWarehouse(Map<UUID, Integer> products) {
+        log.info("Переучет возвращаемых товаров на склад {}", products);
+        List<WarehouseItem> items = warehouseItemRepository.findAllByProduct_IdIn(products.keySet());
+        if (items.size() != products.size()) {
+            throw new WarehouseProductNotFoundException("Один или несколько товаров не найдены на складе");
+        }
+        for (WarehouseItem item : items) {
+            UUID productId = item.getProduct().getId();
+            Integer returnedQuant = products.get(productId);
+            if (returnedQuant == null || returnedQuant <= 0) {
+                throw new IllegalArgumentException("Неверное количество для возврата товара " + returnedQuant);
+            }
+            item.setQuantity(item.getQuantity() + returnedQuant);
+        }
+        log.info("Сохранение обновленного списка товаров {}", items);
+        warehouseItemRepository.saveAll(items);
     }
 
 
