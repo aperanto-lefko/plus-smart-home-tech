@@ -7,11 +7,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.exception.IncompleteProductListException;
+import ru.yandex.practicum.exception.NoPaymentFoundException;
 import ru.yandex.practicum.exception.StoreServiceReturnedNullException;
 import ru.yandex.practicum.mapper.PaymentMapper;
 import ru.yandex.practicum.model.Payment;
 import ru.yandex.practicum.order.dto.OrderDto;
+import ru.yandex.practicum.order.feign.OrderServiceClient;
 import ru.yandex.practicum.payment.dto.PaymentDto;
+import ru.yandex.practicum.payment.enums.PaymentState;
 import ru.yandex.practicum.repository.PaymentRepository;
 import ru.yandex.practicum.store.dto.ProductDto;
 import ru.yandex.practicum.store.feign.ShoppingStoreServiceClient;
@@ -33,6 +36,7 @@ public class PaymentServiceImpl implements PaymentService {
     PaymentRepository paymentRepository;
     PaymentMapper paymentMapper;
     ShoppingStoreServiceClient shoppingStoreServiceClient;
+    OrderServiceClient orderServiceClient;
 
     static BigDecimal TAX_RATE = BigDecimal.valueOf(10.0);
 
@@ -64,9 +68,17 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    @Transactional
     public void refundPayment(UUID paymentId) {
-
+        log.info("Проведение оплаты для платежа с id {}", paymentId);
+        Payment payment = getPaymentById(paymentId);
+        payment.setState(PaymentState.SUCCESS);
+        log.info("Отправление в сервис заказов уведомления об оплате для платежа {}", payment);
+        orderServiceClient.paymentOrder(paymentId);
+        log.info("Сохранение успешного платежа в базу {}", payment);
+        paymentRepository.save(payment);
     }
+
 
     @Override
     public BigDecimal calculateProductCost(OrderDto orderDto) {
@@ -87,6 +99,17 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public void failPayment(UUID paymentId) {
+        log.info("Неудачная оплата для платежа с id {}", paymentId);
+        Payment payment = getPaymentById(paymentId);
+        payment.setState(PaymentState.FAILED);
+        log.info("Отправление в сервис заказов уведомления об отказе оплаты для платежа {}", payment);
+        orderServiceClient.paymentOrderFailed(paymentId);
+        log.info("Сохранение неудачного платежа в базу {}", payment);
+        paymentRepository.save(payment);
+    }
 
+    private Payment getPaymentById(UUID paymentId) {
+        return paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new NoPaymentFoundException("Платеж не найден id" + paymentId));
     }
 }

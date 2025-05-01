@@ -30,30 +30,34 @@ public class PaymentController {
                 .status(HttpStatus.OK)
                 .body(paymentService.createPayment(orderDto));
     }
+
     @PostMapping("/totalCost")
     public ResponseEntity<BigDecimal> calculateTotalCost(@Valid @RequestBody OrderDto orderDto) {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(paymentService.calculateTotalCost(orderDto));
     }
-//    @PostMapping("/refund")
-//    public ResponseEntity<Void> refundPayment(@RequestBody UUID paymentId) {
-//        paymentService.refundPayment(paymentId);
-//        return ResponseEntity
-//                .status(HttpStatus.OK)
-//                .build();
-//    }
+
+    @PostMapping("/refund")
+    public ResponseEntity<Void> refundPayment(@RequestBody UUID paymentId) {
+        paymentService.refundPayment(paymentId);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .build();
+    }
+
     @PostMapping("/productCost")
     public ResponseEntity<BigDecimal> calculateProductCost(@RequestBody OrderDto orderDto) {
-                return ResponseEntity
+        return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(paymentService.calculateProductCost(orderDto));
     }
-//    @PostMapping("/failed")
-//    public ResponseEntity<Void> failPayment(@RequestBody UUID paymentId) {
-//        paymentService.failPayment(paymentId);
-//        return ResponseEntity
-//                .status(HttpStatus.OK)
-//                .build();
-//    }
+
+    @PostMapping("/failed")
+    public ResponseEntity<Void> failPayment(@RequestBody UUID paymentId) {
+        paymentService.failPayment(paymentId);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .build();
+    }
 }

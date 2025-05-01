@@ -54,52 +54,52 @@ public class OrderController {
                 .status(HttpStatus.OK)
                 .body(orderService.paymentOrder(orderId));
     }
-//    @PostMapping("/payment/failed")
-//    public ResponseEntity<OrderDto> paymentOrderFailed(@RequestBody UUID orderId) {
-//        return ResponseEntity
-//                .status(HttpStatus.OK)
-//                .body(orderService.paymentOrderFailed(orderId));
-//    }
-//    @PostMapping("/delivery")
-//    public ResponseEntity<OrderDto> deliveryOrder(@RequestBody UUID orderId) {
-//        return ResponseEntity
-//                .status(HttpStatus.OK)
-//                .body(orderService.deliveryOrder(orderId));
-//    }
-//    @PostMapping("/delivery/failed")
-//    public ResponseEntity<OrderDto> deliveryOrderFailed(@RequestBody UUID orderId) {
-//        return ResponseEntity
-//                .status(HttpStatus.OK)
-//                .body(orderService.deliveryOrderFailed(orderId));
-//    }
-//    @PostMapping("/completed")
-//    public ResponseEntity<OrderDto> completeOrder(@RequestBody UUID orderId) {
-//        return ResponseEntity
-//                .status(HttpStatus.OK)
-//                .body(orderService.completeOrder(orderId));
-//    }
-//    @PostMapping("/calculate/total")
-//    public ResponseEntity<OrderDto> calculateTotalOrderCost(@RequestBody UUID orderId) {
-//        return ResponseEntity
-//                .status(HttpStatus.OK)
-//                .body(orderService.calculateTotalOrderCost(orderId));
-//    }
-//    @PostMapping("/calculate/delivery")
-//    public ResponseEntity<OrderDto> calculateDeliveryOrderCost(@RequestBody UUID orderId) {
-//        return ResponseEntity
-//                .status(HttpStatus.OK)
-//                .body(orderService.calculateDeliveryOrderCost(orderId));
-//    }
-//    @PostMapping("/assembly")
-//    public ResponseEntity<OrderDto> assemblyOrder(@RequestBody UUID orderId) {
-//        return ResponseEntity
-//                .status(HttpStatus.OK)
-//                .body(orderService.assemblyOrder(orderId));
-//    }
-//    @PostMapping("/assembly/failed")
-//    public ResponseEntity<OrderDto> assemblyOrderFailed(@RequestBody UUID orderId) {
-//        return ResponseEntity
-//                .status(HttpStatus.OK)
-//                .body(orderService.assemblyOrderFailed(orderId));
-//    }
+    @PostMapping("/payment/failed")
+    public ResponseEntity<OrderDto> paymentOrderFailed(@RequestBody UUID orderId) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(orderService.paymentOrderFailed(orderId));
+    }
+    @PostMapping("/delivery")
+    public ResponseEntity<OrderDto> deliveryOrder(@RequestBody UUID orderId) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(orderService.deliveryOrder(orderId));
+    }
+    @PostMapping("/delivery/failed")
+    public ResponseEntity<OrderDto> deliveryOrderFailed(@RequestBody UUID orderId) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(orderService.deliveryOrderFailed(orderId));
+    }
+    @PostMapping("/completed")
+    public ResponseEntity<OrderDto> completeOrder(@RequestBody UUID orderId) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(orderService.completeOrder(orderId));
+    }
+    @PostMapping("/calculate/total")
+    public ResponseEntity<OrderDto> calculateTotalOrderCost(@RequestBody UUID orderId) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(orderService.calculateTotalOrderCost(orderId));
+    }
+    @PostMapping("/calculate/delivery")
+    public ResponseEntity<OrderDto> calculateDeliveryOrderCost(@RequestBody UUID orderId) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(orderService.calculateDeliveryOrderCost(orderId));
+    }
+    @PostMapping("/assembly")
+    public ResponseEntity<OrderDto> assemblyOrder(@RequestBody UUID orderId) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(orderService.assemblyOrder(orderId));
+    }
+    @PostMapping("/assembly/failed")
+    public ResponseEntity<OrderDto> assemblyOrderFailed(@RequestBody UUID orderId) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(orderService.assemblyOrderFailed(orderId));
+    }
 }

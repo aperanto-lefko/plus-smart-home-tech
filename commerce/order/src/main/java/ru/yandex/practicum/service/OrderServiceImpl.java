@@ -92,7 +92,7 @@ public class OrderServiceImpl implements OrderService {
                 .build();
         log.info("Запрос в сервис доставки для создания новой доставки {}", deliveryDto);
         DeliveryDto savedDeliveryDto = Optional.ofNullable(deliveryServiceClient.createDelivery(deliveryDto).getBody())
-                .orElseThrow(()->new DeliveryServiceReturnedNullException("Доставку не удалось оформить"));
+                .orElseThrow(() -> new DeliveryServiceReturnedNullException("Доставку не удалось оформить"));
 
         log.info("Доставка успешно создана с id {}", savedDeliveryDto.getDeliveryId());
         order.setDeliveryId(savedDeliveryDto.getDeliveryId());
@@ -118,8 +118,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrderDto returnOrder(ProductReturnRequest request) {
         log.info("Оформление возврата заказа {}", request);
-        Order order = orderRepository.findById(request.getOrderId())
-                .orElseThrow(() -> new NoOrderFoundException("Заказ не найден id" + request.getOrderId()));
+        Order order = getOrderById(request.getOrderId());
         log.info("Отправка товаров на склад для переучета");
         warehouseServiceClient.returnProductToWarehouse(request.getProducts());
         order.setState(OrderState.PRODUCT_RETURNED);
@@ -127,16 +126,25 @@ public class OrderServiceImpl implements OrderService {
         return orderMapper.toDto(order);
     }
 
+
+
     @Override
     @Transactional
     public OrderDto paymentOrder(UUID orderId) {
-
-        return null;
+        log.info("Выполнение оплаты заказа с id {}", orderId);
+        Order order = getOrderById(orderId);
+        order.setState(OrderState.PAID);
+        log.info("Сохранение заказа в базу {}", order);
+        return orderMapper.toDto(orderRepository.save(order));
     }
 
     @Override
     public OrderDto paymentOrderFailed(UUID orderId) {
-        return null;
+        log.info("Корректировка заказа из-за неудачной оплаты с id {}", orderId);
+        Order order = getOrderById(orderId);
+        order.setState(OrderState.PAYMENT_FAILED);
+        log.info("Сохранение заказа в базу {}", order);
+        return orderMapper.toDto(orderRepository.save(order));
     }
 
     @Override
@@ -184,5 +192,9 @@ public class OrderServiceImpl implements OrderService {
         if (userName == null || userName.isBlank()) {
             throw new NotAuthorizedUserException("Имя пользователя не должно быть пустым");
         }
+    }
+    private Order getOrderById(UUID orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new NoOrderFoundException("Заказ не найден id" + orderId));
     }
 }

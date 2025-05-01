@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.exception.DeliveryServiceException;
 import ru.yandex.practicum.exception.NotAuthorizedUserException;
+import ru.yandex.practicum.exception.OrderServiceException;
 import ru.yandex.practicum.exception.PaymentServiceException;
 
 import java.util.Arrays;
@@ -48,7 +49,8 @@ public class BaseErrorHandler {
 
     @ExceptionHandler({NotAuthorizedUserException.class,
             DeliveryServiceException.class,
-            PaymentServiceException.class})
+            PaymentServiceException.class,
+            OrderServiceException.class})
     public ResponseEntity<ErrorResponse> handleNotAuthorizedException(RuntimeException ex) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         String errorUserMessage = getUserFriendlyMessage(ex);
@@ -68,6 +70,7 @@ public class BaseErrorHandler {
                     "Пользователь не авторизован, поле имя некорректно";
             case DeliveryServiceException deliveryServiceException -> "Ошибка при работе с сервисом склада";
             case PaymentServiceException paymentServiceException -> "Ошибка при работе с сервисом оплаты";
+            case OrderServiceException orderServiceException -> "Ошибка при работе с сервисом заказов";
             case null, default -> "Произошла непредвиденная ошибка";
         };
     }
