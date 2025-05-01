@@ -16,6 +16,7 @@ import ru.yandex.practicum.cart.dto.ShoppingCartDto;
 import ru.yandex.practicum.service.WarehouseService;
 import ru.yandex.practicum.warehouse.dto.AddProductToWarehouseRequest;
 import ru.yandex.practicum.general_dto.AddressDto;
+import ru.yandex.practicum.warehouse.dto.AssemblyProductsForOrderRequest;
 import ru.yandex.practicum.warehouse.dto.BookedProductsDto;
 import ru.yandex.practicum.warehouse.dto.WarehouseProductDto;
 
@@ -51,5 +52,11 @@ public class WarehouseController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(warehouseService.getAddress());
+    }
+    @PostMapping("/assembly")
+    public ResponseEntity<BookedProductsDto> prepareOrderItemsForShipment(@RequestBody @Valid AssemblyProductsForOrderRequest request) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(warehouseService.prepareOrderItemsForShipment(request));
     }
 }

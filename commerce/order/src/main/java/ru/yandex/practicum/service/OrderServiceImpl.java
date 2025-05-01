@@ -64,9 +64,9 @@ public class OrderServiceImpl implements OrderService {
         log.info("Отправка корзины для проверки на склад");
         BookedProductsDto bookedProductsDto;
         try {
-            bookedProductsDto = Optional.ofNullable(
-                    warehouseServiceClient.checkShoppingCart(request.getShoppingCartDto()).getBody()
-            ).orElseThrow(() -> new WarehouseServiceReturnedNullException("Не удалось получить информацию о забронированных товарах"));
+//            bookedProductsDto = Optional.ofNullable(
+//                    warehouseServiceClient.checkShoppingCart(request.getShoppingCartDto()).getBody()
+//            ).orElseThrow(() -> new WarehouseServiceReturnedNullException("Не удалось получить информацию о забронированных товарах"));
         } catch (FeignException.FeignClientException.BadRequest ex) {
             log.error("Сервис склада вернул 400");
             throw new WarehouseServiceReturnedNullException("Ошибка при проверке корзины на складе");
