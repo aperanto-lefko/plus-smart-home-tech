@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.cart.dto.ShoppingCartDto;
+import ru.yandex.practicum.exception.OrderBookingNoFoundException;
 import ru.yandex.practicum.exception.ProductInShoppingCartLowQuantityInWarehouse;
 import ru.yandex.practicum.exception.SpecifiedProductAlreadyInWarehouseException;
 import ru.yandex.practicum.exception.WarehouseProductNotFoundException;
@@ -24,6 +25,7 @@ import ru.yandex.practicum.warehouse.dto.AddProductToWarehouseRequest;
 import ru.yandex.practicum.general_dto.AddressDto;
 import ru.yandex.practicum.warehouse.dto.AssemblyProductsForOrderRequest;
 import ru.yandex.practicum.warehouse.dto.BookedProductsDto;
+import ru.yandex.practicum.warehouse.dto.ShippedToDeliveryRequest;
 import ru.yandex.practicum.warehouse.dto.WarehouseProductDto;
 
 import java.security.SecureRandom;
@@ -131,6 +133,18 @@ public class WarehouseServiceImpl implements WarehouseService {
         }
         log.info("Сохранение обновленного списка товаров {}", items);
         warehouseItemRepository.saveAll(items);
+    }
+
+    @Override
+    @Transactional
+    public void sendProductsToDelivery(ShippedToDeliveryRequest request) {
+        log.info("Оформление товаров в доставку");
+        UUID orderId = request.getOrderId();
+        OrderBooking orderBooking = warehouseOrderBookingRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new OrderBookingNoFoundException("Запись orderBooking отсутствует на складе для заказа с id " + orderId));
+        orderBooking.setDeliveryId(request.getDeliveryId());
+        log.info("Сохранение обновленного orderBooking в базу {}", orderBooking);
+        warehouseOrderBookingRepository.save(orderBooking);
     }
 
 

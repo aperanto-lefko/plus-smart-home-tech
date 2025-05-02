@@ -51,7 +51,7 @@ public class BaseErrorHandler {
             DeliveryServiceException.class,
             PaymentServiceException.class,
             OrderServiceException.class})
-    public ResponseEntity<ErrorResponse> handleNotAuthorizedException(RuntimeException ex) {
+    public ResponseEntity<ErrorResponse> handleBusinessExceptions(RuntimeException ex) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         String errorUserMessage = getUserFriendlyMessage(ex);
         logging(errorUserMessage, ex);

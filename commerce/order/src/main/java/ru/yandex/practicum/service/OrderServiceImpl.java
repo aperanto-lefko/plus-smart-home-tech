@@ -127,7 +127,6 @@ public class OrderServiceImpl implements OrderService {
     }
 
 
-
     @Override
     @Transactional
     public OrderDto paymentOrder(UUID orderId) {
@@ -148,8 +147,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public OrderDto deliveryOrder(UUID orderId) {
-        return null;
+        log.info("Оформление доставки для заказа с id {}", orderId);
+        Order order = getOrderById(orderId);
+        order.setState(OrderState.ASSEMBLED);
+        log.info("Сохранение заказа со статусом ASSEMBLED {}", order);
+        return orderMapper.toDto(orderRepository.save(order));
     }
 
     @Override
@@ -193,6 +197,7 @@ public class OrderServiceImpl implements OrderService {
             throw new NotAuthorizedUserException("Имя пользователя не должно быть пустым");
         }
     }
+
     private Order getOrderById(UUID orderId) {
         return orderRepository.findById(orderId)
                 .orElseThrow(() -> new NoOrderFoundException("Заказ не найден id" + orderId));

@@ -70,11 +70,11 @@ public class WarehouseController {
                 .status(HttpStatus.OK)
                 .build();
     }
-//    @PostMapping("/shipped")
-//    public ResponseEntity<Void> sendProductsToDelivery(@RequestBody @Valid ShippedToDeliveryRequest request) {
-//        warehouseService.sendProductsToDelivery(request);
-//        return ResponseEntity
-//                .status(HttpStatus.OK)
-//                .build();
-//    }
+    @PostMapping("/shipped")
+    public ResponseEntity<Void> sendProductsToDelivery(@RequestBody @Valid ShippedToDeliveryRequest request) {
+        warehouseService.sendProductsToDelivery(request);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .build();
+    }
 }

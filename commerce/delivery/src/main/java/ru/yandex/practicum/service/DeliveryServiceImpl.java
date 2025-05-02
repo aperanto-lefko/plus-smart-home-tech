@@ -7,12 +7,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.delivery.dto.DeliveryDto;
+import ru.yandex.practicum.delivery.enums.DeliveryState;
 import ru.yandex.practicum.exception.NoDeliveryFoundException;
 import ru.yandex.practicum.mapper.DeliveryMapper;
 import ru.yandex.practicum.model.Address;
 import ru.yandex.practicum.model.Delivery;
 import ru.yandex.practicum.order.dto.OrderDto;
+import ru.yandex.practicum.order.feign.OrderServiceClient;
 import ru.yandex.practicum.repository.DeliveryRepository;
+import ru.yandex.practicum.warehouse.dto.ShippedToDeliveryRequest;
+import ru.yandex.practicum.warehouse.feign.WarehouseServiceClient;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -24,6 +28,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class DeliveryServiceImpl implements DeliveryService {
+    OrderServiceClient orderServiceClient;
+    WarehouseServiceClient warehouseServiceClient;
     DeliveryRepository deliveryRepository;
     DeliveryMapper deliveryMapper;
     BigDecimal BASE_RATE = BigDecimal.valueOf(5.0);
@@ -43,7 +49,21 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @Override
+    @Transactional
     public void pickupOrderForDelivery(UUID orderId) {
+        log.info("Оформление заказа {} в доставку", orderId);
+        Delivery delivery = deliveryRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new NoDeliveryFoundException("Доставка с orderId " + orderId + " не найдена"));
+        delivery.setDeliveryState(DeliveryState.IN_PROGRESS);
+        log.info("Вызов сервиса заказов для оформления товаров в доставку {}", delivery);
+        orderServiceClient.deliveryOrder(orderId);
+        log.info("Вызов сервиса склада для оформления доставки {}", delivery);
+        warehouseServiceClient.sendProductsToDelivery(ShippedToDeliveryRequest.builder()
+                .orderId(orderId)
+                .deliveryId(delivery.getDeliveryId())
+                .build());
+        log.info("Сохранение доставки в базу данных {}", delivery);
+        deliveryRepository.save(delivery);
     }
 
     @Override
@@ -55,16 +75,16 @@ public class DeliveryServiceImpl implements DeliveryService {
     public BigDecimal calculateTotalCostDelivery(OrderDto orderDto) {
         UUID deliveryId = orderDto.getDeliveryId();
         Delivery delivery = deliveryRepository.findById(deliveryId)
-                .orElseThrow(()-> new NoDeliveryFoundException("Доставка с id " + deliveryId + " не найдена"));
+                .orElseThrow(() -> new NoDeliveryFoundException("Доставка с id " + deliveryId + " не найдена"));
         Address fromAddress = delivery.getFromAddress();
         Address toAddress = delivery.getToAddress();
         BigDecimal cost = BASE_RATE;
-        if(fromAddress.getStreet().contains("ADDRESS_1")) {
+        if (fromAddress.getStreet().contains("ADDRESS_1")) {
             cost.multiply(BigDecimal.valueOf(1));
         } else if (fromAddress.getStreet().contains("ADDRESS_2")) {
             cost.multiply(BigDecimal.valueOf(2)).add(BASE_RATE);
         }
-        if(orderDto.isFragile()) {
+        if (orderDto.isFragile()) {
             BigDecimal fragileFee = cost.multiply(BigDecimal.valueOf(0.2));
             cost.add(fragileFee);
         }

@@ -33,6 +33,8 @@ public class OrderBooking {
     Map<UUID, Integer> products;
     @Column(name = "order_id")
     UUID orderId;
+    @Column(name = "delivery_id")
+    UUID deliveryId;
     @Column(name = "fragile")
     private boolean fragile;
     @Column(name = "delivery_volume")

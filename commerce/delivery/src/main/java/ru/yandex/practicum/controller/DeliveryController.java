@@ -37,13 +37,13 @@ public class DeliveryController {
 //                .status(HttpStatus.OK)
 //                .build();
 //    }
-//    @PostMapping("/picked")
-//    public ResponseEntity<Void> pickupOrderForDelivery(@RequestBody UUID orderId) {
-//        deliveryService.pickupOrderForDelivery(orderId);
-//        return ResponseEntity
-//                .status(HttpStatus.OK)
-//                .build();
-//    }
+    @PostMapping("/picked")
+    public ResponseEntity<Void> pickupOrderForDelivery(@RequestBody UUID orderId) {
+        deliveryService.pickupOrderForDelivery(orderId);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .build();
+    }
 //    @PostMapping("/failed")
 //    public ResponseEntity<Void> failDelivery(@RequestBody UUID orderId) {
 //        deliveryService.failDelivery(orderId);
