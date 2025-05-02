@@ -26,6 +26,7 @@ import ru.yandex.practicum.order.enums.OrderState;
 import ru.yandex.practicum.payment.dto.PaymentDto;
 import ru.yandex.practicum.payment.feign.PaymentServiceClient;
 import ru.yandex.practicum.repository.OrderRepository;
+import ru.yandex.practicum.warehouse.dto.AssemblyProductsForOrderRequest;
 import ru.yandex.practicum.warehouse.dto.BookedProductsDto;
 import ru.yandex.practicum.warehouse.feign.WarehouseServiceClient;
 
@@ -96,10 +97,7 @@ public class OrderServiceImpl implements OrderService {
 
         log.info("Доставка успешно создана с id {}", savedDeliveryDto.getDeliveryId());
         order.setDeliveryId(savedDeliveryDto.getDeliveryId());
-        log.info("Отправка в сервис доставки для расчета стоимости доставки для заказа id {}", order.getOrderId());
-        BigDecimal deliveryPrice = Optional.ofNullable(deliveryServiceClient.calculateTotalCostDelivery(orderMapper.toDto(order)).getBody())
-                .orElseThrow(() -> new DeliveryServiceReturnedNullException("Не удалось получить стоимость доставки"));
-        order.setDeliveryPrice(deliveryPrice);
+        order.setDeliveryPrice(getDeliveryCostForOrder(order));
         log.info("Отправка в сервис платежей на расчет стоимости товаров");
         BigDecimal productsPrice = Optional.ofNullable(paymentServiceClient.calculateProductCost(orderMapper.toDto(order)).getBody())
                 .orElseThrow(() -> new PaymentServiceReturnedNullException("Не удалось получить стоимость товаров"));
@@ -149,46 +147,86 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderDto deliveryOrder(UUID orderId) {
-        log.info("Оформление доставки для заказа с id {}", orderId);
+        log.info("Оформление успешной доставки для заказа с id {}", orderId);
         Order order = getOrderById(orderId);
+        order.setState(OrderState.DELIVERED);
+        log.info("Сохранение заказа со статусом DELIVERED {}", order);
+        return orderMapper.toDto(orderRepository.save(order));
+    }
+
+    @Override
+    public OrderDto deliveryOrderFailed(UUID orderId) {
+        log.info("Оформление неудачной доставки для заказа с id {}", orderId);
+        Order order = getOrderById(orderId);
+        order.setState(OrderState.DELIVERY_FAILED);
+        log.info("Сохранение заказа со статусом DELIVERY_FAILED {}", order);
+        return orderMapper.toDto(orderRepository.save(order));
+    }
+
+    @Override
+    @Transactional
+    public OrderDto completeOrder(UUID orderId) {
+        log.info("Оформление завершения заказа с id {}", orderId);
+        Order order = getOrderById(orderId);
+        order.setState(OrderState.COMPLETED);
+        log.info("Сохранение заказа со статусом COMPLETED {}", order);
+        return orderMapper.toDto(orderRepository.save(order));
+    }
+
+    @Override
+    @Transactional
+    public OrderDto calculateTotalOrderCost(UUID orderId) {
+        log.info("Расчет общей стоимости заказа с id {}", orderId);
+        Order order = getOrderById(orderId);
+
+        if (order.getTotalPrice() == null) {
+            log.info("Отправка в сервис платежей на расчет стоимости заказа");
+            BigDecimal totalCost = Optional.ofNullable(paymentServiceClient.calculateTotalCost(orderMapper.toDto(order)).getBody())
+                    .orElseThrow(() -> new PaymentServiceReturnedNullException("Не удалось получить стоимость заказа"));
+            order.setTotalPrice(totalCost);
+        }
+        log.info("Сохранение заказа с новым totalCost {}", order);
+        return orderMapper.toDto(orderRepository.save(order));
+    }
+
+    @Override
+    @Transactional
+    public OrderDto calculateDeliveryOrderCost(UUID orderId) {
+        log.info("Расчет стоимости доставки заказа с id {}", orderId);
+        Order order = getOrderById(orderId);
+        if (order.getDeliveryPrice() == null) {
+            BigDecimal deliverCost = getDeliveryCostForOrder(order);
+            order.setDeliveryPrice(deliverCost);
+        }
+        log.info("Сохранение заказа с новым deliveryCost {}", order);
+        return orderMapper.toDto(orderRepository.save(order));
+    }
+
+    @Override
+    @Transactional
+    public OrderDto assemblyOrder(UUID orderId) {
+        log.info("Сборка товаров для заказа с id {}", orderId);
+        Order order = getOrderById(orderId);
+        log.info("Отправка заказа в сервис склада для сборки товаров для заказа {}", order);
+        warehouseServiceClient.prepareOrderItemsForShipment(
+                AssemblyProductsForOrderRequest.builder()
+                        .orderId(orderId)
+                        .products(order.getProducts())
+                        .build()
+        );
         order.setState(OrderState.ASSEMBLED);
         log.info("Сохранение заказа со статусом ASSEMBLED {}", order);
         return orderMapper.toDto(orderRepository.save(order));
     }
 
     @Override
-    public OrderDto deliveryOrderFailed(UUID orderId) {
-        return null;
-    }
-
-    @Override
-    @Transactional
-    public OrderDto completeOrder(UUID orderId) {
-        return null;
-    }
-
-    @Override
-    @Transactional
-    public OrderDto calculateTotalOrderCost(UUID orderId) {
-        return null;
-    }
-
-    @Override
-    @Transactional
-    public OrderDto calculateDeliveryOrderCost(UUID orderId) {
-        return null;
-    }
-
-    @Override
-    @Transactional
-    public OrderDto assemblyOrder(UUID orderId) {
-        return null;
-    }
-
-    @Override
     @Transactional
     public OrderDto assemblyOrderFailed(UUID orderId) {
-        return null;
+        log.info("Оформление неудачной сборки для заказа с id {}", orderId);
+        Order order = getOrderById(orderId);
+        order.setState(OrderState.ASSEMBLY_FAILED);
+        log.info("Сохранение заказа со статусом ASSEMBLY_FAILED {}", order);
+        return orderMapper.toDto(orderRepository.save(order));
     }
 
     private void validateUser(String userName) {
@@ -201,5 +239,11 @@ public class OrderServiceImpl implements OrderService {
     private Order getOrderById(UUID orderId) {
         return orderRepository.findById(orderId)
                 .orElseThrow(() -> new NoOrderFoundException("Заказ не найден id" + orderId));
+    }
+
+    private BigDecimal getDeliveryCostForOrder(Order order) {
+        log.info("Отправка в сервис доставки для расчета стоимости доставки для заказа id {}", order.getOrderId());
+        return Optional.ofNullable(deliveryServiceClient.calculateTotalCostDelivery(orderMapper.toDto(order)).getBody())
+                .orElseThrow(() -> new DeliveryServiceReturnedNullException("Не удалось получить стоимость доставки"));
     }
 }

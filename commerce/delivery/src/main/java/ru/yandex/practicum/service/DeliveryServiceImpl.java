@@ -44,19 +44,23 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @Override
+    @Transactional
     public void completeDelivery(UUID orderId) {
-
+        log.info("Подтверждение успешной доставки для orderId {}", orderId);
+        Delivery delivery = getDeliveryByOrderId(orderId);
+        delivery.setDeliveryState(DeliveryState.DELIVERED);
+        log.info("Вызов сервиса заказов для оформления успешной доставки {}", delivery);
+        orderServiceClient.deliveryOrder(orderId);
+        log.info("Сохранение доставки в базу данных {}", delivery);
+        deliveryRepository.save(delivery);
     }
 
     @Override
     @Transactional
     public void pickupOrderForDelivery(UUID orderId) {
         log.info("Оформление заказа {} в доставку", orderId);
-        Delivery delivery = deliveryRepository.findByOrderId(orderId)
-                .orElseThrow(() -> new NoDeliveryFoundException("Доставка с orderId " + orderId + " не найдена"));
+        Delivery delivery = getDeliveryByOrderId(orderId);
         delivery.setDeliveryState(DeliveryState.IN_PROGRESS);
-        log.info("Вызов сервиса заказов для оформления товаров в доставку {}", delivery);
-        orderServiceClient.deliveryOrder(orderId);
         log.info("Вызов сервиса склада для оформления доставки {}", delivery);
         warehouseServiceClient.sendProductsToDelivery(ShippedToDeliveryRequest.builder()
                 .orderId(orderId)
@@ -66,9 +70,16 @@ public class DeliveryServiceImpl implements DeliveryService {
         deliveryRepository.save(delivery);
     }
 
+
     @Override
     public void failDelivery(UUID orderId) {
-
+        log.info("Оформление неудачной доставки для заказа {}", orderId);
+        Delivery delivery = getDeliveryByOrderId(orderId);
+        delivery.setDeliveryState(DeliveryState.FAILED);
+        log.info("Вызов сервиса заказов для оформления неудачной доставки {}", delivery);
+        orderServiceClient.deliveryOrderFailed(orderId);
+        log.info("Сохранение доставки в базу данных {}", delivery);
+        deliveryRepository.save(delivery);
     }
 
     @Override
@@ -104,5 +115,10 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         return cost.setScale(2, RoundingMode.HALF_UP); // округление до копеек
 
+    }
+
+    private Delivery getDeliveryByOrderId(UUID orderId) {
+        return deliveryRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new NoDeliveryFoundException("Доставка с orderId " + orderId + " не найдена"));
     }
 }

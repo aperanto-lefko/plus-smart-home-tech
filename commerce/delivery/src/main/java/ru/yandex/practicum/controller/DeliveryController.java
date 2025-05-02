@@ -30,13 +30,13 @@ public class DeliveryController {
                 .status(HttpStatus.OK)
                 .body(deliveryService.createDelivery(deliveryDto));
     }
-//    @PostMapping("/successful")
-//    public ResponseEntity<Void> completeDelivery(@RequestBody UUID orderId) {
-//        deliveryService.completeDelivery(orderId);
-//        return ResponseEntity
-//                .status(HttpStatus.OK)
-//                .build();
-//    }
+    @PostMapping("/successful")
+    public ResponseEntity<Void> completeDelivery(@RequestBody UUID orderId) {
+        deliveryService.completeDelivery(orderId);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .build();
+    }
     @PostMapping("/picked")
     public ResponseEntity<Void> pickupOrderForDelivery(@RequestBody UUID orderId) {
         deliveryService.pickupOrderForDelivery(orderId);
@@ -44,13 +44,13 @@ public class DeliveryController {
                 .status(HttpStatus.OK)
                 .build();
     }
-//    @PostMapping("/failed")
-//    public ResponseEntity<Void> failDelivery(@RequestBody UUID orderId) {
-//        deliveryService.failDelivery(orderId);
-//        return ResponseEntity
-//                .status(HttpStatus.OK)
-//                .build();
-//    }
+    @PostMapping("/failed")
+    public ResponseEntity<Void> failDelivery(@RequestBody UUID orderId) {
+        deliveryService.failDelivery(orderId);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .build();
+    }
     @PostMapping("/cost")
     public ResponseEntity<BigDecimal> calculateTotalCostDelivery(@Valid @RequestBody OrderDto orderDto) {
         return ResponseEntity

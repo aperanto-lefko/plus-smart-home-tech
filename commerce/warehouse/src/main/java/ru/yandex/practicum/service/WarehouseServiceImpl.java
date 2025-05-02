@@ -18,6 +18,7 @@ import ru.yandex.practicum.model.Dimension;
 import ru.yandex.practicum.model.OrderBooking;
 import ru.yandex.practicum.model.WarehouseItem;
 import ru.yandex.practicum.model.WarehouseProduct;
+import ru.yandex.practicum.order.feign.OrderServiceClient;
 import ru.yandex.practicum.repository.WarehouseItemRepository;
 import ru.yandex.practicum.repository.WarehouseOrderBookingRepository;
 import ru.yandex.practicum.repository.WarehouseProductRepository;
@@ -45,6 +46,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     WarehouseItemRepository warehouseItemRepository;
     WarehouseOrderBookingRepository warehouseOrderBookingRepository;
     WarehouseProductMapper warehouseProductMapper;
+    OrderServiceClient orderServiceClient;
 
     AddressMapper addressMapper;
     static final String[] ADDRESSES = new String[]{"ADDRESS_1", "ADDRESS_2"};
@@ -103,16 +105,22 @@ public class WarehouseServiceImpl implements WarehouseService {
     public BookedProductsDto prepareOrderItemsForShipment(AssemblyProductsForOrderRequest request) {
         log.info("Подготовка товаров для заказа");
         Map<UUID, Integer> reservedProducts = request.getProducts();
-        BookedProductsDto bookedProductsDto = checkProductsList(reservedProducts);
-        OrderBooking orderBooking = OrderBooking.builder()
-                .orderId(request.getOrderId())
-                .products(reservedProducts)
-                .deliveryVolume(bookedProductsDto.getDeliveryVolume())
-                .deliveryWeight(bookedProductsDto.getDeliveryWeight())
-                .fragile(bookedProductsDto.isFragile())
-                .build();
-        warehouseOrderBookingRepository.save(orderBooking);
-        return bookedProductsDto;
+        try {
+            BookedProductsDto bookedProductsDto = checkProductsList(reservedProducts);
+            OrderBooking orderBooking = OrderBooking.builder()
+                    .orderId(request.getOrderId())
+                    .products(reservedProducts)
+                    .deliveryVolume(bookedProductsDto.getDeliveryVolume())
+                    .deliveryWeight(bookedProductsDto.getDeliveryWeight())
+                    .fragile(bookedProductsDto.isFragile())
+                    .build();
+            warehouseOrderBookingRepository.save(orderBooking);
+            return bookedProductsDto;
+        } catch (WarehouseProductNotFoundException | ProductInShoppingCartLowQuantityInWarehouse ex) {
+            log.info("Отправление информации на сервис заказов о неудачной сборке заказа");
+            orderServiceClient.deliveryOrderFailed(request.getOrderId());
+            throw ex;
+        }
     }
 
     @Override
