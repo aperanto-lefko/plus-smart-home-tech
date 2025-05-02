@@ -6,8 +6,8 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class DeliveryFeignConfig {
-    @Bean
-    public ErrorDecoder errorDecoder() {
+    @Bean(name = "deliveryErrorDecoder")
+    public ErrorDecoder deliveryErrorDecoder() {
         return new DeliveryFeignErrorDecoder();
     }
 }

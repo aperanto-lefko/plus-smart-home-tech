@@ -6,8 +6,8 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class OrderFeignConfig {
-    @Bean
-    public ErrorDecoder errorDecoder() {
+    @Bean(name = "orderErrorDecoder")
+    public ErrorDecoder orderErrorDecoder() {
         return new OrderFeignErrorDecoder();
     }
 }

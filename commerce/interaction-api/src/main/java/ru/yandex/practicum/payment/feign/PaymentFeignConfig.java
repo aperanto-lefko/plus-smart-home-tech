@@ -7,8 +7,8 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class PaymentFeignConfig {
-    @Bean
-    public ErrorDecoder errorDecoder() {
+    @Bean(name = "paymentErrorDecoder")
+    public ErrorDecoder paymentErrorDecoder() {
         return new PaymentFeignErrorDecoder();
     }
 }

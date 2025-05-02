@@ -178,7 +178,6 @@ public class OrderServiceImpl implements OrderService {
     public OrderDto calculateTotalOrderCost(UUID orderId) {
         log.info("Расчет общей стоимости заказа с id {}", orderId);
         Order order = getOrderById(orderId);
-
         if (order.getTotalPrice() == null) {
             log.info("Отправка в сервис платежей на расчет стоимости заказа");
             BigDecimal totalCost = Optional.ofNullable(paymentServiceClient.calculateTotalCost(orderMapper.toDto(order)).getBody())
