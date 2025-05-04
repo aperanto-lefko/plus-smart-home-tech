@@ -1,4 +1,4 @@
-package ru.yandex.practicum.warehouse.dto;
+package ru.yandex.practicum.general_dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;

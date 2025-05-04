@@ -22,6 +22,8 @@ import ru.yandex.practicum.store.dto.UpdateQtyStateDto;
 import ru.yandex.practicum.store.enums.ProductCategory;
 import ru.yandex.practicum.store.dto.PageableDto;
 
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @RestController
@@ -73,5 +75,11 @@ public ResponseEntity<Page<ProductDto>> getProducts(
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(productService.getProductDtoById(productId));
+    }
+    @PostMapping("/products/by-ids")
+    public ResponseEntity<List<ProductDto>> getProductsByIds(@RequestBody Set<UUID> productIds) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(productService.getProductsDtoByIds(productIds));
     }
 }
