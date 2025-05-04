@@ -13,19 +13,7 @@ import ru.yandex.practicum.exception.WarehouseServiceException;
 @RestControllerAdvice
 @Slf4j
 public class ErrorHandler extends BaseErrorHandler{
-    @ExceptionHandler(NotAuthorizedUserException.class)
-    public ResponseEntity<ErrorResponse> handleNotAuthorizedException(NotAuthorizedUserException ex) {
-        HttpStatus status = HttpStatus.BAD_REQUEST;
-        String errorUserMessage = "Пользователь не авторизован, поле имя некорректно";
-        logging(errorUserMessage, ex);
-        return ResponseEntity
-                .status(status)
-                .body(createErrorResponse(
-                        status,
-                        errorUserMessage,
-                        ex
-                ));
-    }
+
     @ExceptionHandler(CartNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleCartNotFoundException(CartNotFoundException ex) {
         HttpStatus status = HttpStatus.BAD_REQUEST;

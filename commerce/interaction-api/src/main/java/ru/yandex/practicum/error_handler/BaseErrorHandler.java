@@ -6,10 +6,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.yandex.practicum.exception.DeliveryServiceException;
+import ru.yandex.practicum.exception.NotAuthorizedUserException;
+import ru.yandex.practicum.exception.OrderServiceException;
+import ru.yandex.practicum.exception.PaymentServiceException;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
 @RestControllerAdvice
 @Slf4j
 public class BaseErrorHandler {
@@ -41,9 +46,38 @@ public class BaseErrorHandler {
                         ex
                 ));
     }
+
+    @ExceptionHandler({NotAuthorizedUserException.class,
+            DeliveryServiceException.class,
+            PaymentServiceException.class,
+            OrderServiceException.class})
+    public ResponseEntity<ErrorResponse> handleBusinessExceptions(RuntimeException ex) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        String errorUserMessage = getUserFriendlyMessage(ex);
+        logging(errorUserMessage, ex);
+        return ResponseEntity
+                .status(status)
+                .body(createErrorResponse(
+                        status,
+                        errorUserMessage,
+                        ex
+                ));
+    }
+
+    private String getUserFriendlyMessage(Exception ex) {
+        return switch (ex) {
+            case NotAuthorizedUserException notAuthorizedUserException ->
+                    "Пользователь не авторизован, поле имя некорректно";
+            case DeliveryServiceException deliveryServiceException -> "Ошибка при работе с сервисом склада";
+            case PaymentServiceException paymentServiceException -> "Ошибка при работе с сервисом оплаты";
+            case OrderServiceException orderServiceException -> "Ошибка при работе с сервисом заказов";
+            case null, default -> "Произошла непредвиденная ошибка";
+        };
+    }
+
     protected ErrorResponse createErrorResponse(HttpStatus status,
-                                              String message,
-                                              Throwable ex) {
+                                                String message,
+                                                Throwable ex) {
         return new ErrorResponse(
                 ex.getCause(),
                 getSafeStackTrace(ex),
@@ -65,6 +99,7 @@ public class BaseErrorHandler {
                 Arrays.asList(ex.getSuppressed()) :
                 null;
     }
+
     protected void logging(String message, Throwable ex) {
         log.error(message, ex.getMessage(), ex);
     }

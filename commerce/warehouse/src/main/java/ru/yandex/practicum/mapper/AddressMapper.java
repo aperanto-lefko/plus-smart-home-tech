@@ -3,7 +3,7 @@ package ru.yandex.practicum.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import ru.yandex.practicum.model.Address;
-import ru.yandex.practicum.warehouse.dto.AddressDto;
+import ru.yandex.practicum.general_dto.AddressDto;
 
 @Mapper(componentModel = "spring")
 public interface AddressMapper {

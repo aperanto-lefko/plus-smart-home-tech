@@ -115,6 +115,48 @@ services:
       timeout: 5s
       interval: 5s
       retries: 10
+  payment-db:
+    image: postgres:16.1
+    container_name: payment-db
+    ports:
+      - "5439:5432"
+    environment:
+      - POSTGRES_DB=payment-db
+      - POSTGRES_USER=payment
+      - POSTGRES_PASSWORD=payment
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
+  delivery-db:
+    image: postgres:16.1
+    container_name: delivery-db
+    ports:
+      - "5440:5432"
+    environment:
+      - POSTGRES_DB=delivery-db
+      - POSTGRES_USER=delivery
+      - POSTGRES_PASSWORD=delivery
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
+  order-db:
+    image: postgres:16.1
+    container_name: order-db
+    ports:
+      - "5441:5432"
+    environment:
+      - POSTGRES_DB=order-db
+      - POSTGRES_USER=order
+      - POSTGRES_PASSWORD=order
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
   redis:
     image: redis:latest
     container_name: redis

@@ -1,14 +1,22 @@
 package ru.yandex.practicum.warehouse.feign;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.cart.dto.ShoppingCartDto;
 import ru.yandex.practicum.exception.ServiceUnavailableException;
 import ru.yandex.practicum.warehouse.dto.AddProductToWarehouseRequest;
-import ru.yandex.practicum.warehouse.dto.AddressDto;
+import ru.yandex.practicum.general_dto.AddressDto;
+import ru.yandex.practicum.warehouse.dto.AssemblyProductsForOrderRequest;
 import ru.yandex.practicum.warehouse.dto.BookedProductsDto;
+import ru.yandex.practicum.warehouse.dto.ShippedToDeliveryRequest;
 import ru.yandex.practicum.warehouse.dto.WarehouseProductDto;
+
+import java.util.Map;
+import java.util.UUID;
 
 @Component
 @Slf4j
@@ -34,6 +42,21 @@ public class WarehouseServiceFallback implements WarehouseServiceClient {
     @Override
     public ResponseEntity<AddressDto> getAddress() {
         log.warn("Активирован резервный вариант для getAddress");
+        throw new ServiceUnavailableException("Warehouse service недоступен");
+    }
+    @Override
+    public ResponseEntity<BookedProductsDto> prepareOrderItemsForShipment(AssemblyProductsForOrderRequest request) {
+        log.warn("Активирован резервный вариант для prepareOrderItemsForShipment");
+        throw new ServiceUnavailableException("Warehouse service недоступен");
+}
+    @Override
+    public ResponseEntity<Void> returnProductToWarehouse(Map<UUID, Integer> products) {
+        log.warn("Активирован резервный вариант для returnProductToWarehouse");
+        throw new ServiceUnavailableException("Warehouse service недоступен");
+    }
+    @Override
+    public ResponseEntity<Void> sendProductsToDelivery(ShippedToDeliveryRequest request) {
+        log.warn("Активирован резервный вариант для sendProductsToDelivery");
         throw new ServiceUnavailableException("Warehouse service недоступен");
     }
 }

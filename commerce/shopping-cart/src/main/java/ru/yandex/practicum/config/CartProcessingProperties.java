@@ -15,7 +15,7 @@ import org.springframework.validation.annotation.Validated;
 @Setter // Lombok
 @Validated
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CartProcessingProperties {
+public class CartProcessingProperties { //конфиг для количества попыток для retry
     @Min(1)
     int maxAttempts;
 }
