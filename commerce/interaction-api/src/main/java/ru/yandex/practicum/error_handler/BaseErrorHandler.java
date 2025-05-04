@@ -19,7 +19,7 @@ import java.util.List;
 @Slf4j
 public class BaseErrorHandler {
 
-    @ExceptionHandler({MethodArgumentNotValidException.class,})
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         String errorUserMessage = "Запрос составлен некорректно";
@@ -33,7 +33,7 @@ public class BaseErrorHandler {
                 ));
     }
 
-    @ExceptionHandler({Exception.class, RuntimeException.class})
+    @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         String errorUserMessage = "Внутренняя ошибка сервера";
